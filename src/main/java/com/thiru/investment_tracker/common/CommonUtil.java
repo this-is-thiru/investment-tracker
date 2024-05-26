@@ -1,9 +1,5 @@
 package com.thiru.investment_tracker.common;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.micrometer.common.util.StringUtils;
-import lombok.AllArgsConstructor;
-
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -11,6 +7,11 @@ import java.util.function.Function;
 import java.util.function.ToLongFunction;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.micrometer.common.util.StringUtils;
+import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class CommonUtil {

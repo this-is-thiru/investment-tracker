@@ -1,9 +1,9 @@
 package com.thiru.investment_tracker.common;
 
+import java.util.Date;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.util.Date;
 
 @Data
 @AllArgsConstructor(staticName = "from")

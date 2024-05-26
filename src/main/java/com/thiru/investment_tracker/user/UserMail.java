@@ -6,5 +6,5 @@ import lombok.Data;
 @AllArgsConstructor(staticName = "from")
 @Data
 public class UserMail {
-    private String email;
+	private String email;
 }

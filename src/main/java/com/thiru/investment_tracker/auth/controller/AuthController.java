@@ -1,10 +1,5 @@
 package com.thiru.investment_tracker.auth.controller;
 
-import com.thiru.investment_tracker.auth.model.LoginRequest;
-import com.thiru.investment_tracker.auth.model.LoginResponse;
-import com.thiru.investment_tracker.auth.model.RegistrationRequest;
-import com.thiru.investment_tracker.auth.service.AuthService;
-import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,6 +10,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.thiru.investment_tracker.auth.model.LoginRequest;
+import com.thiru.investment_tracker.auth.model.LoginResponse;
+import com.thiru.investment_tracker.auth.model.RegistrationRequest;
+import com.thiru.investment_tracker.auth.service.AuthService;
+
+import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 @RestController

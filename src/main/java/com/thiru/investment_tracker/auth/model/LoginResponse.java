@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor(staticName = "from")
 public class LoginResponse {
-    private String accessToken;
-    private final String tokenType = "Bearer";
+	private String accessToken;
+	private final String tokenType = "Bearer";
 }
