@@ -3,6 +3,7 @@ package com.thiru.investment_tracker.dto;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.thiru.investment_tracker.common.CommonUtil;
 import com.thiru.investment_tracker.common.Enums.AssetType;
 
 import lombok.Getter;
@@ -27,6 +28,6 @@ public class TransactionResponse {
 	private AssetType assetType;
 	private Date maturityDate;
 
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = CommonUtil.DATE_FORMAT)
 	private Date transactionDate;
 }

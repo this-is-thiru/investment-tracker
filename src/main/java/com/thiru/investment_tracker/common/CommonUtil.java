@@ -3,6 +3,7 @@ package com.thiru.investment_tracker.common;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
 import java.util.stream.LongStream;
@@ -15,6 +16,8 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class CommonUtil {
+
+    public static final String DATE_FORMAT = "dd-MM-yyyy";
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -45,6 +48,10 @@ public class CommonUtil {
     // Collections
     public static <T, R> List<R> map(Collection<T> source, Function<T, R> mapper) {
         return stream(source).map(mapper).toList();
+    }
+
+    public static <T, R> void mapAndApply(Collection<T> source, Function<T, R> mapper, Consumer<R> consumer) {
+        stream(source).map(mapper).forEach(consumer);
     }
 
     public static <T> List<T> flatMap(Collection<List<T>> source) {

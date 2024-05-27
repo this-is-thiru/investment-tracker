@@ -139,7 +139,7 @@ public class PortfolioService {
 		List<AssetResponse> responseEntities = CommonUtil.map(stockEntityMap.values(),
 				PortfolioService::combineAllDetailsOfEntities);
 
-		log.info("Fetching all stocks from portfolio");
+		log.info("Fetching portfolio stocks of {}", userMail.getEmail());
 		return responseEntities;
 	}
 
