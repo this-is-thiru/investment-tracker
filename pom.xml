@@ -65,6 +65,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>investment-tracker</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
