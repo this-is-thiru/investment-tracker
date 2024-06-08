@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checout@v4
+        uses: actions/checKout@v4
       - name: Login to Docker hub
         uses: docker/login-action@v1
         with:
