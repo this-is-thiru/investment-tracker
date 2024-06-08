@@ -27,31 +27,3 @@ jobs:
           dockerfile: Dockerfile
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Login to Docker hub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Set permissions for private key
-        run: |
-          echo "${{ secrets.AWS_PRIVATE_KEY }}" > key.pem
-          chmod 700 ./
-          chmod 600 key.pem
-      - name: Pull Docker image
-        run: |
-          ssh -o StrictHostKeyChecking=no -i key.pem root@ec2-13-50-213-153.eu-north-1.compute.amazonaws.com 'sudo docker pull tperamasani/investment-tracker:latest'
-      - name: Stop running container
-        run: |
-          ssh -o StrictHostKeyChecking=no -i key.pem root@ec2-13-50-213-153.eu-north-1.compute.amazonaws.com 'sudo docker stop investment-tracker || true'
-          ssh -o StrictHostKeyChecking=no -i key.pem root@ec2-13-50-213-153.eu-north-1.compute.amazonaws.com 'sudo docker rm investment-tracker || true'
-      - name: Run new container
-        run: |
-          ssh -o StrictHostKeyChecking=no -i key.pem root@ec2-13-50-213-153.eu-north-1.compute.amazonaws.com 'sudo docker run -d --name investment-tracker -p 80:8080 tperamasani/investment-tracker:latest'
