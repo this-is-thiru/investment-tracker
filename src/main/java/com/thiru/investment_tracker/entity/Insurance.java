@@ -15,7 +15,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@Document(value = "insurance")
+@Document(value = "insurances")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
