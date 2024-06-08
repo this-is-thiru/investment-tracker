@@ -3,7 +3,7 @@ name: Deploy Investment Tracker server to Elastic Beanstalk
 on:
   push:
     branches:
-      - deploy-to-bean-stalk
+      - master
 jobs:
   build:
     runs-on: ubuntu-latest
