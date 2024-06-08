@@ -8,20 +8,21 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.thiru.investment_tracker.common.AssetContext;
-import com.thiru.investment_tracker.common.ReportContext;
-import com.thiru.investment_tracker.exception.BadRequestException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.thiru.investment_tracker.common.AssetContext;
 import com.thiru.investment_tracker.common.CommonUtil;
 import com.thiru.investment_tracker.common.Enums.TransactionType;
 import com.thiru.investment_tracker.common.ProfitAndLossContext;
+import com.thiru.investment_tracker.common.ReportContext;
 import com.thiru.investment_tracker.dto.AssetRequest;
 import com.thiru.investment_tracker.dto.AssetResponse;
 import com.thiru.investment_tracker.dto.ProfitAndLossResponse;
 import com.thiru.investment_tracker.entity.Asset;
+import com.thiru.investment_tracker.exception.BadRequestException;
 import com.thiru.investment_tracker.operation.CriteriaBuilder;
 import com.thiru.investment_tracker.operation.Filter;
 import com.thiru.investment_tracker.repository.PortfolioRepository;
@@ -29,7 +30,6 @@ import com.thiru.investment_tracker.user.UserMail;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @AllArgsConstructor
@@ -44,6 +44,7 @@ public class PortfolioService {
 
 	private static final Set<String>  NOT_ALLOWED_FIELDS = Set.of("email");
 
+	@Transactional
 	public String addTransaction(UserMail userMail, AssetRequest assetRequest) {
 
 		if (assetRequest.getTransactionDate() == null) {
@@ -96,7 +97,6 @@ public class PortfolioService {
 		}
 	}
 
-	@Transactional
 	public void sellStock(UserMail userMail, AssetRequest assetRequest) {
 
 		String email = userMail.getEmail();
