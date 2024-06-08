@@ -1,17 +1,11 @@
 package com.thiru.investment_tracker.common;
 
-import java.util.Date;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-@Data
 @AllArgsConstructor(staticName = "from")
-public class ProfitAndLossContext {
-
-    private double purchasePrice;
-    private Date purchaseDate;
-    private double sellPrice;
-    private long sellQuantity;
-    private Date sellDate;
+@EqualsAndHashCode(callSuper = true)
+@Data
+public class ProfitAndLossContext extends AssetContext {
 }

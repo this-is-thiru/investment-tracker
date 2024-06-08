@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.ToLongFunction;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
@@ -48,6 +49,10 @@ public class CommonUtil {
     // Collections
     public static <T, R> List<R> map(Collection<T> source, Function<T, R> mapper) {
         return stream(source).map(mapper).toList();
+    }
+
+    public static <T> List<T> filter(Collection<T> source, Predicate<T> consumer) {
+        return stream(source).filter(consumer).toList();
     }
 
     public static <T, R> void mapAndApply(Collection<T> source, Function<T, R> mapper, Consumer<R> consumer) {

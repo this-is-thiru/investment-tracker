@@ -5,8 +5,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.thiru.investment_tracker.common.AssetContext;
+import com.thiru.investment_tracker.common.ReportContext;
+import com.thiru.investment_tracker.exception.BadRequestException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -25,6 +29,7 @@ import com.thiru.investment_tracker.user.UserMail;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @AllArgsConstructor
@@ -34,7 +39,10 @@ public class PortfolioService {
 	private final PortfolioRepository portfolioRepository;
 	private final TransactionService transactionService;
 	private final ProfitAndLossService profitAndLossService;
+	private final ReportService reportService;
 	private final MongoTemplate mongoTemplate;
+
+	private static final Set<String>  NOT_ALLOWED_FIELDS = Set.of("email");
 
 	public String addTransaction(UserMail userMail, AssetRequest assetRequest) {
 
@@ -56,6 +64,7 @@ public class PortfolioService {
 	public void buyStock(UserMail userMail, AssetRequest assetRequest) {
 
 		String email = userMail.getEmail();
+		assetRequest.setEmail(email);
 		String stockCode = assetRequest.getStockCode();
 		Date transactionDate = assetRequest.getTransactionDate();
 
@@ -87,6 +96,7 @@ public class PortfolioService {
 		}
 	}
 
+	@Transactional
 	public void sellStock(UserMail userMail, AssetRequest assetRequest) {
 
 		String email = userMail.getEmail();
@@ -190,42 +200,75 @@ public class PortfolioService {
 
 	private void updateQuantity(UserMail userMail, List<Asset> stockEntities, AssetRequest assetRequest) {
 
-		long quantity = assetRequest.getQuantity();
+		long sellQuantity = assetRequest.getQuantity();
 
 		Iterator<Asset> stockEntitiesIterator = stockEntities.iterator();
-		while (quantity > 0) {
+		while (sellQuantity > 0) {
 
 			Asset asset = stockEntitiesIterator.next();
+			Long assetQuantity = asset.getQuantity();
 
-			if (quantity >= asset.getQuantity()) {
+			ReportContext reportContext;
+			ProfitAndLossContext profitAndLossContext;
+
+			if (sellQuantity >= assetQuantity) {
 
 				asset.setQuantity(0L);
 				asset.setTotalValue(0);
 
-				ProfitAndLossContext context = toProfitAndLossContext(asset, assetRequest);
-				profitAndLossService.updateProfitAndLoss(userMail, context);
-				quantity = quantity - asset.getQuantity();
+				reportContext = toReportContext(asset, assetRequest, assetQuantity);
+				profitAndLossContext = toProfitAndLossContext(asset, assetRequest, assetQuantity);
+				sellQuantity = sellQuantity - assetQuantity;
 			} else {
 
-				long remainingQuantity = asset.getQuantity() - quantity;
+				long remainingQuantity = assetQuantity - sellQuantity;
 				asset.setQuantity(remainingQuantity);
 				asset.setTotalValue(remainingQuantity * asset.getPrice());
-				ProfitAndLossContext context = toProfitAndLossContext(asset, assetRequest);
-				profitAndLossService.updateProfitAndLoss(userMail, context);
-				quantity = 0;
+
+				reportContext = toReportContext(asset, assetRequest, sellQuantity);
+				profitAndLossContext = toProfitAndLossContext(asset, assetRequest, sellQuantity);
+				sellQuantity = 0;
 			}
+
+			reportService.stockReport(userMail, reportContext);
+			profitAndLossService.updateProfitAndLoss(userMail, profitAndLossContext);
 		}
 	}
 
-	private static ProfitAndLossContext toProfitAndLossContext(Asset asset, AssetRequest assetRequest) {
+	private static ProfitAndLossContext toProfitAndLossContext(Asset asset, AssetRequest assetRequest, long sellQuantity) {
 		double purchasePrice = asset.getPrice();
 		Date purchaseDate = asset.getTransactionDate();
 
 		double sellPrice = assetRequest.getPrice();
-		long sellQuantity = assetRequest.getQuantity();
 		Date sellDate = assetRequest.getTransactionDate();
 
-		return ProfitAndLossContext.from(purchasePrice, purchaseDate, sellPrice, sellQuantity, sellDate);
+		return (ProfitAndLossContext) AssetContext.from(purchasePrice, purchaseDate, sellPrice, sellQuantity, sellDate);
+
+	}
+
+	private static ReportContext toReportContext(Asset asset, AssetRequest assetRequest, long sellQuantity) {
+
+		ReportContext reportContext = ReportContext.empty();
+
+		// Adding asset details to ReportContext
+		reportContext.setStockCode(asset.getStockCode());
+		reportContext.setStockName(asset.getStockName());
+		reportContext.setExchangeName(asset.getExchangeName());
+		reportContext.setBrokerName(asset.getBrokerName());
+		reportContext.setTotalValue(asset.getTotalValue());
+		reportContext.setAssetType(asset.getAssetType());
+		reportContext.setPurchasePrice(asset.getPrice());
+		reportContext.setPurchaseDate(asset.getTransactionDate());
+
+
+		// Adding asset request details to ReportContext
+		reportContext.setActorName(assetRequest.getActorName());
+		reportContext.setSellPrice(assetRequest.getPrice());
+		reportContext.setSellDate(assetRequest.getTransactionDate());
+
+		// Adding sell quantity to ReportContext
+		reportContext.setSellQuantity(sellQuantity);
+		return reportContext;
 
 	}
 
@@ -234,6 +277,8 @@ public class PortfolioService {
 	}
 
 	public List<Asset> searchAssets(UserMail userMail, List<Filter> filters) {
+		validateFilters(filters);
+
 		addEmailToFilter(filters, userMail.getEmail());
 
 		Query query = new Query();
@@ -248,5 +293,16 @@ public class PortfolioService {
 		filter.setValue(email);
 		filter.setOperation(Filter.FilterOperation.EQUALS);
 		filters.add(filter);
+	}
+
+	private static void validateFilters(List<Filter> filters) {
+
+		List<Filter> invalidFilters = CommonUtil.filter(filters, a -> NOT_ALLOWED_FIELDS.contains(a.getFilterKey()));
+
+		List<String> invalidFieldsForFilter = CommonUtil.map(invalidFilters, Filter::getFilterKey);
+
+		if (!invalidFieldsForFilter.isEmpty()) {
+			throw new BadRequestException("These fields are not allowed for filtering: " + invalidFieldsForFilter);
+		}
 	}
 }
