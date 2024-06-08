@@ -28,12 +28,29 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Deploy to EB
-        uses: einaregilsson/beanstalk-deploy@v22
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checout@v4
+      - name: Login to Docker hub
+        uses: docker/login-action@v1
         with:
-          aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
-          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          application_name: 'investment-tracker'
-          environment_name: 'investment-tracker-env'
-          version_label: ${{ github.sha }}
-          region: eu-north-1
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Set permissions for private key
+        run: |
+          echo "${{ secrets.AWS_PRIVATE_KEY }}" > key.pem
+          chmod 600 key.pem
+      - name: Pull Docker image
+        run: |
+          ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@your-ec2-instance-ip 'sudo docker pull tperamasani/investment-tracker:latest'
+      - name: Stop running container
+        run: |
+          ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@your-ec2-instance-ip 'sudo docker stop investment-tracker || true'
+          ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@your-ec2-instance-ip 'sudo docker rm investment-tracker || true'
+      - name: Run new container
+        run: |
+          ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@your-ec2-instance-ip 'sudo docker run -d --name investment-tracker -p 80:8080 tperamasani/investment-tracker:latest'
