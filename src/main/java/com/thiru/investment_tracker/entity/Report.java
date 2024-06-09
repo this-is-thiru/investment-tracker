@@ -2,6 +2,7 @@ package com.thiru.investment_tracker.entity;
 
 import java.util.Date;
 
+import com.thiru.investment_tracker.common.enums.AssetType;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
@@ -10,7 +11,6 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thiru.investment_tracker.common.CommonUtil;
-import com.thiru.investment_tracker.common.Enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -55,7 +55,7 @@ public class Report {
     private double totalValue;
 
     @Field(name = "asset_type", targetType = FieldType.STRING)
-    private Enums.AssetType assetType;
+    private AssetType assetType;
 
     @Field("actor_name")
     private String actorName;

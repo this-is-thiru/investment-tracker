@@ -7,8 +7,8 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.thiru.investment_tracker.common.Enums.InsuranceType;
-import com.thiru.investment_tracker.common.Enums.PolicyType;
+import com.thiru.investment_tracker.common.enums.InsuranceType;
+import com.thiru.investment_tracker.common.enums.PolicyType;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
