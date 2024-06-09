@@ -1,5 +1,6 @@
 package com.thiru.investment_tracker.common;
 
+import com.thiru.investment_tracker.common.enums.AssetType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,6 +17,6 @@ public class ReportContext extends AssetContext {
     private String brokerName;
     private Long quantity;
     private double totalValue;
-    private Enums.AssetType assetType;
+    private AssetType assetType;
     private String actorName;
 }
