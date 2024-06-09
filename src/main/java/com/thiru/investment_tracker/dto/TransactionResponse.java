@@ -4,7 +4,7 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.thiru.investment_tracker.common.CommonUtil;
-import com.thiru.investment_tracker.common.Enums.AssetType;
+import com.thiru.investment_tracker.common.enums.AssetType;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -2,8 +2,8 @@ package com.thiru.investment_tracker.dto;
 
 import java.util.List;
 
-import com.thiru.investment_tracker.common.Enums.InsuranceType;
-import com.thiru.investment_tracker.common.Enums.PolicyType;
+import com.thiru.investment_tracker.common.enums.InsuranceType;
+import com.thiru.investment_tracker.common.enums.PolicyType;
 
 import lombok.Data;
 

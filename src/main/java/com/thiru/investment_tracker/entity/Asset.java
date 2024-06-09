@@ -2,7 +2,7 @@ package com.thiru.investment_tracker.entity;
 
 import java.util.Date;
 
-import com.thiru.investment_tracker.common.CommonUtil;
+import com.thiru.investment_tracker.common.enums.TransactionType;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
@@ -10,8 +10,8 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.thiru.investment_tracker.common.Enums.AssetType;
-import com.thiru.investment_tracker.common.Enums.TransactionType;
+import com.thiru.investment_tracker.common.CommonUtil;
+import com.thiru.investment_tracker.common.enums.AssetType;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
