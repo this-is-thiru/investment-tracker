@@ -1,5 +1,6 @@
 server:
   port: 8080
+
 spring:
   application:
     name: investment-tracker
@@ -7,3 +8,9 @@ spring:
     mongodb:
       uri: mongodb+srv://pthirumalayadav:g2sBWcz1MtxHi6wz@cluster0.x6trgen.mongodb.net/?retryWrites=true&w=majority
       database: Cluster0
+
+# RabbitMQ configuration
+  rabbitmq:
+    username: ejcdabas
+    password: GAP558hOcfxjgBiTSM2dFifoXYxt57Rx
+    addresses: amqps://ejcdabas:GAP558hOcfxjgBiTSM2dFifoXYxt57Rx@prawn-01.rmq.cloudamqp.com/ejcdabas
