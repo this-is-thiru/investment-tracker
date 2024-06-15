@@ -1,13 +1,8 @@
 package com.thiru.investment_tracker.operation;
 
-import com.thiru.investment_tracker.common.CommonUtil;
 import org.springframework.data.mongodb.core.query.Criteria;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import com.thiru.investment_tracker.common.parser.ParserUtil;
 
 public class CriteriaBuilder {
 
@@ -37,16 +32,7 @@ public class CriteriaBuilder {
 	private static void sanitize(Filter filter) {
 		if (filter.getIsDateField()) {
 			String value = (String) filter.getValue();
-			filter.setValue(convertToDate(value));
-		}
-	}
-
-	private static Date convertToDate(String date) {
-		DateFormat dateFormat = new SimpleDateFormat(CommonUtil.DATE_FORMAT);
-		try {
-			return dateFormat.parse(date);
-		} catch (ParseException e) {
-			throw new IllegalArgumentException(e);
+			filter.setValue(ParserUtil.convertToDate(value));
 		}
 	}
 }

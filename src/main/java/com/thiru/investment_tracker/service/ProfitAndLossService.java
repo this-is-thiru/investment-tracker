@@ -1,7 +1,7 @@
 package com.thiru.investment_tracker.service;
 
+import java.time.LocalDate;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -24,7 +24,8 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 public class ProfitAndLossService {
 
-	private static final int MARCH = Calendar.MARCH;
+	private static final int C_MARCH = Calendar.MARCH;
+	private static final int MARCH = 3;
 	private static final int DAY = 31;
 
 	private final ProfitAndLossRepository profitAndLossRepository;
@@ -81,36 +82,35 @@ public class ProfitAndLossService {
 	}
 
 	private static boolean isShortTermCapitalGain(ProfitAndLossContext profitAndLossContext) {
-		Calendar purchaseDate = toCalendar(profitAndLossContext.getPurchaseDate());
-		purchaseDate.roll(Calendar.YEAR, true);
-		Calendar sellDate = toCalendar(profitAndLossContext.getSellDate());
 
-		return sellDate.before(purchaseDate);
-	}
+		LocalDate purchaseDate = profitAndLossContext.getPurchaseDate();
+		LocalDate sellDate = profitAndLossContext.getSellDate();
 
-	private static String sanitizeFinancialYear(Date transactionMadeOn) {
+		LocalDate thresholdDate = purchaseDate.plusYears(1);
 
-		Calendar transactionDate = toCalendar(transactionMadeOn);
-		int transactionYear = transactionDate.get(Calendar.YEAR);
-		Calendar financialYearEnd = toCalendar(transactionYear);
+        return sellDate.isBefore(thresholdDate);
+    }
 
-		if (transactionDate.before(financialYearEnd)) {
+	private static String sanitizeFinancialYear(LocalDate transactionDate) {
+
+		int transactionYear = transactionDate.getYear();
+		LocalDate financialYearEnd = financialYearEnd(transactionYear);
+
+		if (transactionDate.isBefore(financialYearEnd)) {
 			return (transactionYear - 1) + "/" + transactionYear;
 		}
 
 		return transactionYear + "/" + (transactionYear + 1);
 	}
 
-	private static Calendar toCalendar(Date date) {
+	private static Calendar toCalendar(int year) {
 		Calendar cal = Calendar.getInstance();
-		cal.setTime(date);
+		cal.set(year, C_MARCH, DAY);
 		return cal;
 	}
 
-	private static Calendar toCalendar(int year) {
-		Calendar cal = Calendar.getInstance();
-		cal.set(year, MARCH, DAY);
-		return cal;
+	private static LocalDate financialYearEnd(int year) {
+        return LocalDate.of(year, MARCH, DAY);
 	}
 
 	public ProfitAndLossResponse getProfitAndLoss(UserMail userMail, String financialYear) {

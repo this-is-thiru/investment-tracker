@@ -1,6 +1,6 @@
 package com.thiru.investment_tracker.service;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -42,13 +42,13 @@ public class PortfolioService {
 	private final ReportService reportService;
 	private final MongoTemplate mongoTemplate;
 
-	private static final Set<String>  NOT_ALLOWED_FIELDS = Set.of("email");
+	private static final Set<String> NOT_ALLOWED_FIELDS = Set.of("email");
 
 	@Transactional
 	public String addTransaction(UserMail userMail, AssetRequest assetRequest) {
 
 		if (assetRequest.getTransactionDate() == null) {
-			assetRequest.setTransactionDate(new Date());
+			assetRequest.setTransactionDate(LocalDate.now());
 		}
 
 		if (assetRequest.getTransactionType() == TransactionType.BUY) {
@@ -67,7 +67,7 @@ public class PortfolioService {
 		String email = userMail.getEmail();
 		assetRequest.setEmail(email);
 		String stockCode = assetRequest.getStockCode();
-		Date transactionDate = assetRequest.getTransactionDate();
+		LocalDate transactionDate = assetRequest.getTransactionDate();
 
 		Optional<Asset> optionalStock = portfolioRepository.findByEmailAndStockCodeAndTransactionDate(email, stockCode,
 				transactionDate);
@@ -153,7 +153,7 @@ public class PortfolioService {
 		return responseEntities;
 	}
 
-	public List<AssetResponse> getStocksWithDateRange(UserMail userMail, Date startDate, Date endDate) {
+	public List<AssetResponse> getStocksWithDateRange(UserMail userMail, LocalDate startDate, LocalDate endDate) {
 
 		String email = userMail.getEmail();
 
@@ -173,8 +173,8 @@ public class PortfolioService {
 	 * on a given stock code.
 	 *
 	 * @param stockEntities
-	 *            a list of stock entities to search through* @return the response
-	 *            entity that matches the provided stock code
+	 * a list of stock entities to search through* @return the response
+	 * entity that matches the provided stock code
 	 */
 	private static AssetResponse combineAllDetailsOfEntities(List<Asset> stockEntities) {
 		AssetResponse assetResponse = CommonUtil.copy(stockEntities.getFirst(), AssetResponse.class);
@@ -235,12 +235,13 @@ public class PortfolioService {
 		}
 	}
 
-	private static ProfitAndLossContext toProfitAndLossContext(Asset asset, AssetRequest assetRequest, long sellQuantity) {
+	private static ProfitAndLossContext toProfitAndLossContext(Asset asset, AssetRequest assetRequest,
+			long sellQuantity) {
 		double purchasePrice = asset.getPrice();
-		Date purchaseDate = asset.getTransactionDate();
+		LocalDate purchaseDate = asset.getTransactionDate();
 
 		double sellPrice = assetRequest.getPrice();
-		Date sellDate = assetRequest.getTransactionDate();
+		LocalDate sellDate = assetRequest.getTransactionDate();
 
 		return (ProfitAndLossContext) AssetContext.from(purchasePrice, purchaseDate, sellPrice, sellQuantity, sellDate);
 
@@ -259,7 +260,6 @@ public class PortfolioService {
 		reportContext.setAssetType(asset.getAssetType());
 		reportContext.setPurchasePrice(asset.getPrice());
 		reportContext.setPurchaseDate(asset.getTransactionDate());
-
 
 		// Adding asset request details to ReportContext
 		reportContext.setActorName(assetRequest.getActorName());

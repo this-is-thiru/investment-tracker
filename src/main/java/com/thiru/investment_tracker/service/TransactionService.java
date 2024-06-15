@@ -1,6 +1,6 @@
 package com.thiru.investment_tracker.service;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ public class TransactionService {
 	public void addTransaction(AssetRequest assetRequest) {
 
 		if (assetRequest.getTransactionDate() == null) {
-			assetRequest.setTransactionDate(new Date());
+			assetRequest.setTransactionDate(LocalDate.now());
 		}
 		Transaction transaction = CommonUtil.copy(assetRequest, Transaction.class);
 		transaction.setTotalValue(transaction.getPrice() * transaction.getQuantity());
