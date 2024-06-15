@@ -22,6 +22,7 @@ import com.thiru.investment_tracker.dto.ProfitAndLossResponse;
 import com.thiru.investment_tracker.entity.Asset;
 import com.thiru.investment_tracker.entity.Transaction;
 import com.thiru.investment_tracker.service.PortfolioService;
+import com.thiru.investment_tracker.service.TemporaryService;
 import com.thiru.investment_tracker.service.TransactionService;
 import com.thiru.investment_tracker.user.UserMail;
 
@@ -35,6 +36,7 @@ public class PortfolioController {
 
 	private final PortfolioService portfolioService;
 	private final TransactionService transactionService;
+	private final TemporaryService temporaryService;
 
 	@PostMapping("/transaction")
 	public ResponseEntity<String> addTransaction(@PathVariable String email, @RequestBody AssetRequest assetRequest) {
@@ -106,6 +108,13 @@ public class PortfolioController {
 			@RequestBody BulkGetRequest bulkGetRequest) {
 		List<Asset> assets = portfolioService.searchAssets(UserMail.from(email), bulkGetRequest.getFilters());
 		return ResponseEntity.ok(assets);
+	}
+
+	@PostMapping("/request3/{message}")
+	public ResponseEntity<String> testRequest(@PathVariable String email, @PathVariable String message) {
+
+		temporaryService.producerMethod(message);
+		return ResponseEntity.ok("Hey! Message seeded for process");
 	}
 
 }
