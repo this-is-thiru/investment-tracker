@@ -1,6 +1,6 @@
 package com.thiru.investment_tracker.entity;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -16,10 +16,10 @@ public class PolicyDetails {
 	private double premium;
 
 	@Field("start_date")
-	private Date startDate;
+	private LocalDate startDate;
 
 	@Field("end_date")
-	private Date endDate;
+	private LocalDate endDate;
 
 	@Field("policy_name")
 	private String policyName;

@@ -1,6 +1,6 @@
 package com.thiru.investment_tracker.controller;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -63,8 +63,8 @@ public class PortfolioController {
 	public ResponseEntity<List<AssetResponse>> getAllStocks(@PathVariable String email,
 			@RequestBody BulkGetRequest bulkGetRequest) {
 
-		Date startDate = bulkGetRequest.getDateRange().getStartDate();
-		Date endDate = bulkGetRequest.getDateRange().getEndDate();
+		LocalDate startDate = bulkGetRequest.getDateRange().getStartDate();
+		LocalDate endDate = bulkGetRequest.getDateRange().getEndDate();
 		return ResponseEntity.ok(portfolioService.getStocksWithDateRange(UserMail.from(email), startDate, endDate));
 	}
 
@@ -91,7 +91,7 @@ public class PortfolioController {
 	public ResponseEntity<AssetRequest> testRequest(@RequestBody AssetRequest assetRequest) {
 
 		if (assetRequest.getTransactionDate() == null) {
-			assetRequest.setTransactionDate(new Date());
+			assetRequest.setTransactionDate(LocalDate.now());
 		}
 		return ResponseEntity.ok(assetRequest);
 	}

@@ -1,8 +1,7 @@
 package com.thiru.investment_tracker.entity;
 
-import java.util.Date;
+import java.time.LocalDate;
 
-import com.thiru.investment_tracker.common.enums.TransactionType;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
@@ -12,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thiru.investment_tracker.common.CommonUtil;
 import com.thiru.investment_tracker.common.enums.AssetType;
+import com.thiru.investment_tracker.common.enums.TransactionType;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -56,16 +56,16 @@ public class Asset {
 	@Field(name = "asset_type", targetType = FieldType.STRING)
 	private AssetType assetType;
 
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = CommonUtil.DATE_FORMAT)
+	@JsonFormat(pattern = CommonUtil.DATE_FORMAT)
 	@Field("maturity_date")
-	private Date maturityDate;
+	private LocalDate maturityDate;
 
 	@Field("actor_name")
 	private String actorName;
 
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = CommonUtil.DATE_FORMAT)
+	@JsonFormat(pattern = CommonUtil.DATE_FORMAT)
 	@Field("transaction_date")
-	private Date transactionDate;
+	private LocalDate transactionDate;
 
 	@JsonIgnore
 	@Field(name = "transaction_type", targetType = FieldType.STRING)

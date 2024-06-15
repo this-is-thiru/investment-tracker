@@ -1,6 +1,6 @@
 package com.thiru.investment_tracker.entity;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -58,7 +58,7 @@ public class Transaction {
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = CommonUtil.DATE_FORMAT)
 	@Field("maturity_date")
-	private Date maturityDate;
+	private LocalDate maturityDate;
 
 	@Field("actor_name")
 	private String actorName;
@@ -68,6 +68,6 @@ public class Transaction {
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = CommonUtil.DATE_FORMAT)
 	@Field("transaction_date")
-	private Date transactionDate;
+	private LocalDate transactionDate;
 
 }

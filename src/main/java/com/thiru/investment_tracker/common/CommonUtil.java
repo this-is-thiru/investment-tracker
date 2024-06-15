@@ -18,9 +18,15 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class CommonUtil {
 
-    public static final String DATE_FORMAT = "dd-MM-yyyy";
+    public static final String DATE_FORMAT = "yyyy-MM-dd";
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = getObjectMapper();
+
+    private static ObjectMapper getObjectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.findAndRegisterModules();
+        return objectMapper;
+    }
 
     public static <T> T copy(Object source, Class<T> targetClass) {
         return readValue(writeValueAsString(source), targetClass);

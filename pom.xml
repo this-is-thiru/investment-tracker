@@ -62,12 +62,28 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<!-- Dependency for serializing/deserializing java.time.* -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
+		</dependency>
+		<!-- serialization/deserialization end -->
+
 		<!-- Rabbitmq dependencies start -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-amqp</artifactId>
 		</dependency>
-		<!-- Rabbitmq dependencies start -->
+		<!-- Rabbitmq dependencies end -->
+
+		<!-- apache poi excel dependency start -->
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>5.2.5</version>
+		</dependency>
+		<!-- apache poi excel dependency end -->
+
 
 	</dependencies>
 

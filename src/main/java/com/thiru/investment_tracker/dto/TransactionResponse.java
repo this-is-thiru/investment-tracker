@@ -1,6 +1,6 @@
 package com.thiru.investment_tracker.dto;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.thiru.investment_tracker.common.CommonUtil;
@@ -26,8 +26,10 @@ public class TransactionResponse {
 	private double totalValue;
 	private String actorName;
 	private AssetType assetType;
-	private Date maturityDate;
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = CommonUtil.DATE_FORMAT)
-	private Date transactionDate;
+	private LocalDate maturityDate;
+
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = CommonUtil.DATE_FORMAT)
+	private LocalDate transactionDate;
 }
