@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.thiru.investment_tracker.common.CommonUtil;
+import com.thiru.investment_tracker.common.TCommonUtil;
 import com.thiru.investment_tracker.common.enums.AssetType;
 
 import lombok.AllArgsConstructor;
@@ -60,11 +60,11 @@ public class Report {
     @Field("actor_name")
     private String actorName;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = CommonUtil.DATE_FORMAT)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCommonUtil.DATE_FORMAT)
     @Field("purchase_date")
     private LocalDate purchaseDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = CommonUtil.DATE_FORMAT)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCommonUtil.DATE_FORMAT)
     @Field("sell_date")
     private LocalDate sellDate;
 

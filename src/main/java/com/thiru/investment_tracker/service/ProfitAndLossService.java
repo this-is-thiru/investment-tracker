@@ -7,8 +7,8 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.thiru.investment_tracker.common.CommonUtil;
 import com.thiru.investment_tracker.common.ProfitAndLossContext;
+import com.thiru.investment_tracker.common.TObjectMapper;
 import com.thiru.investment_tracker.dto.ProfitAndLossResponse;
 import com.thiru.investment_tracker.entity.ProfitAndLossEntity;
 import com.thiru.investment_tracker.entity.RealisedProfits;
@@ -121,6 +121,6 @@ public class ProfitAndLossService {
 				financialYear);
 		ProfitAndLossEntity profitAndLossEntity = optionalProfitAndLoss.orElse(new ProfitAndLossEntity());
 
-		return CommonUtil.copy(profitAndLossEntity, ProfitAndLossResponse.class);
+		return TObjectMapper.copy(profitAndLossEntity, ProfitAndLossResponse.class);
 	}
 }

@@ -1,5 +1,6 @@
 package com.thiru.investment_tracker.service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Iterator;
 import java.util.List;
@@ -12,21 +13,28 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.thiru.investment_tracker.common.AssetContext;
-import com.thiru.investment_tracker.common.CommonUtil;
+import com.thiru.investment_tracker.common.TCommonUtil;
 import com.thiru.investment_tracker.common.ProfitAndLossContext;
 import com.thiru.investment_tracker.common.ReportContext;
+import com.thiru.investment_tracker.common.TObjectMapper;
+import com.thiru.investment_tracker.common.enums.ParserDataType;
 import com.thiru.investment_tracker.common.enums.TransactionType;
+import com.thiru.investment_tracker.common.parser.ExcelParser;
 import com.thiru.investment_tracker.dto.AssetRequest;
 import com.thiru.investment_tracker.dto.AssetResponse;
+import com.thiru.investment_tracker.dto.InputRecords;
 import com.thiru.investment_tracker.dto.ProfitAndLossResponse;
 import com.thiru.investment_tracker.entity.Asset;
 import com.thiru.investment_tracker.exception.BadRequestException;
+import com.thiru.investment_tracker.manager.TransactionParser;
 import com.thiru.investment_tracker.operation.CriteriaBuilder;
 import com.thiru.investment_tracker.operation.Filter;
 import com.thiru.investment_tracker.repository.PortfolioRepository;
 import com.thiru.investment_tracker.user.UserMail;
+import com.thiru.investment_tracker.util.TransactionHeaders;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,6 +70,26 @@ public class PortfolioService {
 		}
 	}
 
+	@Transactional
+	public String uploadTransactions(UserMail userMail, MultipartFile file) {
+
+		try {
+			if (ExcelParser.isValidExcelFile(file)) {
+				throw new BadRequestException("Invalid data format");
+			}
+
+			Map<String, ParserDataType> dataTypeMap = TransactionHeaders.getDataTypeMap();
+
+			InputRecords inputRecords = ExcelParser.getRecordsFromExcel(file.getInputStream(), dataTypeMap);
+			List<AssetRequest> assetRequests = TransactionParser.getTransactionRecords(inputRecords);
+			TCommonUtil.map(assetRequests, assetRequest -> addTransaction(userMail, assetRequest));
+
+			return "Transactions uploaded successfully";
+		} catch (IOException e) {
+			throw new BadRequestException("Invalid data format");
+		}
+	}
+
 	public void buyStock(UserMail userMail, AssetRequest assetRequest) {
 
 		String email = userMail.getEmail();
@@ -89,7 +117,7 @@ public class PortfolioService {
 
 			portfolioRepository.save(asset);
 		} else {
-			asset = CommonUtil.copy(assetRequest, Asset.class);
+			asset = TObjectMapper.copy(assetRequest, Asset.class);
 
 			double totalValueOfTransaction = getTotalValue(assetRequest);
 			asset.setTotalValue(totalValueOfTransaction);
@@ -115,7 +143,7 @@ public class PortfolioService {
 			throw new IllegalArgumentException("Stock not found");
 		}
 
-		long existingQuantity = CommonUtil.mapToLong(stockEntities, Asset::getQuantity).sum();
+		long existingQuantity = TCommonUtil.mapToLong(stockEntities, Asset::getQuantity).sum();
 
 		if (existingQuantity < assetRequest.getQuantity()) {
 			throw new IllegalArgumentException("Not enough stocks to sell");
@@ -136,7 +164,7 @@ public class PortfolioService {
 			throw new IllegalArgumentException("Stock not found");
 		}
 
-		return CommonUtil.map(stockEntities, asset -> CommonUtil.copy(asset, AssetResponse.class));
+		return TCommonUtil.map(stockEntities, asset -> TObjectMapper.copy(asset, AssetResponse.class));
 	}
 
 	public List<AssetResponse> getAllStocks(UserMail userMail) {
@@ -146,7 +174,7 @@ public class PortfolioService {
 		Map<String, List<Asset>> stockEntityMap = stockEntities.stream()
 				.collect(Collectors.groupingBy(Asset::getStockCode));
 
-		List<AssetResponse> responseEntities = CommonUtil.map(stockEntityMap.values(),
+		List<AssetResponse> responseEntities = TCommonUtil.map(stockEntityMap.values(),
 				PortfolioService::combineAllDetailsOfEntities);
 
 		log.info("Fetching portfolio stocks of {}", userMail.getEmail());
@@ -161,7 +189,7 @@ public class PortfolioService {
 
 		Map<String, List<Asset>> stockEntityMap = stockEntities.stream()
 				.collect(Collectors.groupingBy(Asset::getStockCode));
-		List<AssetResponse> responseEntities = CommonUtil.map(stockEntityMap.values(),
+		List<AssetResponse> responseEntities = TCommonUtil.map(stockEntityMap.values(),
 				PortfolioService::combineAllDetailsOfEntities);
 
 		log.info("Fetching stocks from portfolio between {} and {}", startDate, endDate);
@@ -173,11 +201,11 @@ public class PortfolioService {
 	 * on a given stock code.
 	 *
 	 * @param stockEntities
-	 * a list of stock entities to search through* @return the response
-	 * entity that matches the provided stock code
+	 *            a list of stock entities to search through* @return the response
+	 *            entity that matches the provided stock code
 	 */
 	private static AssetResponse combineAllDetailsOfEntities(List<Asset> stockEntities) {
-		AssetResponse assetResponse = CommonUtil.copy(stockEntities.getFirst(), AssetResponse.class);
+		AssetResponse assetResponse = TObjectMapper.copy(stockEntities.getFirst(), AssetResponse.class);
 
 		double totalValue = 0;
 		long quantity = 0;
@@ -297,9 +325,9 @@ public class PortfolioService {
 
 	private static void validateFilters(List<Filter> filters) {
 
-		List<Filter> invalidFilters = CommonUtil.filter(filters, a -> NOT_ALLOWED_FIELDS.contains(a.getFilterKey()));
+		List<Filter> invalidFilters = TCommonUtil.filter(filters, a -> NOT_ALLOWED_FIELDS.contains(a.getFilterKey()));
 
-		List<String> invalidFieldsForFilter = CommonUtil.map(invalidFilters, Filter::getFilterKey);
+		List<String> invalidFieldsForFilter = TCommonUtil.map(invalidFilters, Filter::getFilterKey);
 
 		if (!invalidFieldsForFilter.isEmpty()) {
 			throw new BadRequestException("These fields are not allowed for filtering: " + invalidFieldsForFilter);
