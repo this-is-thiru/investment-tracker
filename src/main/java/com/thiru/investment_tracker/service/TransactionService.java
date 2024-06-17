@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.thiru.investment_tracker.common.CommonUtil;
+import com.thiru.investment_tracker.common.TObjectMapper;
 import com.thiru.investment_tracker.dto.AssetRequest;
 import com.thiru.investment_tracker.entity.Transaction;
 import com.thiru.investment_tracker.repository.TransactionRepository;
@@ -27,7 +27,7 @@ public class TransactionService {
 		if (assetRequest.getTransactionDate() == null) {
 			assetRequest.setTransactionDate(LocalDate.now());
 		}
-		Transaction transaction = CommonUtil.copy(assetRequest, Transaction.class);
+		Transaction transaction = TObjectMapper.copy(assetRequest, Transaction.class);
 		transaction.setTotalValue(transaction.getPrice() * transaction.getQuantity());
 
 		log.info("Transaction: {}, added successfully", transaction.getTransactionType());

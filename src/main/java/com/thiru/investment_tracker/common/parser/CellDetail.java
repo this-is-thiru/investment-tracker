@@ -1,0 +1,18 @@
+package com.thiru.investment_tracker.common.parser;
+
+import com.thiru.investment_tracker.common.enums.ParserDataType;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor(staticName = "of")
+public class CellDetail {
+
+    private ParserDataType parserDataType;
+    private Object cellValue;
+
+    public static CellDetail def() {
+        return CellDetail.of(ParserDataType.NULL, null);
+    }
+}

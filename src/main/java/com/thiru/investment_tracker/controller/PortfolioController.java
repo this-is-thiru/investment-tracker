@@ -12,8 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.thiru.investment_tracker.common.CommonUtil;
+import com.thiru.investment_tracker.common.TObjectMapper;
 import com.thiru.investment_tracker.dto.AssetRequest;
 import com.thiru.investment_tracker.dto.AssetResponse;
 import com.thiru.investment_tracker.dto.BulkGetRequest;
@@ -43,10 +44,19 @@ public class PortfolioController {
 		return ResponseEntity.ok(portfolioService.addTransaction(UserMail.from(email), assetRequest));
 	}
 
-	@PostMapping("/insurance")
-	public ResponseEntity<String> addInsurance(@PathVariable String email, @RequestBody AssetRequest assetRequest) {
-		return ResponseEntity.ok(portfolioService.addTransaction(UserMail.from(email), assetRequest));
+	@PostMapping("/upload-transactions")
+	public ResponseEntity<String> uploadTransactions(@PathVariable String email,
+			@RequestParam("file") MultipartFile file) {
+		return ResponseEntity.ok(portfolioService.uploadTransactions(UserMail.from(email), file));
 	}
+
+	// @PostMapping("/insurance")
+	// public ResponseEntity<String> addInsurance(@PathVariable String email,
+	// @RequestBody AssetRequest assetRequest) {
+	// return
+	// ResponseEntity.ok(portfolioService.addTransaction(UserMail.from(email),
+	// assetRequest));
+	// }
 
 	@GetMapping("/profit-and-loss")
 	public ResponseEntity<ProfitAndLossResponse> getProfitAndLoss(@PathVariable String email,
@@ -82,10 +92,7 @@ public class PortfolioController {
 		return ResponseEntity.ok(transactionService.allTransactions());
 	}
 
-
-
-
-    // Note: Below this comment is for testing purpose only
+	// Note: Below this comment is for testing purpose only
 
 	@PostMapping("/request")
 	public ResponseEntity<AssetRequest> testRequest(@RequestBody AssetRequest assetRequest) {
@@ -99,7 +106,7 @@ public class PortfolioController {
 	@PostMapping("/request1")
 	public ResponseEntity<DeleteThisFile> testRequest(@RequestBody ProfitAndLossResponse requestEntity) {
 
-		DeleteThisFile deleteThisFile = CommonUtil.copy(requestEntity, DeleteThisFile.class);
+		DeleteThisFile deleteThisFile = TObjectMapper.copy(requestEntity, DeleteThisFile.class);
 		return ResponseEntity.ok(deleteThisFile);
 	}
 
