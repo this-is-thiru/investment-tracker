@@ -18,7 +18,7 @@ import com.thiru.investment_tracker.util.TransactionHeaders;
 public class TransactionParser {
 
 	public static List<AssetRequest> getTransactionRecords(InputRecords records) {
-		return TCommonUtil.map(sanitizeRecords(records), TransactionParser::getAssetRequest);
+		return TCommonUtil.map(sanitizeRecords(records), TransactionParser::toAssetRequest);
 	}
 
 	public static List<InputRecord> sanitizeRecords(InputRecords records) {
@@ -26,13 +26,9 @@ public class TransactionParser {
 				.filter(inputRecord -> inputRecord.getRecord() != null).collect(Collectors.toList());
 	}
 
-	private static AssetRequest getAssetRequest(InputRecord inputRecord) {
+	private static AssetRequest toAssetRequest(InputRecord inputRecord) {
 
 		Map<String, CellDetail> record = inputRecord.getRecord();
-
-		if (record == null) {
-			return null;
-		}
 
 		AssetRequest assetRequest = new AssetRequest();
 
@@ -40,7 +36,7 @@ public class TransactionParser {
 		setStockName(assetRequest, record);
 		setExchangeName(assetRequest, record);
 		setBrokerName(assetRequest, record);
-		setActorName(assetRequest, record);
+		setActor(assetRequest, record);
 		setAssetType(assetRequest, record);
 		setMaturityDate(assetRequest, record);
 		setPrice(assetRequest, record);
@@ -74,10 +70,10 @@ public class TransactionParser {
 		assetRequest.setBrokerName((String) cellDetail.getCellValue());
 	}
 
-	private static void setActorName(AssetRequest assetRequest, Map<String, CellDetail> record) {
+	private static void setActor(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-		CellDetail cellDetail = record.get(TransactionHeaders.ACTOR_NAME);
-		assetRequest.setActorName((String) cellDetail.getCellValue());
+		CellDetail cellDetail = record.get(TransactionHeaders.ACTOR);
+		assetRequest.setActor((String) cellDetail.getCellValue());
 	}
 
 	private static void setAssetType(AssetRequest assetRequest, Map<String, CellDetail> record) {
@@ -127,7 +123,7 @@ public class TransactionParser {
 	private static void setTransactionDate(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
 		CellDetail cellDetail = record.get(TransactionHeaders.TRANSACTION_DATE);
-		assetRequest.setMaturityDate((LocalDate) cellDetail.getCellValue());
+		assetRequest.setTransactionDate((LocalDate) cellDetail.getCellValue());
 	}
 
 	private static void setTransactionType(AssetRequest assetRequest, Map<String, CellDetail> record) {

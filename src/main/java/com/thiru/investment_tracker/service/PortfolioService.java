@@ -290,7 +290,7 @@ public class PortfolioService {
 		reportContext.setPurchaseDate(asset.getTransactionDate());
 
 		// Adding asset request details to ReportContext
-		reportContext.setActorName(assetRequest.getActorName());
+		reportContext.setActor(assetRequest.getActor());
 		reportContext.setSellPrice(assetRequest.getPrice());
 		reportContext.setSellDate(assetRequest.getTransactionDate());
 

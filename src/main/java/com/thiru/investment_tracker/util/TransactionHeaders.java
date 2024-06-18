@@ -17,7 +17,7 @@ public class TransactionHeaders {
 	public static final String PRICE = "Price";
 	public static final String QUANTITY = "Quantity";
 	public static final String TRANSACTION_TYPE = "Transaction Type";
-	public static final String ACTOR_NAME = "Actor Name";
+	public static final String ACTOR = "Actor";
 	public static final String TRANSACTION_DATE = "Transaction Date";
 
 	public static Map<String, ParserDataType> getDataTypeMap() {
@@ -28,7 +28,7 @@ public class TransactionHeaders {
 		dataTypeMap.put(TransactionHeaders.STOCK_NAME, ParserDataType.STRING);
 		dataTypeMap.put(TransactionHeaders.EXCHANGE_NAME, ParserDataType.STRING);
 		dataTypeMap.put(TransactionHeaders.BROKER_NAME, ParserDataType.STRING);
-		dataTypeMap.put(TransactionHeaders.ACTOR_NAME, ParserDataType.STRING);
+		dataTypeMap.put(TransactionHeaders.ACTOR, ParserDataType.STRING);
 		dataTypeMap.put(TransactionHeaders.ASSET_TYPE, ParserDataType.STRING);
 		dataTypeMap.put(TransactionHeaders.MATURITY_DATE, ParserDataType.LOCAL_DATE);
 		dataTypeMap.put(TransactionHeaders.PRICE, ParserDataType.DOUBLE);

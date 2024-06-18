@@ -26,7 +26,7 @@ public class AssetRequest {
 	private Double price;
 	private Long quantity;
 	private TransactionType transactionType;
-	private String actorName;
+	private String actor;
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCommonUtil.DATE_FORMAT)
 	private LocalDate maturityDate;

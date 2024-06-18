@@ -18,7 +18,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@Document(value = "transaction")
+@Document(value = "transactions")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -61,7 +61,7 @@ public class Transaction {
 	private LocalDate maturityDate;
 
 	@Field("actor_name")
-	private String actorName;
+	private String actor;
 
 	@Field(name = "transaction_type", targetType = FieldType.STRING)
 	private TransactionType transactionType;

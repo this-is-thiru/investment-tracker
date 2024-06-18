@@ -58,7 +58,7 @@ public class Report {
     private AssetType assetType;
 
     @Field("actor_name")
-    private String actorName;
+    private String actor;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCommonUtil.DATE_FORMAT)
     @Field("purchase_date")

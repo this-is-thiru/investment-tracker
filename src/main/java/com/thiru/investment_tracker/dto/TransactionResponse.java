@@ -24,7 +24,7 @@ public class TransactionResponse {
 	private double price;
 	private Long quantity;
 	private double totalValue;
-	private String actorName;
+	private String actor;
 	private AssetType assetType;
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCommonUtil.DATE_FORMAT)

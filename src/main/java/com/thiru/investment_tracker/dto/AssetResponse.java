@@ -28,7 +28,7 @@ public class AssetResponse {
 	private Long quantity;
 	private double totalValue;
 	private TransactionType transactionType;
-	private String actorName;
+	private String actor;
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCommonUtil.DATE_FORMAT)
 	private LocalDate transactionDate;

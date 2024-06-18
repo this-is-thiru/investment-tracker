@@ -18,5 +18,5 @@ public class ReportContext extends AssetContext {
     private Long quantity;
     private double totalValue;
     private AssetType assetType;
-    private String actorName;
+    private String actor;
 }

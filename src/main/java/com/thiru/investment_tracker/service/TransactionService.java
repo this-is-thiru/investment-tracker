@@ -30,7 +30,8 @@ public class TransactionService {
 		Transaction transaction = TObjectMapper.copy(assetRequest, Transaction.class);
 		transaction.setTotalValue(transaction.getPrice() * transaction.getQuantity());
 
-		log.info("Transaction: {}, added successfully", transaction.getTransactionType());
+		log.info("Transaction: {}, Stock: '{}' on '{}' noted successfully", transaction.getTransactionType(),
+				transaction.getStockName(), transaction.getTransactionDate());
 		transactionRepository.save(transaction);
 	}
 

@@ -61,7 +61,7 @@ public class Asset {
 	private LocalDate maturityDate;
 
 	@Field("actor_name")
-	private String actorName;
+	private String actor;
 
 	@JsonFormat(pattern = TCommonUtil.DATE_FORMAT)
 	@Field("transaction_date")
