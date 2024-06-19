@@ -5,8 +5,8 @@ import java.util.function.Function;
 
 public class TOptional {
 
-	public static <T> T mapO(T object) {
-		return stream(object).orElse(null);
+	public static <T> T mapO(T object, T defaultValue) {
+		return stream(object).orElse(defaultValue);
 	}
 
 	public static <T, U> U map1(T object, Function<T, U> mapper) {

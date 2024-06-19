@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -22,6 +21,9 @@ import com.thiru.investment_tracker.dto.InputRecord;
 import com.thiru.investment_tracker.dto.InputRecords;
 import com.thiru.investment_tracker.exception.BadRequestException;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class ExcelParser {
 
 	private static final String EXCEL_TYPE = "text/xls";
@@ -88,6 +90,8 @@ public class ExcelParser {
 		if (record.size() != fileHeaders.size()) {
 			return null;
 		}
+
+		log.info("Parsed Record: {}", record);
 		return record;
 	}
 

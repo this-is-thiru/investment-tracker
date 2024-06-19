@@ -5,8 +5,10 @@ import java.io.Serializable;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor(staticName = "empty")
 public class RealisedProfits implements Serializable {
 	@Field("total_realised_profit")
 	private double totalRealisedProfit;
