@@ -11,33 +11,35 @@ public class CriteriaBuilder {
 
 	private static final Object NULL = null;
 
-	public static void constructCriteria(Filter filter, Set<Criteria> criterias) {
+	public static void constructCriteria(Filter filter, Set<Criteria> criteriaSet) {
 		sanitize(filter);
 
 		Filter.FilterOperation operation = filter.getOperation();
-
 		String filterKey = filter.getFilterKey();
-		Criteria criteria = TCommonUtil.findFirst(criterias, innercriteria -> filterKey.equals(innercriteria.getKey()),
-				new Criteria(filterKey));
 
-		switch (operation) {
-			case EQUALS -> criteria.is(filter.getValue());
-			case NOT_EQUALS -> criteria.ne(filter.getValue());
-			case GREATER_THAN -> criteria.gt(filter.getValue());
-			case LESSER_THAN -> criteria.lt(filter.getValue());
-			case GREATER_THAN_OR_EQUAL_TO -> criteria.gte(filter.getValue());
-			case LESSER_THAN_OR_EQUAL_TO -> criteria.lte(filter.getValue());
-			case STARTS_WITH -> criteria.regex(filter.getValue().toString());
-			case CONTAINS -> criteria.in(filter.getValues());
-			case IS_NULL -> criteria.is(NULL);
-			case IS_NOT_NULL -> criteria.ne(NULL);
+		Criteria queryCriteria = TCommonUtil.findFirst(criteriaSet, criteria -> filterKey.equals(criteria.getKey()));
+
+		boolean isNewCriteria = false;
+		if (queryCriteria == null) {
+			queryCriteria = new Criteria(filterKey);
+			isNewCriteria = true;
 		}
 
-		Criteria existingCriteria = TCommonUtil.findFirst(criterias,
-				innerCriteria -> filterKey.equals(innerCriteria.getKey()));
+		switch (operation) {
+			case EQUALS -> queryCriteria.is(filter.getValue());
+			case NOT_EQUALS -> queryCriteria.ne(filter.getValue());
+			case GREATER_THAN -> queryCriteria.gt(filter.getValue());
+			case LESSER_THAN -> queryCriteria.lt(filter.getValue());
+			case GREATER_THAN_OR_EQUAL_TO -> queryCriteria.gte(filter.getValue());
+			case LESSER_THAN_OR_EQUAL_TO -> queryCriteria.lte(filter.getValue());
+			case STARTS_WITH -> queryCriteria.regex(filter.getValue().toString());
+			case CONTAINS -> queryCriteria.in(filter.getValues());
+			case IS_NULL -> queryCriteria.is(NULL);
+			case IS_NOT_NULL -> queryCriteria.ne(NULL);
+		}
 
-		if (existingCriteria == null) {
-			criterias.add(criteria);
+		if (isNewCriteria) {
+			criteriaSet.add(queryCriteria);
 		}
 	}
 

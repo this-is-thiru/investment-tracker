@@ -311,10 +311,10 @@ public class PortfolioService {
 		addEmailToFilter(filters, userMail.getEmail());
 
 		Query query = new Query();
-		Set<Criteria> criterias = new HashSet<>();
+		Set<Criteria> criteriaSet = new HashSet<>();
 
-		filters.forEach(filter -> CriteriaBuilder.constructCriteria(filter, criterias));
-		criterias.forEach(query::addCriteria);
+		filters.forEach(filter -> CriteriaBuilder.constructCriteria(filter, criteriaSet));
+		criteriaSet.forEach(query::addCriteria);
 
 		return mongoTemplate.find(query, Asset.class);
 	}
