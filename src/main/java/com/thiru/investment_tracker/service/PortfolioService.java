@@ -2,6 +2,7 @@ package com.thiru.investment_tracker.service;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -10,15 +11,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.thiru.investment_tracker.common.AssetContext;
-import com.thiru.investment_tracker.common.TCommonUtil;
 import com.thiru.investment_tracker.common.ProfitAndLossContext;
 import com.thiru.investment_tracker.common.ReportContext;
+import com.thiru.investment_tracker.common.TCommonUtil;
 import com.thiru.investment_tracker.common.TObjectMapper;
 import com.thiru.investment_tracker.common.enums.ParserDataType;
 import com.thiru.investment_tracker.common.enums.TransactionType;
@@ -271,7 +272,7 @@ public class PortfolioService {
 		double sellPrice = assetRequest.getPrice();
 		LocalDate sellDate = assetRequest.getTransactionDate();
 
-		return (ProfitAndLossContext) AssetContext.from(purchasePrice, purchaseDate, sellPrice, sellQuantity, sellDate);
+		return ProfitAndLossContext.from(purchasePrice, purchaseDate, sellPrice, sellQuantity, sellDate);
 
 	}
 
@@ -310,7 +311,10 @@ public class PortfolioService {
 		addEmailToFilter(filters, userMail.getEmail());
 
 		Query query = new Query();
-		filters.forEach(filter -> query.addCriteria(CriteriaBuilder.constructCriteria(filter)));
+		Set<Criteria> criteriaSet = new HashSet<>();
+
+		filters.forEach(filter -> CriteriaBuilder.constructCriteria(filter, criteriaSet));
+		criteriaSet.forEach(query::addCriteria);
 
 		return mongoTemplate.find(query, Asset.class);
 	}

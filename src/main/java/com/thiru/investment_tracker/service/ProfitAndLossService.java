@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.thiru.investment_tracker.common.ProfitAndLossContext;
 import com.thiru.investment_tracker.common.TObjectMapper;
+import com.thiru.investment_tracker.common.TOptional;
 import com.thiru.investment_tracker.dto.ProfitAndLossResponse;
 import com.thiru.investment_tracker.entity.ProfitAndLossEntity;
 import com.thiru.investment_tracker.entity.RealisedProfits;
@@ -49,7 +50,8 @@ public class ProfitAndLossService {
 	private static void updateCapitalGains(ProfitAndLossContext profitAndLossContext,
 			ProfitAndLossEntity profitAndLossEntity) {
 
-		RealisedProfits existingRealisedProfits = profitAndLossEntity.getRealisedProfits();
+		RealisedProfits existingRealisedProfits = TOptional.mapO(profitAndLossEntity.getRealisedProfits(),
+				RealisedProfits.empty());
 
 		double calculatedGainOrLoss = calculateGains(profitAndLossContext);
 
@@ -88,8 +90,8 @@ public class ProfitAndLossService {
 
 		LocalDate thresholdDate = purchaseDate.plusYears(1);
 
-        return sellDate.isBefore(thresholdDate);
-    }
+		return sellDate.isBefore(thresholdDate);
+	}
 
 	private static String sanitizeFinancialYear(LocalDate transactionDate) {
 
@@ -110,7 +112,7 @@ public class ProfitAndLossService {
 	}
 
 	private static LocalDate financialYearEnd(int year) {
-        return LocalDate.of(year, MARCH, DAY);
+		return LocalDate.of(year, MARCH, DAY);
 	}
 
 	public ProfitAndLossResponse getProfitAndLoss(UserMail userMail, String financialYear) {

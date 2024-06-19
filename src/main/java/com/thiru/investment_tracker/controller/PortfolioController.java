@@ -78,7 +78,7 @@ public class PortfolioController {
 		return ResponseEntity.ok(portfolioService.getStocksWithDateRange(UserMail.from(email), startDate, endDate));
 	}
 
-	@GetMapping("/{stockCode}/all")
+	@GetMapping("/stock/{stockCode}/all")
 	public ResponseEntity<List<AssetResponse>> getAllStocks(@PathVariable String email,
 			@PathVariable String stockCode) {
 

@@ -23,49 +23,49 @@ import lombok.ToString;
 @Data
 @ToString
 public class Report {
-    @JsonIgnore
-    @MongoId
-    private String id;
+	@JsonIgnore
+	@MongoId
+	private String id;
 
-    @Field("email")
-    private String email;
+	@Field("email")
+	private String email;
 
-    @Field("stock_code")
-    private String stockCode;
+	@Field("stock_code")
+	private String stockCode;
 
-    @Field("stock_name")
-    private String stockName;
+	@Field("stock_name")
+	private String stockName;
 
-    @Field("exchange_name")
-    private String exchangeName;
+	@Field("exchange_name")
+	private String exchangeName;
 
-    @Field("broker_name")
-    private String brokerName;
+	@Field("broker_name")
+	private String brokerName;
 
-    @Field("purchase_price")
-    private double purchasePrice;
+	@Field("purchase_price")
+	private double purchasePrice;
 
-    @Field("sell_price")
-    private double sellPrice;
+	@Field("sell_price")
+	private double sellPrice;
 
-    @Field("quantity")
-    private Long quantity;
+	@Field("quantity")
+	private Long sellQuantity;
 
-    @Field("total_value")
-    private double totalValue;
+	@Field("total_value")
+	private double totalValue;
 
-    @Field(name = "asset_type", targetType = FieldType.STRING)
-    private AssetType assetType;
+	@Field(name = "asset_type", targetType = FieldType.STRING)
+	private AssetType assetType;
 
-    @Field("actor_name")
-    private String actor;
+	@Field("actor_name")
+	private String actor;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCommonUtil.DATE_FORMAT)
-    @Field("purchase_date")
-    private LocalDate purchaseDate;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCommonUtil.DATE_FORMAT)
+	@Field("purchase_date")
+	private LocalDate purchaseDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCommonUtil.DATE_FORMAT)
-    @Field("sell_date")
-    private LocalDate sellDate;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCommonUtil.DATE_FORMAT)
+	@Field("sell_date")
+	private LocalDate sellDate;
 
 }

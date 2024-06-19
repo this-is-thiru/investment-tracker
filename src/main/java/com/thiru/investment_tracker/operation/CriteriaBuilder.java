@@ -1,32 +1,46 @@
 package com.thiru.investment_tracker.operation;
 
+import java.util.Set;
+
 import org.springframework.data.mongodb.core.query.Criteria;
 
+import com.thiru.investment_tracker.common.TCommonUtil;
 import com.thiru.investment_tracker.common.parser.ParserUtil;
 
 public class CriteriaBuilder {
 
 	private static final Object NULL = null;
 
-	public static Criteria constructCriteria(Filter filter) {
+	public static void constructCriteria(Filter filter, Set<Criteria> criteriaSet) {
 		sanitize(filter);
 
 		Filter.FilterOperation operation = filter.getOperation();
-		Criteria criteria = new Criteria(filter.getFilterKey());
+		String filterKey = filter.getFilterKey();
 
-		criteria = switch (operation) {
-			case EQUALS -> criteria.is(filter.getValue());
-			case NOT_EQUALS -> criteria.ne(filter.getValue());
-			case GREATER_THAN -> criteria.gt(filter.getValue());
-			case LESSER_THAN -> criteria.lt(filter.getValue());
-			case GREATER_THAN_OR_EQUAL_TO -> criteria.gte(filter.getValue());
-			case LESSER_THAN_OR_EQUAL_TO -> criteria.lte(filter.getValue());
-			case STARTS_WITH -> criteria.regex(filter.getValue().toString());
-			case CONTAINS -> criteria.in(filter.getValues());
-			case IS_NULL -> criteria.is(NULL);
-			case IS_NOT_NULL -> criteria.ne(NULL);
-		};
-		return criteria;
+		Criteria queryCriteria = TCommonUtil.findFirst(criteriaSet, criteria -> filterKey.equals(criteria.getKey()));
+
+		boolean isNewCriteria = false;
+		if (queryCriteria == null) {
+			queryCriteria = new Criteria(filterKey);
+			isNewCriteria = true;
+		}
+
+		switch (operation) {
+			case EQUALS -> queryCriteria.is(filter.getValue());
+			case NOT_EQUALS -> queryCriteria.ne(filter.getValue());
+			case GREATER_THAN -> queryCriteria.gt(filter.getValue());
+			case LESSER_THAN -> queryCriteria.lt(filter.getValue());
+			case GREATER_THAN_OR_EQUAL_TO -> queryCriteria.gte(filter.getValue());
+			case LESSER_THAN_OR_EQUAL_TO -> queryCriteria.lte(filter.getValue());
+			case STARTS_WITH -> queryCriteria.regex(filter.getValue().toString());
+			case CONTAINS -> queryCriteria.in(filter.getValues());
+			case IS_NULL -> queryCriteria.is(NULL);
+			case IS_NOT_NULL -> queryCriteria.ne(NULL);
+		}
+
+		if (isNewCriteria) {
+			criteriaSet.add(queryCriteria);
+		}
 	}
 
 	private static void sanitize(Filter filter) {
