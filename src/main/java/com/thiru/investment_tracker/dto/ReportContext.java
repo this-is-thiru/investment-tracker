@@ -1,8 +1,8 @@
-package com.thiru.investment_tracker.common;
+package com.thiru.investment_tracker.dto;
 
 import java.time.LocalDate;
 
-import com.thiru.investment_tracker.common.enums.AssetType;
+import com.thiru.investment_tracker.dto.enums.AssetType;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

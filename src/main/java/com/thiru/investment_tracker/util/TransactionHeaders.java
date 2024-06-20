@@ -3,7 +3,7 @@ package com.thiru.investment_tracker.util;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.thiru.investment_tracker.common.enums.ParserDataType;
+import com.thiru.investment_tracker.dto.enums.ParserDataType;
 
 public class TransactionHeaders {
 

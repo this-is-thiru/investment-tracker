@@ -18,23 +18,27 @@ import lombok.ToString;
 @ToString
 public class ProfitAndLossEntity {
 
-    @JsonIgnore
-    @MongoId
-    private String id;
+	@JsonIgnore
+	@MongoId
+	private String id;
 
-    @Field("email")
-    private String email;
+	@Field("email")
+	private String email;
 
-    @Field("financial_year")
-    private String financialYear;
+	@Field("financial_year")
+	private String financialYear;
 
-    @Field("is_profit")
-    private boolean isProfit;
+	@Field("is_profit")
+	private boolean isProfit;
 
-    @Field("realised_profits")
-    private RealisedProfits realisedProfits;
+	@Field("realised_profits")
+	private RealisedProfits realisedProfits;
 
-    @Field("unrealised_profit")
-    private double unrealisedProfit;
+	@Field("unrealised_profit")
+	private double unrealisedProfit;
+
+	public ProfitAndLossEntity(String email) {
+		this.email = email;
+	}
 
 }

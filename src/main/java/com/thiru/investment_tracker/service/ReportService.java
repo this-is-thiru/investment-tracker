@@ -2,7 +2,7 @@ package com.thiru.investment_tracker.service;
 
 import org.springframework.stereotype.Service;
 
-import com.thiru.investment_tracker.common.ReportContext;
+import com.thiru.investment_tracker.dto.ReportContext;
 import com.thiru.investment_tracker.common.TObjectMapper;
 import com.thiru.investment_tracker.entity.Report;
 import com.thiru.investment_tracker.repository.ReportRepository;

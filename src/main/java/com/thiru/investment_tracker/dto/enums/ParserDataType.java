@@ -1,4 +1,4 @@
-package com.thiru.investment_tracker.common.enums;
+package com.thiru.investment_tracker.dto.enums;
 
 public enum ParserDataType {
 	BOOLEAN, INTEGER, LONG, DOUBLE, STRING, LOCAL_DATE_TIME, LOCAL_DATE, ERROR, NULL

@@ -7,8 +7,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.thiru.investment_tracker.common.TCommonUtil;
-import com.thiru.investment_tracker.common.enums.AssetType;
-import com.thiru.investment_tracker.common.enums.TransactionType;
+import com.thiru.investment_tracker.dto.enums.AssetType;
+import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.common.parser.CellDetail;
 import com.thiru.investment_tracker.dto.AssetRequest;
 import com.thiru.investment_tracker.dto.InputRecord;

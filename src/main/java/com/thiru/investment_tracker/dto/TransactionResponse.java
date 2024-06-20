@@ -3,8 +3,9 @@ package com.thiru.investment_tracker.dto;
 import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.thiru.investment_tracker.common.TCommonUtil;
-import com.thiru.investment_tracker.common.enums.AssetType;
+import com.thiru.investment_tracker.dto.enums.AssetType;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

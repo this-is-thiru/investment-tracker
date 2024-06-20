@@ -1,4 +1,4 @@
-package com.thiru.investment_tracker.common.enums;
+package com.thiru.investment_tracker.dto.enums;
 
 public enum InsuranceType {
     HEALTH_INSURANCE,

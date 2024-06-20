@@ -7,7 +7,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.thiru.investment_tracker.common.ProfitAndLossContext;
+import com.thiru.investment_tracker.dto.ProfitAndLossContext;
 import com.thiru.investment_tracker.common.TObjectMapper;
 import com.thiru.investment_tracker.common.TOptional;
 import com.thiru.investment_tracker.dto.ProfitAndLossResponse;
@@ -38,7 +38,7 @@ public class ProfitAndLossService {
 		Optional<ProfitAndLossEntity> optionalProfitAndLoss = profitAndLossRepository.findByEmailAndFinancialYear(email,
 				financialYear);
 
-		ProfitAndLossEntity profitAndLossEntity = optionalProfitAndLoss.orElse(new ProfitAndLossEntity());
+		ProfitAndLossEntity profitAndLossEntity = optionalProfitAndLoss.orElse(new ProfitAndLossEntity(email));
 		if (profitAndLossEntity.getFinancialYear() == null) {
 			profitAndLossEntity.setFinancialYear(financialYear);
 		}
@@ -99,10 +99,10 @@ public class ProfitAndLossService {
 		LocalDate financialYearEnd = financialYearEnd(transactionYear);
 
 		if (transactionDate.isBefore(financialYearEnd)) {
-			return (transactionYear - 1) + "/" + transactionYear;
+			return (transactionYear - 1) + "-" + transactionYear;
 		}
 
-		return transactionYear + "/" + (transactionYear + 1);
+		return transactionYear + "-" + (transactionYear + 1);
 	}
 
 	private static Calendar toCalendar(int year) {
