@@ -1,7 +1,6 @@
 package com.thiru.investment_tracker.service;
 
 import java.time.LocalDate;
-import java.util.Calendar;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -25,7 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 public class ProfitAndLossService {
 
-	private static final int C_MARCH = Calendar.MARCH;
 	private static final int MARCH = 3;
 	private static final int DAY = 31;
 
@@ -103,12 +101,6 @@ public class ProfitAndLossService {
 		}
 
 		return transactionYear + "-" + (transactionYear + 1);
-	}
-
-	private static Calendar toCalendar(int year) {
-		Calendar cal = Calendar.getInstance();
-		cal.set(year, C_MARCH, DAY);
-		return cal;
 	}
 
 	private static LocalDate financialYearEnd(int year) {
