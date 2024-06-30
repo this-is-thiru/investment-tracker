@@ -6,6 +6,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,11 +21,6 @@ import com.thiru.investment_tracker.auth.entity.UserDetail;
 import com.thiru.investment_tracker.auth.model.RegistrationRequest;
 import com.thiru.investment_tracker.auth.repository.UserDetailsRepository;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import lombok.AllArgsConstructor;
 
 @Service

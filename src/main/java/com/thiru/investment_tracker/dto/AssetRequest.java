@@ -3,9 +3,11 @@ package com.thiru.investment_tracker.dto;
 import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.thiru.investment_tracker.common.TCommonUtil;
-import com.thiru.investment_tracker.common.enums.AssetType;
-import com.thiru.investment_tracker.common.enums.TransactionType;
+import com.thiru.investment_tracker.dto.enums.AccountType;
+import com.thiru.investment_tracker.dto.enums.AssetType;
+import com.thiru.investment_tracker.dto.enums.TransactionType;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,6 +28,8 @@ public class AssetRequest {
 	private Double price;
 	private Long quantity;
 	private TransactionType transactionType;
+	private AccountType accountType = AccountType.SELF;
+	private String accountHolder;
 	private String actor;
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCommonUtil.DATE_FORMAT)

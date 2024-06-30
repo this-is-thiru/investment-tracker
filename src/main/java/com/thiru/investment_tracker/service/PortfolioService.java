@@ -17,12 +17,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.thiru.investment_tracker.common.ProfitAndLossContext;
-import com.thiru.investment_tracker.common.ReportContext;
+import com.thiru.investment_tracker.dto.ProfitAndLossContext;
+import com.thiru.investment_tracker.dto.ReportContext;
 import com.thiru.investment_tracker.common.TCommonUtil;
 import com.thiru.investment_tracker.common.TObjectMapper;
-import com.thiru.investment_tracker.common.enums.ParserDataType;
-import com.thiru.investment_tracker.common.enums.TransactionType;
+import com.thiru.investment_tracker.dto.enums.ParserDataType;
+import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.common.parser.ExcelParser;
 import com.thiru.investment_tracker.dto.AssetRequest;
 import com.thiru.investment_tracker.dto.AssetResponse;
@@ -96,10 +96,11 @@ public class PortfolioService {
 		String email = userMail.getEmail();
 		assetRequest.setEmail(email);
 		String stockCode = assetRequest.getStockCode();
+		String accountHolder = assetRequest.getAccountHolder();
 		LocalDate transactionDate = assetRequest.getTransactionDate();
 
-		Optional<Asset> optionalStock = portfolioRepository.findByEmailAndStockCodeAndTransactionDate(email, stockCode,
-				transactionDate);
+		Optional<Asset> optionalStock = portfolioRepository.findByEmailAndStockCodeAndAccountHolderAndTransactionDate(
+				email, stockCode, accountHolder, transactionDate);
 		Asset asset;
 		if (optionalStock.isPresent()) {
 			asset = optionalStock.get();
@@ -272,7 +273,8 @@ public class PortfolioService {
 		double sellPrice = assetRequest.getPrice();
 		LocalDate sellDate = assetRequest.getTransactionDate();
 
-		return ProfitAndLossContext.from(purchasePrice, purchaseDate, sellPrice, sellQuantity, sellDate);
+		return ProfitAndLossContext.from(purchasePrice, purchaseDate, sellPrice, sellQuantity, sellDate,
+				assetRequest.getAccountType(), assetRequest.getAccountHolder());
 
 	}
 
@@ -294,6 +296,10 @@ public class PortfolioService {
 		reportContext.setActor(assetRequest.getActor());
 		reportContext.setSellPrice(assetRequest.getPrice());
 		reportContext.setSellDate(assetRequest.getTransactionDate());
+
+		// Add AccountType and AccountHolder
+		reportContext.setAccountType(assetRequest.getAccountType());
+		reportContext.setAccountHolder(assetRequest.getAccountHolder());
 
 		// Adding sell quantity to ReportContext
 		reportContext.setSellQuantity(sellQuantity);
@@ -317,6 +323,22 @@ public class PortfolioService {
 		criteriaSet.forEach(query::addCriteria);
 
 		return mongoTemplate.find(query, Asset.class);
+	}
+
+	public String clearAllRecordsForCustomer(UserMail userMail) {
+
+		log.info("Initiated clearing all records for user: {}", userMail.getEmail());
+
+		portfolioRepository.deleteByEmail(userMail.getEmail());
+		log.info("Cleared portfolio stocks for user: {}", userMail.getEmail());
+		reportService.deleteReports(userMail);
+		log.info("Cleared all reports for user: {}", userMail.getEmail());
+		transactionService.deleteTransactions(userMail);
+		log.info("Cleared all transactions for user: {}", userMail.getEmail());
+		profitAndLossService.deleteProfitAndLoss(userMail);
+		log.info("Cleared all profit and loss reports for user: {}", userMail.getEmail());
+
+		return "Cleared all records and transactions successfully";
 	}
 
 	private static void addEmailToFilter(List<Filter> filters, String email) {

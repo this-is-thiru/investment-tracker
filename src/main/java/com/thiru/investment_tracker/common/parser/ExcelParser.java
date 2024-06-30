@@ -16,7 +16,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.thiru.investment_tracker.common.TOptional;
-import com.thiru.investment_tracker.common.enums.ParserDataType;
+import com.thiru.investment_tracker.dto.enums.ParserDataType;
 import com.thiru.investment_tracker.dto.InputRecord;
 import com.thiru.investment_tracker.dto.InputRecords;
 import com.thiru.investment_tracker.exception.BadRequestException;

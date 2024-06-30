@@ -1,16 +1,17 @@
 package com.thiru.investment_tracker.service;
 
 import java.time.LocalDate;
-import java.util.Calendar;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.thiru.investment_tracker.common.ProfitAndLossContext;
 import com.thiru.investment_tracker.common.TObjectMapper;
 import com.thiru.investment_tracker.common.TOptional;
+import com.thiru.investment_tracker.dto.ProfitAndLossContext;
 import com.thiru.investment_tracker.dto.ProfitAndLossResponse;
+import com.thiru.investment_tracker.dto.enums.AccountType;
 import com.thiru.investment_tracker.entity.ProfitAndLossEntity;
 import com.thiru.investment_tracker.entity.RealisedProfits;
 import com.thiru.investment_tracker.repository.ProfitAndLossRepository;
@@ -25,7 +26,6 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 public class ProfitAndLossService {
 
-	private static final int C_MARCH = Calendar.MARCH;
 	private static final int MARCH = 3;
 	private static final int DAY = 31;
 
@@ -38,7 +38,7 @@ public class ProfitAndLossService {
 		Optional<ProfitAndLossEntity> optionalProfitAndLoss = profitAndLossRepository.findByEmailAndFinancialYear(email,
 				financialYear);
 
-		ProfitAndLossEntity profitAndLossEntity = optionalProfitAndLoss.orElse(new ProfitAndLossEntity());
+		ProfitAndLossEntity profitAndLossEntity = optionalProfitAndLoss.orElse(new ProfitAndLossEntity(email));
 		if (profitAndLossEntity.getFinancialYear() == null) {
 			profitAndLossEntity.setFinancialYear(financialYear);
 		}
@@ -50,28 +50,64 @@ public class ProfitAndLossService {
 	private static void updateCapitalGains(ProfitAndLossContext profitAndLossContext,
 			ProfitAndLossEntity profitAndLossEntity) {
 
-		RealisedProfits existingRealisedProfits = TOptional.mapO(profitAndLossEntity.getRealisedProfits(),
+		if (profitAndLossContext.getAccountType() == AccountType.SELF) {
+			RealisedProfits existingRealisedProfits = TOptional.mapO(profitAndLossEntity.getRealisedProfits(),
+					RealisedProfits.empty());
+			RealisedProfits calculatedProfitDetails = calculateProfitDetails(profitAndLossContext,
+					existingRealisedProfits);
+			profitAndLossEntity.setRealisedProfits(calculatedProfitDetails);
+		} else {
+			RealisedProfits outSourcedRealisedProfits = TOptional
+					.mapO(profitAndLossEntity.getOutSourcedRealisedProfits(), RealisedProfits.empty());
+			RealisedProfits calculatedProfitDetails = calculateProfitDetails(profitAndLossContext,
+					outSourcedRealisedProfits);
+			profitAndLossEntity.setOutSourcedRealisedProfits(calculatedProfitDetails);
+		}
+
+		double totalRealisedProfit = totalProfitDetails(profitAndLossEntity);
+		boolean isProfit = totalRealisedProfit > 0;
+		profitAndLossEntity.setProfit(isProfit);
+
+		profitAndLossEntity.setLastUpdatedTime(LocalDateTime.now());
+	}
+
+	private static double totalProfitDetails(ProfitAndLossEntity profitAndLossEntity) {
+
+		RealisedProfits realisedProfits = TOptional.mapO(profitAndLossEntity.getRealisedProfits(),
 				RealisedProfits.empty());
+		RealisedProfits outSourcedRealisedProfits = TOptional.mapO(profitAndLossEntity.getOutSourcedRealisedProfits(),
+				RealisedProfits.empty());
+
+		double shortTermCapitalGains = realisedProfits.getShortTermCapitalGains();
+		double longTermCapitalGains = realisedProfits.getLongTermCapitalGains();
+
+		double outSourcedShortTermCapitalGains = outSourcedRealisedProfits.getShortTermCapitalGains();
+		double outSourcedLongTermCapitalGains = outSourcedRealisedProfits.getLongTermCapitalGains();
+
+		return shortTermCapitalGains + longTermCapitalGains + outSourcedShortTermCapitalGains
+				+ outSourcedLongTermCapitalGains;
+	}
+
+	private static RealisedProfits calculateProfitDetails(ProfitAndLossContext profitAndLossContext,
+			RealisedProfits realisedProfits) {
 
 		double calculatedGainOrLoss = calculateGains(profitAndLossContext);
 
 		if (isShortTermCapitalGain(profitAndLossContext)) {
-			double shortTermCapitalGains = existingRealisedProfits.getShortTermCapitalGains();
+			double shortTermCapitalGains = realisedProfits.getShortTermCapitalGains();
 			shortTermCapitalGains = shortTermCapitalGains + calculatedGainOrLoss;
-			existingRealisedProfits.setShortTermCapitalGains(shortTermCapitalGains);
+			realisedProfits.setShortTermCapitalGains(shortTermCapitalGains);
 		} else {
-			double longTermCapitalGains = existingRealisedProfits.getLongTermCapitalGains();
+			double longTermCapitalGains = realisedProfits.getLongTermCapitalGains();
 			longTermCapitalGains = longTermCapitalGains + calculatedGainOrLoss;
-			existingRealisedProfits.setLongTermCapitalGains(longTermCapitalGains);
+			realisedProfits.setLongTermCapitalGains(longTermCapitalGains);
 		}
 
-		double totalRealisedProfit = existingRealisedProfits.getTotalRealisedProfit();
+		double totalRealisedProfit = realisedProfits.getTotalRealisedProfit();
 		totalRealisedProfit = totalRealisedProfit + calculatedGainOrLoss;
-		existingRealisedProfits.setTotalRealisedProfit(totalRealisedProfit);
+		realisedProfits.setTotalRealisedProfit(totalRealisedProfit);
 
-		boolean isProfit = totalRealisedProfit > 0;
-		profitAndLossEntity.setProfit(isProfit);
-		profitAndLossEntity.setRealisedProfits(existingRealisedProfits);
+		return realisedProfits;
 	}
 
 	private static double calculateGains(ProfitAndLossContext profitAndLossContext) {
@@ -99,16 +135,10 @@ public class ProfitAndLossService {
 		LocalDate financialYearEnd = financialYearEnd(transactionYear);
 
 		if (transactionDate.isBefore(financialYearEnd)) {
-			return (transactionYear - 1) + "/" + transactionYear;
+			return (transactionYear - 1) + "-" + transactionYear;
 		}
 
-		return transactionYear + "/" + (transactionYear + 1);
-	}
-
-	private static Calendar toCalendar(int year) {
-		Calendar cal = Calendar.getInstance();
-		cal.set(year, C_MARCH, DAY);
-		return cal;
+		return transactionYear + "-" + (transactionYear + 1);
 	}
 
 	private static LocalDate financialYearEnd(int year) {
@@ -124,5 +154,9 @@ public class ProfitAndLossService {
 		ProfitAndLossEntity profitAndLossEntity = optionalProfitAndLoss.orElse(new ProfitAndLossEntity());
 
 		return TObjectMapper.copy(profitAndLossEntity, ProfitAndLossResponse.class);
+	}
+
+	public void deleteProfitAndLoss(UserMail userMail) {
+		profitAndLossRepository.deleteByEmail(userMail.getEmail());
 	}
 }

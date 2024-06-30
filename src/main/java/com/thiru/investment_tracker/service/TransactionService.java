@@ -3,6 +3,7 @@ package com.thiru.investment_tracker.service;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.thiru.investment_tracker.user.UserMail;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +34,10 @@ public class TransactionService {
 		log.info("Transaction: {}, Stock: '{}' on '{}' noted successfully", transaction.getTransactionType(),
 				transaction.getStockName(), transaction.getTransactionDate());
 		transactionRepository.save(transaction);
+	}
+
+	public void deleteTransactions(UserMail userMail) {
+		transactionRepository.deleteByEmail(userMail.getEmail());
 	}
 
 	public List<Transaction> allTransactions() {

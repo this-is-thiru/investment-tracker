@@ -1,6 +1,6 @@
 package com.thiru.investment_tracker.common.parser;
 
-import com.thiru.investment_tracker.common.enums.ParserDataType;
+import com.thiru.investment_tracker.dto.enums.ParserDataType;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
