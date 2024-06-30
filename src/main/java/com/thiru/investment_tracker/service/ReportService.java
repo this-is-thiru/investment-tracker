@@ -24,4 +24,8 @@ public class ReportService {
 
         reportRepository.save(report);
     }
+
+    public void deleteReports(UserMail userMail) {
+        reportRepository.deleteByEmail(userMail.getEmail());
+    }
 }

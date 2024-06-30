@@ -11,6 +11,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
+
 @Document(value = "profit_and_loss")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -34,8 +36,14 @@ public class ProfitAndLossEntity {
 	@Field("realised_profits")
 	private RealisedProfits realisedProfits;
 
+	@Field("out_sourced_realised_profits")
+	private RealisedProfits outSourcedRealisedProfits;
+
 	@Field("unrealised_profit")
 	private double unrealisedProfit;
+
+	@Field("last_updated_time")
+	private LocalDateTime lastUpdatedTime;
 
 	public ProfitAndLossEntity(String email) {
 		this.email = email;

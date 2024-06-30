@@ -2,6 +2,8 @@ package com.thiru.investment_tracker.dto;
 
 import java.time.LocalDate;
 
+import com.thiru.investment_tracker.dto.enums.AccountType;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,4 +17,6 @@ public class ProfitAndLossContext {
 	private double sellPrice;
 	private long sellQuantity;
 	private LocalDate sellDate;
+	private AccountType accountType;
+	private String accountHolder;
 }

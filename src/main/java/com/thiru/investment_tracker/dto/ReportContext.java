@@ -2,6 +2,7 @@ package com.thiru.investment_tracker.dto;
 
 import java.time.LocalDate;
 
+import com.thiru.investment_tracker.dto.enums.AccountType;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 
 import lombok.AllArgsConstructor;
@@ -26,4 +27,6 @@ public class ReportContext {
 	private double totalValue;
 	private AssetType assetType;
 	private String actor;
+	private AccountType accountType;
+	private String accountHolder;
 }

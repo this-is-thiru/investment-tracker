@@ -64,6 +64,11 @@ public class PortfolioController {
 		return ResponseEntity.ok(portfolioService.getProfitAndLoss(UserMail.from(email), financialYear));
 	}
 
+	@PostMapping("/clear/all")
+	public ResponseEntity<String> getProfitAndLoss(@PathVariable String email) {
+		return ResponseEntity.ok(portfolioService.clearAllRecordsForCustomer(UserMail.from(email)));
+	}
+
 	@GetMapping("/all")
 	public ResponseEntity<List<AssetResponse>> getAllStocks(@PathVariable String email) {
 		return ResponseEntity.ok(portfolioService.getAllStocks(UserMail.from(email)));

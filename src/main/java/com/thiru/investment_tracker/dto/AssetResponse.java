@@ -30,6 +30,9 @@ public class AssetResponse {
 	private double totalValue;
 	private TransactionType transactionType;
 	private String actor;
+	private String accountType;
+	private String accountHolder;
+	private String remarks;
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCommonUtil.DATE_FORMAT)
 	private LocalDate transactionDate;

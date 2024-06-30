@@ -2,6 +2,7 @@ package com.thiru.investment_tracker.entity;
 
 import java.time.LocalDate;
 
+import com.thiru.investment_tracker.dto.enums.AccountType;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
@@ -67,6 +68,12 @@ public class Asset {
 	@JsonFormat(pattern = TCommonUtil.DATE_FORMAT)
 	@Field("transaction_date")
 	private LocalDate transactionDate;
+
+	@Field(name = "account_type", targetType = FieldType.STRING)
+	private AccountType accountType;
+
+	@Field("account_holder")
+	private String accountHolder;
 
 	@JsonIgnore
 	@Field(name = "transaction_type", targetType = FieldType.STRING)
