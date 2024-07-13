@@ -17,17 +17,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.thiru.investment_tracker.dto.ProfitAndLossContext;
-import com.thiru.investment_tracker.dto.ReportContext;
 import com.thiru.investment_tracker.common.TCommonUtil;
 import com.thiru.investment_tracker.common.TObjectMapper;
-import com.thiru.investment_tracker.dto.enums.ParserDataType;
-import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.common.parser.ExcelParser;
 import com.thiru.investment_tracker.dto.AssetRequest;
 import com.thiru.investment_tracker.dto.AssetResponse;
 import com.thiru.investment_tracker.dto.InputRecords;
+import com.thiru.investment_tracker.dto.ProfitAndLossContext;
 import com.thiru.investment_tracker.dto.ProfitAndLossResponse;
+import com.thiru.investment_tracker.dto.ReportContext;
+import com.thiru.investment_tracker.dto.enums.ParserDataType;
+import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.entity.Asset;
 import com.thiru.investment_tracker.exception.BadRequestException;
 import com.thiru.investment_tracker.manager.TransactionParser;
@@ -56,18 +56,27 @@ public class PortfolioService {
 	@Transactional
 	public String addTransaction(UserMail userMail, AssetRequest assetRequest) {
 
+		sanitizeAssetRequest(assetRequest);
+
+		TransactionType transactionType = assetRequest.getTransactionType();
+		String message = switch (transactionType) {
+			case BUY -> {
+				buyStock(userMail, assetRequest);
+				yield "Stock buy added to portfolio";
+			}
+			case SELL -> {
+				sellStock(userMail, assetRequest);
+				yield "Stock sell updated in portfolio and profit and loss updated in profit and loss";
+			}
+		};
+		addTransactionInternal(assetRequest);
+
+		return message;
+	}
+
+	private static void sanitizeAssetRequest(AssetRequest assetRequest) {
 		if (assetRequest.getTransactionDate() == null) {
 			assetRequest.setTransactionDate(LocalDate.now());
-		}
-
-		if (assetRequest.getTransactionType() == TransactionType.BUY) {
-			buyStock(userMail, assetRequest);
-			addTransactionInternal(assetRequest);
-			return "Stock buy updated in portfolio";
-		} else {
-			sellStock(userMail, assetRequest);
-			addTransactionInternal(assetRequest);
-			return "Stock sell updated in portfolio and profit and loss updated in profit and loss";
 		}
 	}
 
@@ -110,21 +119,21 @@ public class PortfolioService {
 			double existingTotalValue = asset.getTotalValue();
 			double totalValueOfTransaction = getTotalValue(assetRequest);
 			double newTotalValue = (existingTotalValue + totalValueOfTransaction);
-
 			double newPrice = newTotalValue / newQuantity;
 
 			asset.setPrice(newPrice);
 			asset.setQuantity(newQuantity);
 			asset.setTotalValue(newTotalValue);
-
-			portfolioRepository.save(asset);
 		} else {
 			asset = TObjectMapper.copy(assetRequest, Asset.class);
-
 			double totalValueOfTransaction = getTotalValue(assetRequest);
+
 			asset.setTotalValue(totalValueOfTransaction);
-			portfolioRepository.save(asset);
 		}
+
+		ProfitAndLossContext profitAndLossContext = ProfitAndLossContext.from(assetRequest);
+		profitAndLossService.updateProfitAndLoss(userMail, profitAndLossContext);
+		portfolioRepository.save(asset);
 	}
 
 	public void sellStock(UserMail userMail, AssetRequest assetRequest) {
@@ -203,8 +212,8 @@ public class PortfolioService {
 	 * on a given stock code.
 	 *
 	 * @param stockEntities
-	 *            a list of stock entities to search through* @return the response
-	 *            entity that matches the provided stock code
+	 *            a list of stock entities to search through
+	 * @return the response entity that matches the provided stock code
 	 */
 	private static AssetResponse combineAllDetailsOfEntities(List<Asset> stockEntities) {
 		AssetResponse assetResponse = TObjectMapper.copy(stockEntities.getFirst(), AssetResponse.class);
@@ -247,7 +256,7 @@ public class PortfolioService {
 				asset.setTotalValue(0);
 
 				reportContext = toReportContext(asset, assetRequest, assetQuantity);
-				profitAndLossContext = toProfitAndLossContext(asset, assetRequest, assetQuantity);
+				profitAndLossContext = ProfitAndLossContext.from(asset, assetRequest, assetQuantity);
 				sellQuantity = sellQuantity - assetQuantity;
 			} else {
 
@@ -256,26 +265,13 @@ public class PortfolioService {
 				asset.setTotalValue(remainingQuantity * asset.getPrice());
 
 				reportContext = toReportContext(asset, assetRequest, sellQuantity);
-				profitAndLossContext = toProfitAndLossContext(asset, assetRequest, sellQuantity);
+				profitAndLossContext = ProfitAndLossContext.from(asset, assetRequest, sellQuantity);
 				sellQuantity = 0;
 			}
 
 			reportService.stockReport(userMail, reportContext);
 			profitAndLossService.updateProfitAndLoss(userMail, profitAndLossContext);
 		}
-	}
-
-	private static ProfitAndLossContext toProfitAndLossContext(Asset asset, AssetRequest assetRequest,
-			long sellQuantity) {
-		double purchasePrice = asset.getPrice();
-		LocalDate purchaseDate = asset.getTransactionDate();
-
-		double sellPrice = assetRequest.getPrice();
-		LocalDate sellDate = assetRequest.getTransactionDate();
-
-		return ProfitAndLossContext.from(purchasePrice, purchaseDate, sellPrice, sellQuantity, sellDate,
-				assetRequest.getAccountType(), assetRequest.getAccountHolder());
-
 	}
 
 	private static ReportContext toReportContext(Asset asset, AssetRequest assetRequest, long sellQuantity) {
@@ -327,18 +323,18 @@ public class PortfolioService {
 
 	public String clearAllRecordsForCustomer(UserMail userMail) {
 
-		log.info("Initiated clearing all records for user: {}", userMail.getEmail());
+		log.info("Initiated deletion of all records of user: {}", userMail.getEmail());
 
 		portfolioRepository.deleteByEmail(userMail.getEmail());
-		log.info("Cleared portfolio stocks for user: {}", userMail.getEmail());
+		log.info("Deleted all portfolio stocks for user: {}", userMail.getEmail());
 		reportService.deleteReports(userMail);
-		log.info("Cleared all reports for user: {}", userMail.getEmail());
+		log.info("Deleted all reports for user: {}", userMail.getEmail());
 		transactionService.deleteTransactions(userMail);
-		log.info("Cleared all transactions for user: {}", userMail.getEmail());
+		log.info("Deleted all transactions for user: {}", userMail.getEmail());
 		profitAndLossService.deleteProfitAndLoss(userMail);
-		log.info("Cleared all profit and loss reports for user: {}", userMail.getEmail());
+		log.info("Deleted all profit and loss reports for user: {}", userMail.getEmail());
 
-		return "Cleared all records and transactions successfully";
+		return "User: " + userMail.getEmail() + ", records and transactions deleted successfully";
 	}
 
 	private static void addEmailToFilter(List<Filter> filters, String email) {

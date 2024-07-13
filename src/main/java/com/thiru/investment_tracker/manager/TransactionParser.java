@@ -7,12 +7,12 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.thiru.investment_tracker.common.TCommonUtil;
-import com.thiru.investment_tracker.dto.enums.AssetType;
-import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.common.parser.CellDetail;
 import com.thiru.investment_tracker.dto.AssetRequest;
 import com.thiru.investment_tracker.dto.InputRecord;
 import com.thiru.investment_tracker.dto.InputRecords;
+import com.thiru.investment_tracker.dto.enums.AssetType;
+import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.util.TransactionHeaders;
 
 public class TransactionParser {
@@ -43,6 +43,9 @@ public class TransactionParser {
 		setQuantity(assetRequest, record);
 		setTransactionType(assetRequest, record);
 		setTransactionDate(assetRequest, record);
+		setBrokerCharges(assetRequest, record);
+		setMiscCharges(assetRequest, record);
+		setComment(assetRequest, record);
 
 		return assetRequest;
 	}
@@ -141,5 +144,23 @@ public class TransactionParser {
 			default :
 				break;
 		}
+	}
+
+	private static void setBrokerCharges(AssetRequest assetRequest, Map<String, CellDetail> record) {
+
+		CellDetail cellDetail = record.get(TransactionHeaders.BROKER_CHARGES);
+		assetRequest.setBrokerCharges((Double) cellDetail.getCellValue());
+	}
+
+	private static void setMiscCharges(AssetRequest assetRequest, Map<String, CellDetail> record) {
+
+		CellDetail cellDetail = record.get(TransactionHeaders.MISC_CHARGES);
+		assetRequest.setMiscCharges((Double) cellDetail.getCellValue());
+	}
+
+	private static void setComment(AssetRequest assetRequest, Map<String, CellDetail> record) {
+
+		CellDetail cellDetail = record.get(TransactionHeaders.COMMENT);
+		assetRequest.setComment((String) cellDetail.getCellValue());
 	}
 }

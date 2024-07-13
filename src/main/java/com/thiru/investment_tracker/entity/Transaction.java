@@ -2,7 +2,6 @@ package com.thiru.investment_tracker.entity;
 
 import java.time.LocalDate;
 
-import com.thiru.investment_tracker.dto.enums.AccountType;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
@@ -12,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import com.thiru.investment_tracker.common.TCommonUtil;
+import com.thiru.investment_tracker.dto.enums.AccountType;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
 
@@ -54,6 +54,15 @@ public class Transaction {
 
 	@Field("total_value")
 	private double totalValue;
+
+	@Field("broker_charges")
+	private double brokerCharges;
+
+	@Field("misc_charges")
+	private double miscCharges;
+
+	@Field("comment")
+	private String comment;
 
 	@Field(name = "asset_type", targetType = FieldType.STRING)
 	private AssetType assetType;

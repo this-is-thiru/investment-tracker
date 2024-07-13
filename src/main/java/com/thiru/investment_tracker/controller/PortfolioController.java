@@ -26,6 +26,7 @@ import com.thiru.investment_tracker.service.PortfolioService;
 import com.thiru.investment_tracker.service.TemporaryService;
 import com.thiru.investment_tracker.service.TransactionService;
 import com.thiru.investment_tracker.user.UserMail;
+import com.thiru.investment_tracker.util.TransactionHeaders;
 
 import lombok.AllArgsConstructor;
 
@@ -95,6 +96,14 @@ public class PortfolioController {
 
 		UserMail.from(email);
 		return ResponseEntity.ok(transactionService.allTransactions());
+	}
+
+	@GetMapping("/template/fields")
+	public ResponseEntity<List<String>> getTemplateFields(@PathVariable String email) {
+
+		UserMail.from(email);
+		List<String> templateFields = TransactionHeaders.getHeadersList();
+		return ResponseEntity.ok(templateFields);
 	}
 
 	// Note: Below this comment is for testing purpose only
