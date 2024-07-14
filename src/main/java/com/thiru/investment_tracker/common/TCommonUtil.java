@@ -24,6 +24,10 @@ public class TCommonUtil {
 		return stream(source).filter(consumer).toList();
 	}
 
+	public static <T, R> List<R> applyMap(Collection<T> source, Predicate<T> consumer, Function<T, R> mapper) {
+		return stream(source).filter(consumer).map(mapper).toList();
+	}
+
 	public static <T> T findFirst(Collection<T> source, Predicate<T> consumer, T defaultValue) {
 		return stream(source).filter(consumer).findFirst().orElse(defaultValue);
 	}

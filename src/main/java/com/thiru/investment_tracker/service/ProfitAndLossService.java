@@ -14,14 +14,18 @@ import com.thiru.investment_tracker.common.TOptional;
 import com.thiru.investment_tracker.dto.ProfitAndLossContext;
 import com.thiru.investment_tracker.dto.ProfitAndLossResponse;
 import com.thiru.investment_tracker.dto.enums.AccountType;
+import com.thiru.investment_tracker.entity.FinancialReport;
 import com.thiru.investment_tracker.entity.FortnightReport;
 import com.thiru.investment_tracker.entity.MonthlyReport;
 import com.thiru.investment_tracker.entity.ProfitAndLossEntity;
 import com.thiru.investment_tracker.entity.RealisedProfits;
+import com.thiru.investment_tracker.entity.ReportModel;
 import com.thiru.investment_tracker.repository.ProfitAndLossRepository;
 import com.thiru.investment_tracker.user.UserMail;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -37,8 +41,10 @@ public class ProfitAndLossService {
 
 	public void updateProfitAndLoss(UserMail userMail, ProfitAndLossContext profitAndLossContext) {
 
+		InternalContext internalContext = new InternalContext(profitAndLossContext);
+
 		ProfitAndLossEntity profitAndLossEntity = getProfitAndLoss(userMail, profitAndLossContext);
-		updateCapitalGains(profitAndLossContext, profitAndLossEntity);
+		updateProfitAndLossReports(profitAndLossEntity, internalContext);
 		profitAndLossRepository.save(profitAndLossEntity);
 	}
 
@@ -57,78 +63,68 @@ public class ProfitAndLossService {
 		return profitAndLossEntity;
 	}
 
-	private static void updateCapitalGains(ProfitAndLossContext profitAndLossContext,
-			ProfitAndLossEntity profitAndLossEntity) {
+	private static void updateProfitAndLossReports(ProfitAndLossEntity profitAndLossEntity,
+			InternalContext internalContext) {
 
-		if (profitAndLossContext.getMetadata().getAccountType() == AccountType.SELF) {
+		AccountType accountType = internalContext.getProfitAndLossContext().getMetadata().getAccountType();
+		if (accountType == AccountType.SELF) {
 			RealisedProfits existingRealisedProfits = TOptional.mapO(profitAndLossEntity.getRealisedProfits(),
 					RealisedProfits.empty());
-			RealisedProfits calculatedProfitDetails = calculateProfitDetails(profitAndLossContext,
-					existingRealisedProfits);
+			RealisedProfits calculatedProfitDetails = calculateProfitDetails(existingRealisedProfits, internalContext);
 			profitAndLossEntity.setRealisedProfits(calculatedProfitDetails);
 		} else {
 			RealisedProfits outSourcedRealisedProfits = TOptional
 					.mapO(profitAndLossEntity.getOutSourcedRealisedProfits(), RealisedProfits.empty());
-			RealisedProfits calculatedProfitDetails = calculateProfitDetails(profitAndLossContext,
-					outSourcedRealisedProfits);
+			RealisedProfits calculatedProfitDetails = calculateProfitDetails(outSourcedRealisedProfits,
+					internalContext);
 			profitAndLossEntity.setOutSourcedRealisedProfits(calculatedProfitDetails);
 		}
-
-		double totalRealisedProfit = totalProfitDetails(profitAndLossEntity);
-		boolean isProfit = totalRealisedProfit > 0;
-		profitAndLossEntity.setProfit(isProfit);
 
 		profitAndLossEntity.setLastUpdatedTime(LocalDateTime.now());
 	}
 
-	private static double totalProfitDetails(ProfitAndLossEntity profitAndLossEntity) {
+	private static RealisedProfits calculateProfitDetails(RealisedProfits realisedProfits,
+			InternalContext internalContext) {
 
-		RealisedProfits realisedProfits = TOptional.mapO(profitAndLossEntity.getRealisedProfits(),
-				RealisedProfits.empty());
-		RealisedProfits outSourcedRealisedProfits = TOptional.mapO(profitAndLossEntity.getOutSourcedRealisedProfits(),
-				RealisedProfits.empty());
+		if (internalContext.isShortTermGain()) {
 
-		double shortTermCapitalGains = realisedProfits.getShortTermCapitalGains();
-		double longTermCapitalGains = realisedProfits.getLongTermCapitalGains();
-
-		double outSourcedShortTermCapitalGains = outSourcedRealisedProfits.getShortTermCapitalGains();
-		double outSourcedLongTermCapitalGains = outSourcedRealisedProfits.getLongTermCapitalGains();
-
-		return shortTermCapitalGains + longTermCapitalGains + outSourcedShortTermCapitalGains
-				+ outSourcedLongTermCapitalGains;
-	}
-
-	private static RealisedProfits calculateProfitDetails(ProfitAndLossContext profitAndLossContext,
-			RealisedProfits realisedProfits) {
-
-		double calculatedGainOrLoss = calculateGains(profitAndLossContext);
-
-		if (isShortTermCapitalGain(profitAndLossContext)) {
-			double shortTermCapitalGains = realisedProfits.getShortTermCapitalGains();
-			shortTermCapitalGains = shortTermCapitalGains + calculatedGainOrLoss;
-			realisedProfits.setShortTermCapitalGains(shortTermCapitalGains);
+			FinancialReport financialReport = TOptional.mapO(realisedProfits.getShortTermCapitalGains(),
+					FinancialReport.empty());
+			updateFinancialReport(financialReport, internalContext);
+			realisedProfits.setShortTermCapitalGains(financialReport);
 		} else {
-			double longTermCapitalGains = realisedProfits.getLongTermCapitalGains();
-			longTermCapitalGains = longTermCapitalGains + calculatedGainOrLoss;
-			realisedProfits.setLongTermCapitalGains(longTermCapitalGains);
+
+			FinancialReport financialReport = TOptional.mapO(realisedProfits.getLongTermCapitalGains(),
+					FinancialReport.empty());
+			updateFinancialReport(financialReport, internalContext);
+			realisedProfits.setLongTermCapitalGains(financialReport);
 		}
 
-		double totalRealisedProfit = realisedProfits.getTotalRealisedProfit();
-		totalRealisedProfit = totalRealisedProfit + calculatedGainOrLoss;
-		realisedProfits.setTotalRealisedProfit(totalRealisedProfit);
-
 		realisedProfits.setLastUpdatedTime(LocalDateTime.now());
-		updateMonthlyReport(realisedProfits, profitAndLossContext);
-
 		return realisedProfits;
 	}
 
-	private static void updateMonthlyReport(RealisedProfits realisedProfits,
-			ProfitAndLossContext profitAndLossContext) {
-		LocalDate transactionDate = profitAndLossContext.getSellContext().getTransactionDate();
+	private static void updateFinancialReport(FinancialReport financialReport, InternalContext internalContext) {
+		Map<Month, MonthlyReport> monthlyReports = updateMonthlyReports(financialReport.getMonthlyReport(),
+				internalContext);
 
+		financialReport.setMonthlyReport(monthlyReports);
+		updateReportMetadata(financialReport, internalContext);
+	}
+
+	private static void updateReportMetadata(ReportModel metadata, InternalContext internalContext) {
+		metadata.setPurchasePrice(metadata.getPurchasePrice() + internalContext.getPurchasePrice());
+		metadata.setSellPrice(metadata.getSellPrice() + internalContext.getSellPrice());
+		metadata.setProfit(metadata.getProfit() + internalContext.getProfit());
+		metadata.setBrokerCharges(metadata.getBrokerCharges() + internalContext.getBrokerCharges());
+		metadata.setMiscCharges(metadata.getMiscCharges() + internalContext.getMiscCharges());
+		metadata.setLastUpdatedTime(LocalDateTime.now());
+	}
+
+	private static Map<Month, MonthlyReport> updateMonthlyReports(Map<Month, MonthlyReport> monthlyReports,
+			InternalContext internalContext) {
+		LocalDate transactionDate = internalContext.getProfitAndLossContext().getSellContext().getTransactionDate();
 		Month month = transactionDate.getMonth();
-		Map<Month, MonthlyReport> monthlyReports = realisedProfits.getMonthlyReports();
 		MonthlyReport monthlyReport = monthlyReports.getOrDefault(month, new MonthlyReport(month));
 
 		FortnightReport fortnightReport;
@@ -140,15 +136,17 @@ public class ProfitAndLossService {
 			monthlyReport.setSecondFortnightReport(fortnightReport);
 		}
 
-		updateFortnightReport(fortnightReport, profitAndLossContext);
+		updateFortnightReport(fortnightReport, internalContext);
+
+		updateReportMetadata(monthlyReport, internalContext);
 		monthlyReports.put(month, monthlyReport);
 
-		realisedProfits.setLastUpdatedTime(LocalDateTime.now());
-		realisedProfits.setMonthlyReports(monthlyReports);
+		return monthlyReports;
 	}
 
-	private static void updateFortnightReport(FortnightReport fortnightReport,
-			ProfitAndLossContext profitAndLossContext) {
+	private static void updateFortnightReport(FortnightReport fortnightReport, InternalContext internalContext) {
+
+		ProfitAndLossContext profitAndLossContext = internalContext.getProfitAndLossContext();
 
 		double purchasePrice = profitAndLossContext.getPurchaseContext().getPrice()
 				* profitAndLossContext.getSellContext().getQuantity();
@@ -158,16 +156,25 @@ public class ProfitAndLossService {
 				* profitAndLossContext.getSellContext().getQuantity();
 		fortnightReport.setSellPrice(fortnightReport.getSellPrice() + sellPrice);
 
-		fortnightReport.setProfit(fortnightReport.getProfit() + calculateGains(profitAndLossContext));
-
 		double purchaseBrokerCharges = profitAndLossContext.getPurchaseContext().getBrokerCharges();
 		double sellBrokerCharges = profitAndLossContext.getSellContext().getBrokerCharges();
-		fortnightReport
-				.setBrokerCharges(fortnightReport.getBrokerCharges() + purchaseBrokerCharges + sellBrokerCharges);
+		double brokerCharges = purchaseBrokerCharges + sellBrokerCharges;
+		fortnightReport.setBrokerCharges(fortnightReport.getBrokerCharges() + brokerCharges);
 
 		double purchaseMiscCharges = profitAndLossContext.getPurchaseContext().getMiscCharges();
 		double sellMiscCharges = profitAndLossContext.getSellContext().getMiscCharges();
-		fortnightReport.setMiscCharges(fortnightReport.getMiscCharges() + purchaseMiscCharges + sellMiscCharges);
+		double miscCharges = purchaseMiscCharges + sellMiscCharges;
+		fortnightReport.setMiscCharges(fortnightReport.getMiscCharges() + miscCharges);
+
+		double netGainOrLoss = calculateGains(profitAndLossContext) - brokerCharges - miscCharges;
+		fortnightReport.setProfit(fortnightReport.getProfit() + netGainOrLoss);
+
+		// Update internal context
+		internalContext.setPurchasePrice(purchasePrice);
+		internalContext.setSellPrice(sellPrice);
+		internalContext.setProfit(netGainOrLoss);
+		internalContext.setBrokerCharges(brokerCharges);
+		internalContext.setMiscCharges(miscCharges);
 	}
 
 	private static double calculateGains(ProfitAndLossContext profitAndLossContext) {
@@ -177,16 +184,6 @@ public class ProfitAndLossService {
 		double currentPrice = profitAndLossContext.getSellContext().getPrice();
 
 		return (currentPrice - initialPrice) * sellQuantity;
-	}
-
-	private static boolean isShortTermCapitalGain(ProfitAndLossContext profitAndLossContext) {
-
-		LocalDate purchaseDate = profitAndLossContext.getPurchaseContext().getTransactionDate();
-		LocalDate sellDate = profitAndLossContext.getSellContext().getTransactionDate();
-
-		LocalDate thresholdDate = purchaseDate.plusYears(1);
-
-		return sellDate.isBefore(thresholdDate);
 	}
 
 	private static String sanitizeFinancialYear(LocalDate transactionDate) {
@@ -218,5 +215,31 @@ public class ProfitAndLossService {
 
 	public void deleteProfitAndLoss(UserMail userMail) {
 		profitAndLossRepository.deleteByEmail(userMail.getEmail());
+	}
+}
+
+@Data
+@NoArgsConstructor
+class InternalContext {
+	private boolean isShortTermGain;
+	private double purchasePrice;
+	private double sellPrice;
+	private double profit;
+	private double brokerCharges;
+	private double miscCharges;
+	private ProfitAndLossContext profitAndLossContext;
+
+	InternalContext(ProfitAndLossContext profitAndLossContext) {
+		this.profitAndLossContext = profitAndLossContext;
+		isShortTermCapitalGain();
+	}
+
+	private void isShortTermCapitalGain() {
+
+		LocalDate purchaseDate = profitAndLossContext.getPurchaseContext().getTransactionDate();
+		LocalDate sellDate = profitAndLossContext.getSellContext().getTransactionDate();
+
+		LocalDate thresholdDate = purchaseDate.plusYears(1);
+		this.isShortTermGain = sellDate.isBefore(thresholdDate);
 	}
 }

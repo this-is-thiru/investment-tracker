@@ -23,27 +23,27 @@ public class ProfitAndLossContext {
 		double purchasePrice = asset.getPrice();
 		LocalDate purchaseDate = asset.getTransactionDate();
 
-		double brokerCharges = asset.getBrokerCharges() / asset.getQuantity() * sellQuantity;
-		double miscCharges = asset.getMiscCharges() / asset.getQuantity() * sellQuantity;
+		double purchaseBrokerCharge = (asset.getBrokerCharges() / asset.getQuantity()) * sellQuantity;
+		double purchaseMiscCharge = (asset.getMiscCharges() / asset.getQuantity()) * sellQuantity;
 
 		AssetContext purchaseContext = AssetContext.from();
 		purchaseContext.setPrice(purchasePrice);
 		purchaseContext.setQuantity(asset.getQuantity());
 		purchaseContext.setTransactionDate(purchaseDate);
 		purchaseContext.setAssetType(asset.getAssetType());
-		purchaseContext.setBrokerCharges(brokerCharges);
-		purchaseContext.setMiscCharges(miscCharges);
+		purchaseContext.setBrokerCharges(purchaseBrokerCharge);
+		purchaseContext.setMiscCharges(purchaseMiscCharge);
 
-		double sellPrice = assetRequest.getPrice();
-		LocalDate sellDate = assetRequest.getTransactionDate();
+		double sellBrokerCharge = (assetRequest.getBrokerCharges() / assetRequest.getQuantity()) * sellQuantity;
+		double sellMiscCharge = (assetRequest.getMiscCharges() / assetRequest.getQuantity()) * sellQuantity;
 
 		AssetContext sellContext = AssetContext.from();
-		sellContext.setPrice(sellPrice);
+		sellContext.setPrice(assetRequest.getPrice());
 		sellContext.setQuantity(sellQuantity);
-		sellContext.setTransactionDate(sellDate);
+		sellContext.setTransactionDate(assetRequest.getTransactionDate());
 		sellContext.setAssetType(assetRequest.getAssetType());
-		sellContext.setBrokerCharges(assetRequest.getBrokerCharges());
-		sellContext.setMiscCharges(assetRequest.getMiscCharges());
+		sellContext.setBrokerCharges(sellBrokerCharge);
+		sellContext.setMiscCharges(sellMiscCharge);
 
 		AssetMetadata metadata = AssetMetadata.from();
 		metadata.setAccountType(assetRequest.getAccountType());

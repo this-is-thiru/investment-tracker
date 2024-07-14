@@ -67,7 +67,6 @@ public class TransactionHeaders {
 
 	public static ByteArrayInputStream downloadTemplate() {
 
-		// XSSFWorkbook workbook = new XSSFWorkbook();
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		try (XSSFWorkbook workbook = new XSSFWorkbook()) {
 			ExcelParser.dataToExcel(workbook);

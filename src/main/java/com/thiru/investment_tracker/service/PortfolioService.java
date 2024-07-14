@@ -145,7 +145,12 @@ public class PortfolioService {
 		validateTransaction(stockEntities, assetRequest);
 
 		updateQuantity(userMail, stockEntities, assetRequest);
+		List<String> updatedStockEntities = TCommonUtil.applyMap(stockEntities, asset -> asset.getQuantity() == 0, Asset::getId);
 		portfolioRepository.saveAll(stockEntities);
+
+		if (!updatedStockEntities.isEmpty()) {
+			portfolioRepository.deleteAllById(updatedStockEntities);
+		}
 	}
 
 	private static void validateTransaction(List<Asset> stockEntities, AssetRequest assetRequest) {
@@ -250,21 +255,19 @@ public class PortfolioService {
 			ProfitAndLossContext profitAndLossContext;
 
 			if (sellQuantity >= assetQuantity) {
+				reportContext = toReportContext(asset, assetRequest, assetQuantity);
+				profitAndLossContext = ProfitAndLossContext.from(asset, assetRequest, assetQuantity);
 
 				asset.setQuantity(0L);
 				asset.setTotalValue(0);
-
-				reportContext = toReportContext(asset, assetRequest, assetQuantity);
-				profitAndLossContext = ProfitAndLossContext.from(asset, assetRequest, assetQuantity);
 				sellQuantity = sellQuantity - assetQuantity;
 			} else {
+				reportContext = toReportContext(asset, assetRequest, sellQuantity);
+				profitAndLossContext = ProfitAndLossContext.from(asset, assetRequest, sellQuantity);
 
 				long remainingQuantity = assetQuantity - sellQuantity;
 				asset.setQuantity(remainingQuantity);
 				asset.setTotalValue(remainingQuantity * asset.getPrice());
-
-				reportContext = toReportContext(asset, assetRequest, sellQuantity);
-				profitAndLossContext = ProfitAndLossContext.from(asset, assetRequest, sellQuantity);
 				sellQuantity = 0;
 			}
 
