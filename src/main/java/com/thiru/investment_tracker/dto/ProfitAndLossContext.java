@@ -2,30 +2,19 @@ package com.thiru.investment_tracker.dto;
 
 import java.time.LocalDate;
 
-import com.thiru.investment_tracker.dto.enums.AccountType;
-import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.entity.Asset;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-@AllArgsConstructor(staticName = "from")
 @NoArgsConstructor(staticName = "from")
 @EqualsAndHashCode
 @Data
 public class ProfitAndLossContext {
-	private double purchasePrice;
-	private LocalDate purchaseDate;
-	private double sellPrice;
-	private long sellQuantity;
-	private LocalDate sellDate;
-	private AccountType accountType;
-	private String accountHolder;
-	private TransactionType transactionType;
-	private double brokerCharges;
-	private double miscCharges;
+	private AssetContext purchaseContext;
+	private AssetContext sellContext;
+	private AssetMetadata metadata;
 
 	/**
 	 * Profit and loss context while selling the asset
@@ -34,39 +23,36 @@ public class ProfitAndLossContext {
 		double purchasePrice = asset.getPrice();
 		LocalDate purchaseDate = asset.getTransactionDate();
 
+		double brokerCharges = asset.getBrokerCharges() / asset.getQuantity() * sellQuantity;
+		double miscCharges = asset.getMiscCharges() / asset.getQuantity() * sellQuantity;
+
+		AssetContext purchaseContext = AssetContext.from();
+		purchaseContext.setPrice(purchasePrice);
+		purchaseContext.setQuantity(asset.getQuantity());
+		purchaseContext.setTransactionDate(purchaseDate);
+		purchaseContext.setAssetType(asset.getAssetType());
+		purchaseContext.setBrokerCharges(brokerCharges);
+		purchaseContext.setMiscCharges(miscCharges);
+
 		double sellPrice = assetRequest.getPrice();
 		LocalDate sellDate = assetRequest.getTransactionDate();
 
-		ProfitAndLossContext profitAndLossContext = ProfitAndLossContext.from();
-		profitAndLossContext.setPurchasePrice(purchasePrice);
-		profitAndLossContext.setPurchaseDate(purchaseDate);
-		profitAndLossContext.setSellPrice(sellPrice);
-		profitAndLossContext.setSellQuantity(sellQuantity);
-		profitAndLossContext.setSellDate(sellDate);
-		profitAndLossContext.setAccountType(assetRequest.getAccountType());
-		profitAndLossContext.setAccountHolder(assetRequest.getAccountHolder());
-		profitAndLossContext.setTransactionType(assetRequest.getTransactionType());
-		profitAndLossContext.setBrokerCharges(assetRequest.getBrokerCharges());
-		profitAndLossContext.setMiscCharges(assetRequest.getMiscCharges());
+		AssetContext sellContext = AssetContext.from();
+		sellContext.setPrice(sellPrice);
+		sellContext.setQuantity(sellQuantity);
+		sellContext.setTransactionDate(sellDate);
+		sellContext.setAssetType(assetRequest.getAssetType());
+		sellContext.setBrokerCharges(assetRequest.getBrokerCharges());
+		sellContext.setMiscCharges(assetRequest.getMiscCharges());
 
-		return profitAndLossContext;
-	}
-
-	/**
-	 * Profit and loss context while buying the asset
-	 */
-	public static ProfitAndLossContext from(AssetRequest assetRequest) {
-
-		LocalDate purchaseDate = assetRequest.getTransactionDate();
+		AssetMetadata metadata = AssetMetadata.from();
+		metadata.setAccountType(assetRequest.getAccountType());
+		metadata.setAccountHolder(assetRequest.getAccountHolder());
 
 		ProfitAndLossContext profitAndLossContext = ProfitAndLossContext.from();
-		profitAndLossContext.setPurchaseDate(purchaseDate);
-		profitAndLossContext.setAccountType(assetRequest.getAccountType());
-		profitAndLossContext.setAccountHolder(assetRequest.getAccountHolder());
-		profitAndLossContext.setTransactionType(assetRequest.getTransactionType());
-		profitAndLossContext.setBrokerCharges(assetRequest.getBrokerCharges());
-		profitAndLossContext.setMiscCharges(assetRequest.getMiscCharges());
-
+		profitAndLossContext.setPurchaseContext(purchaseContext);
+		profitAndLossContext.setSellContext(sellContext);
+		profitAndLossContext.setMetadata(metadata);
 		return profitAndLossContext;
 	}
 }

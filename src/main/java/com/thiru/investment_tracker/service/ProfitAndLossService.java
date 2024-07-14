@@ -14,12 +14,10 @@ import com.thiru.investment_tracker.common.TOptional;
 import com.thiru.investment_tracker.dto.ProfitAndLossContext;
 import com.thiru.investment_tracker.dto.ProfitAndLossResponse;
 import com.thiru.investment_tracker.dto.enums.AccountType;
-import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.entity.FortnightReport;
 import com.thiru.investment_tracker.entity.MonthlyReport;
 import com.thiru.investment_tracker.entity.ProfitAndLossEntity;
 import com.thiru.investment_tracker.entity.RealisedProfits;
-import com.thiru.investment_tracker.exception.BadRequestException;
 import com.thiru.investment_tracker.repository.ProfitAndLossRepository;
 import com.thiru.investment_tracker.user.UserMail;
 
@@ -40,26 +38,14 @@ public class ProfitAndLossService {
 	public void updateProfitAndLoss(UserMail userMail, ProfitAndLossContext profitAndLossContext) {
 
 		ProfitAndLossEntity profitAndLossEntity = getProfitAndLoss(userMail, profitAndLossContext);
-
-		TransactionType transactionType = profitAndLossContext.getTransactionType();
-		switch (transactionType) {
-			case BUY :
-				updateTransactionalCharges(profitAndLossContext, profitAndLossEntity);
-				break;
-			case SELL :
-				updateCapitalGains(profitAndLossContext, profitAndLossEntity);
-				break;
-			default :
-				throw new BadRequestException("Invalid transaction type");
-		}
-
+		updateCapitalGains(profitAndLossContext, profitAndLossEntity);
 		profitAndLossRepository.save(profitAndLossEntity);
 	}
 
 	private ProfitAndLossEntity getProfitAndLoss(UserMail userMail, ProfitAndLossContext profitAndLossContext) {
 		String email = userMail.getEmail();
 
-		LocalDate transactionDate = transactionDate(profitAndLossContext);
+		LocalDate transactionDate = profitAndLossContext.getSellContext().getTransactionDate();
 		String financialYear = sanitizeFinancialYear(transactionDate);
 		Optional<ProfitAndLossEntity> optionalProfitAndLoss = profitAndLossRepository.findByEmailAndFinancialYear(email,
 				financialYear);
@@ -71,47 +57,10 @@ public class ProfitAndLossService {
 		return profitAndLossEntity;
 	}
 
-	private static LocalDate transactionDate(ProfitAndLossContext profitAndLossContext) {
-
-		TransactionType transactionType = profitAndLossContext.getTransactionType();
-		return switch (transactionType) {
-			case BUY -> profitAndLossContext.getPurchaseDate();
-			case SELL -> profitAndLossContext.getSellDate();
-		};
-	}
-
-	private static void updateTransactionalCharges(ProfitAndLossContext profitAndLossContext,
-			ProfitAndLossEntity profitAndLossEntity) {
-
-		AccountType accountType = profitAndLossContext.getAccountType();
-		RealisedProfits realisedProfits;
-		switch (accountType) {
-			case SELF :
-				realisedProfits = TOptional.mapO(profitAndLossEntity.getRealisedProfits(), RealisedProfits.empty());
-				profitAndLossEntity.setRealisedProfits(realisedProfits);
-				break;
-			case OUTSOURCED :
-				realisedProfits = TOptional.mapO(profitAndLossEntity.getOutSourcedRealisedProfits(),
-						RealisedProfits.empty());
-				profitAndLossEntity.setOutSourcedRealisedProfits(realisedProfits);
-				break;
-			default :
-				throw new BadRequestException("Invalid account type: " + accountType);
-		};
-
-		updateMonthlyReport(realisedProfits, profitAndLossContext);
-
-		double totalRealisedProfit = totalProfitDetails(profitAndLossEntity);
-		boolean isProfit = totalRealisedProfit > 0;
-		profitAndLossEntity.setProfit(isProfit);
-
-		profitAndLossEntity.setLastUpdatedTime(LocalDateTime.now());
-	}
-
 	private static void updateCapitalGains(ProfitAndLossContext profitAndLossContext,
 			ProfitAndLossEntity profitAndLossEntity) {
 
-		if (profitAndLossContext.getAccountType() == AccountType.SELF) {
+		if (profitAndLossContext.getMetadata().getAccountType() == AccountType.SELF) {
 			RealisedProfits existingRealisedProfits = TOptional.mapO(profitAndLossEntity.getRealisedProfits(),
 					RealisedProfits.empty());
 			RealisedProfits calculatedProfitDetails = calculateProfitDetails(profitAndLossContext,
@@ -176,7 +125,7 @@ public class ProfitAndLossService {
 
 	private static void updateMonthlyReport(RealisedProfits realisedProfits,
 			ProfitAndLossContext profitAndLossContext) {
-		LocalDate transactionDate = transactionDate(profitAndLossContext);
+		LocalDate transactionDate = profitAndLossContext.getSellContext().getTransactionDate();
 
 		Month month = transactionDate.getMonth();
 		Map<Month, MonthlyReport> monthlyReports = realisedProfits.getMonthlyReports();
@@ -201,26 +150,39 @@ public class ProfitAndLossService {
 	private static void updateFortnightReport(FortnightReport fortnightReport,
 			ProfitAndLossContext profitAndLossContext) {
 
-		fortnightReport.setPurchasePrice(fortnightReport.getPurchasePrice() + profitAndLossContext.getPurchasePrice());
-		fortnightReport.setSellPrice(fortnightReport.getSellPrice() + profitAndLossContext.getSellPrice());
+		double purchasePrice = profitAndLossContext.getPurchaseContext().getPrice()
+				* profitAndLossContext.getSellContext().getQuantity();
+		fortnightReport.setPurchasePrice(fortnightReport.getPurchasePrice() + purchasePrice);
+
+		double sellPrice = profitAndLossContext.getSellContext().getPrice()
+				* profitAndLossContext.getSellContext().getQuantity();
+		fortnightReport.setSellPrice(fortnightReport.getSellPrice() + sellPrice);
+
 		fortnightReport.setProfit(fortnightReport.getProfit() + calculateGains(profitAndLossContext));
-		fortnightReport.setBrokerCharges(fortnightReport.getBrokerCharges() + profitAndLossContext.getBrokerCharges());
-		fortnightReport.setMiscCharges(fortnightReport.getMiscCharges() + profitAndLossContext.getMiscCharges());
+
+		double purchaseBrokerCharges = profitAndLossContext.getPurchaseContext().getBrokerCharges();
+		double sellBrokerCharges = profitAndLossContext.getSellContext().getBrokerCharges();
+		fortnightReport
+				.setBrokerCharges(fortnightReport.getBrokerCharges() + purchaseBrokerCharges + sellBrokerCharges);
+
+		double purchaseMiscCharges = profitAndLossContext.getPurchaseContext().getMiscCharges();
+		double sellMiscCharges = profitAndLossContext.getSellContext().getMiscCharges();
+		fortnightReport.setMiscCharges(fortnightReport.getMiscCharges() + purchaseMiscCharges + sellMiscCharges);
 	}
 
 	private static double calculateGains(ProfitAndLossContext profitAndLossContext) {
 
-		long sellQuantity = profitAndLossContext.getSellQuantity();
-		double initialPrice = profitAndLossContext.getPurchasePrice();
-		double currentPrice = profitAndLossContext.getSellPrice();
+		long sellQuantity = profitAndLossContext.getSellContext().getQuantity();
+		double initialPrice = profitAndLossContext.getPurchaseContext().getPrice();
+		double currentPrice = profitAndLossContext.getSellContext().getPrice();
 
 		return (currentPrice - initialPrice) * sellQuantity;
 	}
 
 	private static boolean isShortTermCapitalGain(ProfitAndLossContext profitAndLossContext) {
 
-		LocalDate purchaseDate = profitAndLossContext.getPurchaseDate();
-		LocalDate sellDate = profitAndLossContext.getSellDate();
+		LocalDate purchaseDate = profitAndLossContext.getPurchaseContext().getTransactionDate();
+		LocalDate sellDate = profitAndLossContext.getSellContext().getTransactionDate();
 
 		LocalDate thresholdDate = purchaseDate.plusYears(1);
 

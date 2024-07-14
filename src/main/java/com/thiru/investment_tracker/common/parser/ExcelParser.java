@@ -10,16 +10,19 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.thiru.investment_tracker.common.TOptional;
-import com.thiru.investment_tracker.dto.enums.ParserDataType;
 import com.thiru.investment_tracker.dto.InputRecord;
 import com.thiru.investment_tracker.dto.InputRecords;
+import com.thiru.investment_tracker.dto.enums.ParserDataType;
 import com.thiru.investment_tracker.exception.BadRequestException;
+import com.thiru.investment_tracker.util.TransactionHeaders;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -110,5 +113,26 @@ public class ExcelParser {
 			case ERROR -> CellDetail.of(ParserDataType.ERROR, cell.getErrorCellValue());
 			case NULL -> CellDetail.of(ParserDataType.NULL, null);
 		};
+	}
+
+	public static void dataToExcel(XSSFWorkbook workbook) {
+
+		String[] headers = TransactionHeaders.getHeaders();
+		XSSFSheet sheet = workbook.createSheet(TransactionHeaders.MAIN_SHEET);
+
+		Row headerRow = sheet.createRow(0);
+		for (int i = 0; i < headers.length; i++) {
+			Cell headerCell = headerRow.createCell(i);
+			headerCell.setCellValue(headers[i]);
+
+			// Create cell style with bold font
+			CellStyle headerCellStyle = workbook.createCellStyle();
+			Font headerFont = workbook.createFont();
+			headerFont.setBold(true);
+			headerCellStyle.setFont(headerFont);
+
+			// Apply style to header cells
+			headerCell.setCellStyle(headerCellStyle);
+		}
 	}
 }

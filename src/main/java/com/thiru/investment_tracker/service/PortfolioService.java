@@ -1,5 +1,6 @@
 package com.thiru.investment_tracker.service;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -131,8 +132,6 @@ public class PortfolioService {
 			asset.setTotalValue(totalValueOfTransaction);
 		}
 
-		ProfitAndLossContext profitAndLossContext = ProfitAndLossContext.from(assetRequest);
-		profitAndLossService.updateProfitAndLoss(userMail, profitAndLossContext);
 		portfolioRepository.save(asset);
 	}
 
@@ -354,5 +353,9 @@ public class PortfolioService {
 		if (!invalidFieldsForFilter.isEmpty()) {
 			throw new BadRequestException("These fields are not allowed for filtering: " + invalidFieldsForFilter);
 		}
+	}
+
+	public ByteArrayInputStream downloadTemplate() {
+		return TransactionHeaders.downloadTemplate();
 	}
 }

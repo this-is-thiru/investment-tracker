@@ -1,12 +1,26 @@
 package com.thiru.investment_tracker.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import com.thiru.investment_tracker.common.parser.ExcelParser;
 import com.thiru.investment_tracker.dto.enums.ParserDataType;
 
 public class TransactionHeaders {
+
+	public static final String MAIN_SHEET = "main_sheet";
+	public static final String HELPER_SHEET = "helper_sheet";
 
 	public static final String EMAIL = "Email";
 	public static final String STOCK_CODE = "Stock Code";
@@ -46,8 +60,48 @@ public class TransactionHeaders {
 		return dataTypeMap;
 	}
 
-	public static List<String> getHeadersList() {
-		return List.of(EMAIL, STOCK_CODE, STOCK_NAME, EXCHANGE_NAME, BROKER_NAME, ASSET_TYPE, MATURITY_DATE, PRICE,
-				QUANTITY, TRANSACTION_TYPE, ACTOR, TRANSACTION_DATE, BROKER_CHARGES, MISC_CHARGES, COMMENT);
+	public static String[] getHeaders() {
+		return new String[]{EMAIL, STOCK_CODE, STOCK_NAME, EXCHANGE_NAME, BROKER_NAME, ASSET_TYPE, MATURITY_DATE, PRICE,
+				QUANTITY, TRANSACTION_TYPE, ACTOR, TRANSACTION_DATE, BROKER_CHARGES, MISC_CHARGES, COMMENT};
+	}
+
+	public static ByteArrayInputStream downloadTemplate() {
+
+		// XSSFWorkbook workbook = new XSSFWorkbook();
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		try (XSSFWorkbook workbook = new XSSFWorkbook()) {
+			ExcelParser.dataToExcel(workbook);
+			Sheet sheet = workbook.getSheetAt(0);
+
+			Row dataRow = sheet.createRow(1);
+			dataRow.createCell(0).setCellValue("email@gmail.com");
+			dataRow.createCell(1).setCellValue("STOCK");
+			dataRow.createCell(2).setCellValue("Stock Name");
+			dataRow.createCell(3).setCellValue("NSE");
+			dataRow.createCell(4).setCellValue("Fyers");
+			dataRow.createCell(5).setCellValue("Equity");
+			setDateField(dataRow.createCell(6), LocalDate.now());
+			dataRow.createCell(7).setCellValue(0);
+			dataRow.createCell(8).setCellValue(0);
+			dataRow.createCell(9).setCellValue("BUY");
+			dataRow.createCell(10).setCellValue("actor@gmail.com");
+			setDateField(dataRow.createCell(11), LocalDate.now());
+			dataRow.createCell(12).setCellValue(0);
+			dataRow.createCell(13).setCellValue(0);
+			dataRow.createCell(14).setCellValue("comment");
+
+			workbook.write(outputStream);
+			return new ByteArrayInputStream(outputStream.toByteArray());
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static void setDateField(Cell cell, LocalDate date) {
+		CellStyle dateStyle = cell.getSheet().getWorkbook().createCellStyle();
+		CreationHelper createHelper = cell.getSheet().getWorkbook().getCreationHelper();
+		dateStyle.setDataFormat(createHelper.createDataFormat().getFormat("yyyy-mm-dd"));
+		cell.setCellStyle(dateStyle);
+		cell.setCellValue(date);
 	}
 }

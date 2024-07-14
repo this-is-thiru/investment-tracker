@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,11 +25,9 @@ import com.thiru.investment_tracker.service.PortfolioService;
 import com.thiru.investment_tracker.service.TemporaryService;
 import com.thiru.investment_tracker.service.TransactionService;
 import com.thiru.investment_tracker.user.UserMail;
-import com.thiru.investment_tracker.util.TransactionHeaders;
 
 import lombok.AllArgsConstructor;
 
-@ResponseBody
 @AllArgsConstructor
 @RequestMapping("/portfolio/user/{email}")
 @RestController
@@ -96,14 +93,6 @@ public class PortfolioController {
 
 		UserMail.from(email);
 		return ResponseEntity.ok(transactionService.allTransactions());
-	}
-
-	@GetMapping("/template/fields")
-	public ResponseEntity<List<String>> getTemplateFields(@PathVariable String email) {
-
-		UserMail.from(email);
-		List<String> templateFields = TransactionHeaders.getHeadersList();
-		return ResponseEntity.ok(templateFields);
 	}
 
 	// Note: Below this comment is for testing purpose only
