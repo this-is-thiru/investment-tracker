@@ -2,24 +2,19 @@ package com.thiru.investment_tracker.dto;
 
 import java.time.LocalDate;
 
+import com.thiru.investment_tracker.dto.enums.AssetType;
+
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor(staticName = "from")
 public class AssetContext {
-	private double purchasePrice;
-	private LocalDate purchaseDate;
-	private double sellPrice;
-	private long sellQuantity;
-	private LocalDate sellDate;
-
-	public static AssetContext from(double purchasePrice, LocalDate purchaseDate, double sellPrice, long sellQuantity,
-			LocalDate sellDate) {
-		AssetContext assetContext = new AssetContext();
-		assetContext.setPurchasePrice(purchasePrice);
-		assetContext.setPurchaseDate(purchaseDate);
-		assetContext.setSellPrice(sellPrice);
-		assetContext.setSellQuantity(sellQuantity);
-		assetContext.setSellDate(sellDate);
-		return assetContext;
-	}
+	private String name;
+	private double price;
+	private long quantity;
+	private LocalDate transactionDate;
+	private AssetType assetType;
+	private double brokerCharges;
+	private double miscCharges;
 }

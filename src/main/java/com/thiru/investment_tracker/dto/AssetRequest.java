@@ -31,6 +31,9 @@ public class AssetRequest {
 	private AccountType accountType = AccountType.SELF;
 	private String accountHolder;
 	private String actor;
+	private double brokerCharges;
+	private double miscCharges;
+	private String comment;
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCommonUtil.DATE_FORMAT)
 	private LocalDate maturityDate;

@@ -40,8 +40,8 @@ public class AuthConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		return http.csrf(AbstractHttpConfigurer::disable)
-				.authorizeHttpRequests(auth -> auth.requestMatchers("/auth/login", "/auth/register").permitAll()
-						.requestMatchers("/portfolio/**").authenticated())
+				.authorizeHttpRequests(auth -> auth.requestMatchers("/auth/login", "/auth/register", "/helper/**")
+						.permitAll().requestMatchers("/portfolio/**").authenticated())
 				.sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authenticationProvider(authenticationProvider())
 				.addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class).build();
