@@ -1,4 +1,4 @@
-package com.thiru.investment_tracker.manager;
+package com.thiru.investment_tracker.util;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -13,7 +13,6 @@ import com.thiru.investment_tracker.dto.InputRecord;
 import com.thiru.investment_tracker.dto.InputRecords;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
-import com.thiru.investment_tracker.util.TransactionHeaders;
 
 public class TransactionParser {
 

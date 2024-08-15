@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 @Getter
 @Setter
@@ -33,6 +34,9 @@ public class AssetResponse {
 	private String accountType;
 	private String accountHolder;
 	private String remarks;
+	private double brokerCharges;
+	private double miscCharges;
+	private String comment;
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCommonUtil.DATE_FORMAT)
 	private LocalDate transactionDate;

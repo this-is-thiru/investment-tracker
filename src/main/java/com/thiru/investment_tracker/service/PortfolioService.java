@@ -31,12 +31,12 @@ import com.thiru.investment_tracker.dto.enums.ParserDataType;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.entity.Asset;
 import com.thiru.investment_tracker.exception.BadRequestException;
-import com.thiru.investment_tracker.manager.TransactionParser;
 import com.thiru.investment_tracker.operation.CriteriaBuilder;
 import com.thiru.investment_tracker.operation.Filter;
 import com.thiru.investment_tracker.repository.PortfolioRepository;
 import com.thiru.investment_tracker.user.UserMail;
 import com.thiru.investment_tracker.util.TransactionHeaders;
+import com.thiru.investment_tracker.util.TransactionParser;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -121,7 +121,11 @@ public class PortfolioService {
 			double totalValueOfTransaction = getTotalValue(assetRequest);
 			double newTotalValue = (existingTotalValue + totalValueOfTransaction);
 			double newPrice = newTotalValue / newQuantity;
+			double existingBrokerCharge = asset.getBrokerCharges();
+			double existingMiscCharges = asset.getMiscCharges();
 
+			asset.setBrokerCharges(assetRequest.getBrokerCharges() + existingBrokerCharge);
+			asset.setMiscCharges(assetRequest.getMiscCharges() + existingMiscCharges);
 			asset.setPrice(newPrice);
 			asset.setQuantity(newQuantity);
 			asset.setTotalValue(newTotalValue);
@@ -145,7 +149,8 @@ public class PortfolioService {
 		validateTransaction(stockEntities, assetRequest);
 
 		updateQuantity(userMail, stockEntities, assetRequest);
-		List<String> updatedStockEntities = TCommonUtil.applyMap(stockEntities, asset -> asset.getQuantity() == 0, Asset::getId);
+		List<String> updatedStockEntities = TCommonUtil.applyMap(stockEntities, asset -> asset.getQuantity() == 0,
+				Asset::getId);
 		portfolioRepository.saveAll(stockEntities);
 
 		if (!updatedStockEntities.isEmpty()) {
@@ -224,16 +229,22 @@ public class PortfolioService {
 
 		double totalValue = 0;
 		long quantity = 0;
+		double brokerCharges = 0;
+		double miscCharges = 0;
 
 		for (Asset entity : stockEntities) {
 
 			totalValue += entity.getTotalValue();
 			quantity += entity.getQuantity();
+			brokerCharges += entity.getBrokerCharges();
+			miscCharges += entity.getMiscCharges();
 		}
 
 		assetResponse.setQuantity(quantity);
 		assetResponse.setTotalValue(totalValue);
 		assetResponse.setPrice(totalValue / quantity);
+		assetResponse.setBrokerCharges(brokerCharges);
+		assetResponse.setMiscCharges(miscCharges);
 		return assetResponse;
 	}
 
