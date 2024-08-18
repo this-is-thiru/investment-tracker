@@ -50,7 +50,7 @@ public class TransactionHeaders {
 		dataTypeMap.put(TransactionHeaders.ASSET_TYPE, ParserDataType.STRING);
 		dataTypeMap.put(TransactionHeaders.MATURITY_DATE, ParserDataType.LOCAL_DATE);
 		dataTypeMap.put(TransactionHeaders.PRICE, ParserDataType.DOUBLE);
-		dataTypeMap.put(TransactionHeaders.QUANTITY, ParserDataType.INTEGER);
+		dataTypeMap.put(TransactionHeaders.QUANTITY, ParserDataType.DOUBLE);
 		dataTypeMap.put(TransactionHeaders.TRANSACTION_TYPE, ParserDataType.STRING);
 		dataTypeMap.put(TransactionHeaders.TRANSACTION_DATE, ParserDataType.LOCAL_DATE);
 		dataTypeMap.put(TransactionHeaders.BROKER_CHARGES, ParserDataType.DOUBLE);

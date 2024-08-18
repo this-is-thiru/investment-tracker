@@ -23,7 +23,7 @@ public class TransactionResponse {
 	private String exchangeName;
 	private String brokerName;
 	private double price;
-	private Long quantity;
+	private Double quantity;
 	private double totalValue;
 	private String actor;
 	private AssetType assetType;

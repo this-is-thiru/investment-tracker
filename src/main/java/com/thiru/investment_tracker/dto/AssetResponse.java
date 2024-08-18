@@ -27,7 +27,7 @@ public class AssetResponse {
 	private AssetType assetType;
 	private LocalDate maturityDate;
 	private double price;
-	private Long quantity;
+	private Double quantity;
 	private double totalValue;
 	private TransactionType transactionType;
 	private String actor;

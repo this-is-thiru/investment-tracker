@@ -93,6 +93,9 @@ public class TransactionParser {
 			case "BOND" :
 				assetRequest.setAssetType(AssetType.BOND);
 				break;
+			case "GOLD_BOND" :
+				assetRequest.setAssetType(AssetType.GOLD_BOND);
+				break;
 			case "FD" :
 				assetRequest.setAssetType(AssetType.FD);
 				break;
@@ -119,7 +122,7 @@ public class TransactionParser {
 	private static void setQuantity(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
 		CellDetail cellDetail = record.get(TransactionHeaders.QUANTITY);
-		assetRequest.setQuantity((Long) cellDetail.getCellValue());
+		assetRequest.setQuantity((Double) cellDetail.getCellValue());
 	}
 
 	private static void setTransactionDate(AssetRequest assetRequest, Map<String, CellDetail> record) {

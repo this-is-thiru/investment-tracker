@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.ToDoubleFunction;
 import java.util.function.ToLongFunction;
+import java.util.stream.DoubleStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
@@ -46,6 +48,10 @@ public class TCommonUtil {
 
 	public static <T> LongStream mapToLong(List<T> list, ToLongFunction<T> mapper) {
 		return stream(list).mapToLong(mapper);
+	}
+
+	public static <T> DoubleStream mapToDouble(List<T> list, ToDoubleFunction<T> mapper) {
+		return stream(list).mapToDouble(mapper);
 	}
 
 	private static <T> Stream<T> stream(Collection<T> list) {

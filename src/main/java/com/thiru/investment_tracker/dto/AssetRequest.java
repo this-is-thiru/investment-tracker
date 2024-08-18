@@ -26,7 +26,7 @@ public class AssetRequest {
 	private String brokerName;
 	private AssetType assetType;
 	private Double price;
-	private Long quantity;
+	private Double quantity;
 	private TransactionType transactionType;
 	private AccountType accountType = AccountType.SELF;
 	private String accountHolder;

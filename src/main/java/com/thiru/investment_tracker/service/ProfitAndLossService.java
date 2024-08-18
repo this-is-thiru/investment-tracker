@@ -179,7 +179,7 @@ public class ProfitAndLossService {
 
 	private static double calculateGains(ProfitAndLossContext profitAndLossContext) {
 
-		long sellQuantity = profitAndLossContext.getSellContext().getQuantity();
+		double sellQuantity = profitAndLossContext.getSellContext().getQuantity();
 		double initialPrice = profitAndLossContext.getPurchaseContext().getPrice();
 		double currentPrice = profitAndLossContext.getSellContext().getPrice();
 

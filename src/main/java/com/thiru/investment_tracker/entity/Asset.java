@@ -50,7 +50,7 @@ public class Asset {
 	private double price;
 
 	@Field("quantity")
-	private Long quantity;
+	private Double quantity;
 
 	@Field("total_value")
 	private double totalValue;

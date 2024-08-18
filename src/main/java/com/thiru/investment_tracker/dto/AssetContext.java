@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class AssetContext {
 	private String name;
 	private double price;
-	private long quantity;
+	private double quantity;
 	private LocalDate transactionDate;
 	private AssetType assetType;
 	private double brokerCharges;

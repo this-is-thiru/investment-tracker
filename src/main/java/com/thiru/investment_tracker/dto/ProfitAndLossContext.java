@@ -19,7 +19,7 @@ public class ProfitAndLossContext {
 	/**
 	 * Profit and loss context while selling the asset
 	 */
-	public static ProfitAndLossContext from(Asset asset, AssetRequest assetRequest, long sellQuantity) {
+	public static ProfitAndLossContext from(Asset asset, AssetRequest assetRequest, double sellQuantity) {
 		double purchasePrice = asset.getPrice();
 		LocalDate purchaseDate = asset.getTransactionDate();
 

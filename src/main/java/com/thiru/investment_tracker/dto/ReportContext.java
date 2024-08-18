@@ -18,7 +18,7 @@ public class ReportContext {
 	private double purchasePrice;
 	private LocalDate purchaseDate;
 	private double sellPrice;
-	private long sellQuantity;
+	private double sellQuantity;
 	private LocalDate sellDate;
 	private String stockCode;
 	private String stockName;

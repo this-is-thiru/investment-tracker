@@ -114,8 +114,8 @@ public class PortfolioService {
 		Asset asset;
 		if (optionalStock.isPresent()) {
 			asset = optionalStock.get();
-			long existingQuantity = asset.getQuantity();
-			long newQuantity = existingQuantity + assetRequest.getQuantity();
+			double existingQuantity = asset.getQuantity();
+			double newQuantity = existingQuantity + assetRequest.getQuantity();
 
 			double existingTotalValue = asset.getTotalValue();
 			double totalValueOfTransaction = getTotalValue(assetRequest);
@@ -163,7 +163,7 @@ public class PortfolioService {
 			throw new IllegalArgumentException("Stock not found");
 		}
 
-		long existingQuantity = TCommonUtil.mapToLong(stockEntities, Asset::getQuantity).sum();
+		double existingQuantity = TCommonUtil.mapToDouble(stockEntities, Asset::getQuantity).sum();
 
 		if (existingQuantity < assetRequest.getQuantity()) {
 			throw new IllegalArgumentException("Not enough stocks to sell");
@@ -228,7 +228,7 @@ public class PortfolioService {
 		AssetResponse assetResponse = TObjectMapper.copy(stockEntities.getFirst(), AssetResponse.class);
 
 		double totalValue = 0;
-		long quantity = 0;
+		double quantity = 0;
 		double brokerCharges = 0;
 		double miscCharges = 0;
 
@@ -254,13 +254,13 @@ public class PortfolioService {
 
 	private void updateQuantity(UserMail userMail, List<Asset> stockEntities, AssetRequest assetRequest) {
 
-		long sellQuantity = assetRequest.getQuantity();
+		double sellQuantity = assetRequest.getQuantity();
 
 		Iterator<Asset> stockEntitiesIterator = stockEntities.iterator();
 		while (sellQuantity > 0) {
 
 			Asset asset = stockEntitiesIterator.next();
-			Long assetQuantity = asset.getQuantity();
+			Double assetQuantity = asset.getQuantity();
 
 			ReportContext reportContext;
 			ProfitAndLossContext profitAndLossContext;
@@ -269,14 +269,14 @@ public class PortfolioService {
 				reportContext = toReportContext(asset, assetRequest, assetQuantity);
 				profitAndLossContext = ProfitAndLossContext.from(asset, assetRequest, assetQuantity);
 
-				asset.setQuantity(0L);
+				asset.setQuantity(0D);
 				asset.setTotalValue(0);
 				sellQuantity = sellQuantity - assetQuantity;
 			} else {
 				reportContext = toReportContext(asset, assetRequest, sellQuantity);
 				profitAndLossContext = ProfitAndLossContext.from(asset, assetRequest, sellQuantity);
 
-				long remainingQuantity = assetQuantity - sellQuantity;
+				double remainingQuantity = assetQuantity - sellQuantity;
 				asset.setQuantity(remainingQuantity);
 				asset.setTotalValue(remainingQuantity * asset.getPrice());
 				sellQuantity = 0;
@@ -287,7 +287,7 @@ public class PortfolioService {
 		}
 	}
 
-	private static ReportContext toReportContext(Asset asset, AssetRequest assetRequest, long sellQuantity) {
+	private static ReportContext toReportContext(Asset asset, AssetRequest assetRequest, double sellQuantity) {
 
 		ReportContext reportContext = ReportContext.empty();
 
