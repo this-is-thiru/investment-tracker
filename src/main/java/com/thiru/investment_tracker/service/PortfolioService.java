@@ -148,8 +148,12 @@ public class PortfolioService {
 
 		String email = userMail.getEmail();
 		String stockCode = assetRequest.getStockCode();
+		String brokerName = assetRequest.getBrokerName();
+		String accountHolder = assetRequest.getAccountHolder();
 
-		List<Asset> stockEntities = portfolioRepository.findByEmailAndStockCodeOrderByTransactionDate(email, stockCode);
+		List<Asset> stockEntities = portfolioRepository
+				.findByEmailAndStockCodeAndBrokerNameAndAccountHolderOrderByTransactionDate(email, stockCode,
+						brokerName, accountHolder);
 
 		validateTransaction(stockEntities, assetRequest);
 
