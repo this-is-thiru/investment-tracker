@@ -3,12 +3,15 @@ package com.thiru.investment_tracker.service;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -19,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.thiru.investment_tracker.common.TCommonUtil;
+import com.thiru.investment_tracker.common.TLocaleDate;
 import com.thiru.investment_tracker.common.TObjectMapper;
 import com.thiru.investment_tracker.common.parser.ExcelParser;
 import com.thiru.investment_tracker.dto.AssetRequest;
@@ -27,6 +31,7 @@ import com.thiru.investment_tracker.dto.InputRecords;
 import com.thiru.investment_tracker.dto.ProfitAndLossContext;
 import com.thiru.investment_tracker.dto.ProfitAndLossResponse;
 import com.thiru.investment_tracker.dto.ReportContext;
+import com.thiru.investment_tracker.dto.enums.HoldingType;
 import com.thiru.investment_tracker.dto.enums.ParserDataType;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.entity.Asset;
@@ -51,8 +56,6 @@ public class PortfolioService {
 	private final ProfitAndLossService profitAndLossService;
 	private final ReportService reportService;
 	private final MongoTemplate mongoTemplate;
-
-	private static final Set<String> NOT_ALLOWED_FIELDS = Set.of("email");
 
 	@Transactional
 	public String addTransaction(UserMail userMail, AssetRequest assetRequest) {
@@ -106,11 +109,13 @@ public class PortfolioService {
 		String email = userMail.getEmail();
 		assetRequest.setEmail(email);
 		String stockCode = assetRequest.getStockCode();
+		String brokerName = assetRequest.getStockCode();
 		String accountHolder = assetRequest.getAccountHolder();
 		LocalDate transactionDate = assetRequest.getTransactionDate();
 
-		Optional<Asset> optionalStock = portfolioRepository.findByEmailAndStockCodeAndAccountHolderAndTransactionDate(
-				email, stockCode, accountHolder, transactionDate);
+		Optional<Asset> optionalStock = portfolioRepository
+				.findByEmailAndStockCodeAndBrokerNameAndAccountHolderAndTransactionDate(email, stockCode, accountHolder,
+						brokerName, transactionDate);
 		Asset asset;
 		if (optionalStock.isPresent()) {
 			asset = optionalStock.get();
@@ -192,7 +197,7 @@ public class PortfolioService {
 		List<Asset> stockEntities = portfolioRepository.findByEmail(userMail.getEmail());
 
 		Map<String, List<Asset>> stockEntityMap = stockEntities.stream()
-				.collect(Collectors.groupingBy(Asset::getStockCode));
+				.collect(Collectors.groupingBy(stockWithCodeAndBroker()));
 
 		List<AssetResponse> responseEntities = TCommonUtil.map(stockEntityMap.values(),
 				PortfolioService::combineAllDetailsOfEntities);
@@ -208,7 +213,7 @@ public class PortfolioService {
 		List<Asset> stockEntities = portfolioRepository.findByEmailAndTransactionDateBetween(email, startDate, endDate);
 
 		Map<String, List<Asset>> stockEntityMap = stockEntities.stream()
-				.collect(Collectors.groupingBy(Asset::getStockCode));
+				.collect(Collectors.groupingBy(stockWithCodeAndBroker()));
 		List<AssetResponse> responseEntities = TCommonUtil.map(stockEntityMap.values(),
 				PortfolioService::combineAllDetailsOfEntities);
 
@@ -231,13 +236,14 @@ public class PortfolioService {
 		double quantity = 0;
 		double brokerCharges = 0;
 		double miscCharges = 0;
+		List<String> transactionDates = new ArrayList<>();
 
 		for (Asset entity : stockEntities) {
-
 			totalValue += entity.getTotalValue();
 			quantity += entity.getQuantity();
 			brokerCharges += entity.getBrokerCharges();
 			miscCharges += entity.getMiscCharges();
+			transactionDates.add(TLocaleDate.convertToString(entity.getTransactionDate()));
 		}
 
 		assetResponse.setQuantity(quantity);
@@ -245,6 +251,8 @@ public class PortfolioService {
 		assetResponse.setPrice(totalValue / quantity);
 		assetResponse.setBrokerCharges(brokerCharges);
 		assetResponse.setMiscCharges(miscCharges);
+		assetResponse.setTransactionDates(transactionDates);
+		assetResponse.setTransactionDate(null);
 		return assetResponse;
 	}
 
@@ -321,9 +329,10 @@ public class PortfolioService {
 	}
 
 	public List<Asset> searchAssets(UserMail userMail, List<Filter> filters) {
-		validateFilters(filters);
 
+		isFiltersHavingEmail(filters);
 		addEmailToFilter(filters, userMail.getEmail());
+		validateFilters(filters);
 
 		Query query = new Query();
 		Set<Criteria> criteriaSet = new HashSet<>();
@@ -350,6 +359,81 @@ public class PortfolioService {
 		return "User: " + userMail.getEmail() + ", records and transactions deleted successfully";
 	}
 
+	public List<AssetResponse> getAssets(UserMail userMail, HoldingType holdingType) {
+
+		String oneYearBeforeDate = TLocaleDate.lastYearSameDateInString();
+
+		List<Asset> assets = switch (holdingType) {
+			case LONG_TERM -> getLongTermHeldAssets(userMail, oneYearBeforeDate);
+			case SHORT_TERM -> getShortTermHeldAssets(userMail, oneYearBeforeDate);
+		};
+
+		Map<String, List<Asset>> resultedAssetsMap = assets.stream()
+				.collect(Collectors.groupingBy(stockWithCodeAndBroker()));
+		List<AssetResponse> resultedAssets = TCommonUtil.map(resultedAssetsMap.values(),
+				PortfolioService::combineAllDetailsOfEntities);
+
+		List<String> stockCodes = TCommonUtil.map(resultedAssets, AssetResponse::getStockCode);
+		Map<String, Double> assetQuantityMap = TCommonUtil.toMap(resultedAssets, stockCodeWithBroker(),
+				AssetResponse::getQuantity);
+
+		List<AssetResponse> allAssets = getStockEntities(userMail, new HashSet<>(stockCodes));
+
+		Function<AssetResponse, AssetResponse> quantityUpdater = assetResponse -> {
+			double quantity = assetResponse.getQuantity();
+			assetResponse.setTotalQuantity(quantity);
+			String stockWithBroker = assetResponse.getStockCode() + assetResponse.getBrokerName();
+			assetResponse.setQuantity(assetQuantityMap.get(stockWithBroker));
+			return assetResponse;
+		};
+
+		return TCommonUtil.map(allAssets, quantityUpdater);
+	}
+
+	private Function<Asset, String> stockWithCodeAndBroker() {
+		return asset -> asset.getStockCode() + asset.getBrokerName();
+	}
+
+	private Function<AssetResponse, String> stockCodeWithBroker() {
+		return assetResponse -> assetResponse.getStockCode() + assetResponse.getBrokerName();
+	}
+
+	private List<AssetResponse> getStockEntities(UserMail userMail, Collection<String> stockCodes) {
+
+		List<Asset> stockEntities = portfolioRepository.findByEmailAndStockCodeIn(userMail.getEmail(), stockCodes);
+
+		Map<String, List<Asset>> stockEntityMap = stockEntities.stream()
+				.collect(Collectors.groupingBy(stockWithCodeAndBroker()));
+
+		return TCommonUtil.map(stockEntityMap.values(), PortfolioService::combineAllDetailsOfEntities);
+	}
+
+	private List<Asset> getLongTermHeldAssets(UserMail userMail, String oneYearBeforeDate) {
+		Filter filter = new Filter();
+		filter.setFilterKey("transaction_date");
+		filter.setValue(oneYearBeforeDate);
+		filter.setOperation(Filter.FilterOperation.LESSER_THAN);
+		filter.setIsDateField(true);
+
+		List<Filter> filters = new ArrayList<>();
+		filters.add(filter);
+
+		return searchAssets(userMail, filters);
+	}
+
+	private List<Asset> getShortTermHeldAssets(UserMail userMail, String oneYearBeforeDate) {
+		Filter filter = new Filter();
+		filter.setFilterKey("transaction_date");
+		filter.setValue(oneYearBeforeDate);
+		filter.setOperation(Filter.FilterOperation.GREATER_THAN);
+		filter.setIsDateField(true);
+
+		List<Filter> filters = new ArrayList<>();
+		filters.add(filter);
+
+		return searchAssets(userMail, filters);
+	}
+
 	private static void addEmailToFilter(List<Filter> filters, String email) {
 		Filter filter = new Filter();
 		filter.setFilterKey("email");
@@ -358,9 +442,19 @@ public class PortfolioService {
 		filters.add(filter);
 	}
 
+	private static void isFiltersHavingEmail(List<Filter> filters) {
+
+		List<Filter> invalidFilters = TCommonUtil.filter(filters, filter -> Asset.EMAIL.equals(filter.getFilterKey()));
+
+		if (!invalidFilters.isEmpty()) {
+			throw new BadRequestException("Kindly remove email filter from payload");
+		}
+	}
+
 	private static void validateFilters(List<Filter> filters) {
 
-		List<Filter> invalidFilters = TCommonUtil.filter(filters, a -> NOT_ALLOWED_FIELDS.contains(a.getFilterKey()));
+		List<Filter> invalidFilters = TCommonUtil.filter(filters,
+				filter -> !Asset.ALLOWED_FIELDS.contains(filter.getFilterKey()));
 
 		List<String> invalidFieldsForFilter = TCommonUtil.map(invalidFilters, Filter::getFilterKey);
 

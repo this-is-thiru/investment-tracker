@@ -1,7 +1,10 @@
 package com.thiru.investment_tracker.entity;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
 
+import org.springframework.data.annotation.Immutable;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
@@ -87,5 +90,11 @@ public class Asset {
 
 	@Field("comments")
 	private String comment;
+
+	// this email we can't accept from the request payload, we are formatting this through the code
+	public static final String EMAIL = "email";
+
+	public static Set<String> ALLOWED_FIELDS = Set.of("email", "transaction_date", "transaction_type",
+			"account_type", "account_holder", "exchange_name", "stock_code", "broker_name", "asset_type");
 
 }

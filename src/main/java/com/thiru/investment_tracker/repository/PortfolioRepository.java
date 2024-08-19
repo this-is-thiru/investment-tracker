@@ -1,6 +1,7 @@
 package com.thiru.investment_tracker.repository;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,7 +19,12 @@ public interface PortfolioRepository extends MongoRepository<Asset, String> {
 	Optional<Asset> findByEmailAndStockCodeAndAccountHolderAndTransactionDate(String email, String stockCode,
 			String accountHolder, LocalDate transactionDate);
 
+	Optional<Asset> findByEmailAndStockCodeAndBrokerNameAndAccountHolderAndTransactionDate(String email,
+			String stockCode, String brokerName, String accountHolder, LocalDate transactionDate);
+
 	List<Asset> findByEmailAndStockCodeOrderByTransactionDate(String email, String productName);
+
+	List<Asset> findByEmailAndStockCodeIn(String email, Collection<String> stockCodes);
 
 	List<Asset> findByEmailAndTransactionDateBetween(String email, LocalDate startDate, LocalDate endDate);
 

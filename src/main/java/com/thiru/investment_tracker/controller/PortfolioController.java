@@ -3,6 +3,7 @@ package com.thiru.investment_tracker.controller;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.thiru.investment_tracker.dto.enums.HoldingType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -93,6 +94,12 @@ public class PortfolioController {
 
 		UserMail.from(email);
 		return ResponseEntity.ok(transactionService.allTransactions());
+	}
+
+	@GetMapping("/all/assets")
+	public ResponseEntity<List<AssetResponse>> allAssets(@PathVariable String email, @RequestParam("type") String type) {
+		List<AssetResponse> assets = portfolioService.getAssets(UserMail.from(email), HoldingType.valueOf(type));
+		return ResponseEntity.ok(assets);
 	}
 
 	// Note: Below this comment is for testing purpose only

@@ -1,6 +1,7 @@
 package com.thiru.investment_tracker.dto;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -12,7 +13,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 @Getter
 @Setter
@@ -28,6 +28,7 @@ public class AssetResponse {
 	private LocalDate maturityDate;
 	private double price;
 	private Double quantity;
+	private Double totalQuantity;
 	private double totalValue;
 	private TransactionType transactionType;
 	private String actor;
@@ -40,5 +41,7 @@ public class AssetResponse {
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCommonUtil.DATE_FORMAT)
 	private LocalDate transactionDate;
+
+	private List<String> transactionDates;
 
 }

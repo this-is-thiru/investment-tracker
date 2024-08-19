@@ -5,7 +5,7 @@ import java.util.Set;
 import org.springframework.data.mongodb.core.query.Criteria;
 
 import com.thiru.investment_tracker.common.TCommonUtil;
-import com.thiru.investment_tracker.common.parser.ParserUtil;
+import com.thiru.investment_tracker.common.TLocaleDate;
 
 public class CriteriaBuilder {
 
@@ -46,7 +46,7 @@ public class CriteriaBuilder {
 	private static void sanitize(Filter filter) {
 		if (filter.getIsDateField()) {
 			String value = (String) filter.getValue();
-			filter.setValue(ParserUtil.convertToDate(value));
+			filter.setValue(TLocaleDate.convertToDate(value));
 		}
 	}
 }
