@@ -69,11 +69,11 @@
 		</dependency>
 		<!-- serialization/deserialization end -->
 
-		<!-- Rabbitmq dependencies start -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-amqp</artifactId>
-		</dependency>
+<!--		&lt;!&ndash; Rabbitmq dependencies start &ndash;&gt;-->
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.boot</groupId>-->
+<!--			<artifactId>spring-boot-starter-amqp</artifactId>-->
+<!--		</dependency>-->
 		<!-- Rabbitmq dependencies end -->
 
 		<!-- apache poi excel dependency start -->
