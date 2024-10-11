@@ -29,20 +29,24 @@ public class TCommonUtil {
 		return stream(source).map(mapper).toList();
 	}
 
+	public static <T, R> List<R> mapAndApply(Collection<T> source, Function<T, R> mapper, Predicate<R> predicate) {
+		return stream(source).map(mapper).filter(predicate).toList();
+	}
+
 	public static <T> List<T> filter(Collection<T> source, Predicate<T> consumer) {
 		return stream(source).filter(consumer).toList();
 	}
 
-	public static <T, R> List<R> applyMap(Collection<T> source, Predicate<T> consumer, Function<T, R> mapper) {
-		return stream(source).filter(consumer).map(mapper).toList();
+	public static <T, R> List<R> applyMap(Collection<T> source, Predicate<T> predicate, Function<T, R> mapper) {
+		return stream(source).filter(predicate).map(mapper).toList();
 	}
 
-	public static <T> T findFirst(Collection<T> source, Predicate<T> consumer, T defaultValue) {
-		return stream(source).filter(consumer).findFirst().orElse(defaultValue);
+	public static <T> T findFirst(Collection<T> source, Predicate<T> predicate, T defaultValue) {
+		return stream(source).filter(predicate).findFirst().orElse(defaultValue);
 	}
 
-	public static <T> T findFirst(Collection<T> source, Predicate<T> consumer) {
-		return stream(source).filter(consumer).findFirst().orElse(null);
+	public static <T> T findFirst(Collection<T> source, Predicate<T> predicate) {
+		return stream(source).filter(predicate).findFirst().orElse(null);
 	}
 
 	public static <T, R> void mapAndApply(Collection<T> source, Function<T, R> mapper, Consumer<R> consumer) {

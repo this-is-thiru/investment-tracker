@@ -3,14 +3,7 @@ package com.thiru.investment_tracker.service;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -240,14 +233,14 @@ public class PortfolioService {
 		double quantity = 0;
 		double brokerCharges = 0;
 		double miscCharges = 0;
-		List<String> transactionDates = new ArrayList<>();
+		Map<String, Double> transactionDatesMap = new HashMap<>();
 
 		for (Asset entity : stockEntities) {
 			totalValue += entity.getTotalValue();
 			quantity += entity.getQuantity();
 			brokerCharges += entity.getBrokerCharges();
 			miscCharges += entity.getMiscCharges();
-			transactionDates.add(TLocaleDate.convertToString(entity.getTransactionDate()));
+			transactionDatesMap.put(TLocaleDate.convertToString(entity.getTransactionDate()), entity.getQuantity());
 		}
 
 		assetResponse.setQuantity(quantity);
@@ -255,7 +248,10 @@ public class PortfolioService {
 		assetResponse.setPrice(totalValue / quantity);
 		assetResponse.setBrokerCharges(brokerCharges);
 		assetResponse.setMiscCharges(miscCharges);
-		assetResponse.setTransactionDates(transactionDates);
+		Map<String, Double> transactionQuantities = transactionDatesMap.entrySet().stream()
+				.sorted(Map.Entry.comparingByKey())
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+		assetResponse.setTransactionQuantities(transactionQuantities);
 		assetResponse.setTransactionDate(null);
 		return assetResponse;
 	}
@@ -387,11 +383,11 @@ public class PortfolioService {
 			double quantity = assetResponse.getQuantity();
 			assetResponse.setTotalQuantity(quantity);
 			String stockWithBroker = assetResponse.getStockCode() + assetResponse.getBrokerName();
-			assetResponse.setQuantity(assetQuantityMap.get(stockWithBroker));
+			assetResponse.setQuantity(assetQuantityMap.getOrDefault(stockWithBroker, 0.0));
 			return assetResponse;
 		};
 
-		return TCommonUtil.map(allAssets, quantityUpdater);
+		return TCommonUtil.mapAndApply(allAssets, quantityUpdater, assetResponse -> assetResponse.getQuantity() > 0);
 	}
 
 	private Function<Asset, String> stockWithCodeAndBroker() {
