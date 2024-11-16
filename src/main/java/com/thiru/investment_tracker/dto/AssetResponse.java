@@ -1,11 +1,11 @@
 package com.thiru.investment_tracker.dto;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import com.thiru.investment_tracker.common.TCommonUtil;
+import com.thiru.investment_tracker.util.collection.TCommonUtil;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
 
@@ -42,6 +42,6 @@ public class AssetResponse {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCommonUtil.DATE_FORMAT)
 	private LocalDate transactionDate;
 
-	private List<String> transactionDates;
+	private Map<String, Double> transactionQuantities;
 
 }

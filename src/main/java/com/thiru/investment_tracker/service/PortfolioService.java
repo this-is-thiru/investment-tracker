@@ -3,14 +3,7 @@ package com.thiru.investment_tracker.service;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -21,10 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.thiru.investment_tracker.common.TCommonUtil;
-import com.thiru.investment_tracker.common.TLocaleDate;
-import com.thiru.investment_tracker.common.TObjectMapper;
-import com.thiru.investment_tracker.common.parser.ExcelParser;
+import com.thiru.investment_tracker.util.collection.TCommonUtil;
+import com.thiru.investment_tracker.util.collection.TLocaleDate;
+import com.thiru.investment_tracker.util.collection.TObjectMapper;
+import com.thiru.investment_tracker.util.parser.ExcelParser;
 import com.thiru.investment_tracker.dto.AssetRequest;
 import com.thiru.investment_tracker.dto.AssetResponse;
 import com.thiru.investment_tracker.dto.InputRecords;
@@ -36,12 +29,12 @@ import com.thiru.investment_tracker.dto.enums.ParserDataType;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.entity.Asset;
 import com.thiru.investment_tracker.exception.BadRequestException;
-import com.thiru.investment_tracker.operation.CriteriaBuilder;
-import com.thiru.investment_tracker.operation.Filter;
+import com.thiru.investment_tracker.util.db.CriteriaBuilder;
+import com.thiru.investment_tracker.util.db.Filter;
 import com.thiru.investment_tracker.repository.PortfolioRepository;
-import com.thiru.investment_tracker.user.UserMail;
-import com.thiru.investment_tracker.util.TransactionHeaders;
-import com.thiru.investment_tracker.util.TransactionParser;
+import com.thiru.investment_tracker.dto.user.UserMail;
+import com.thiru.investment_tracker.util.transaction.TransactionHeaders;
+import com.thiru.investment_tracker.util.transaction.TransactionParser;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -240,14 +233,14 @@ public class PortfolioService {
 		double quantity = 0;
 		double brokerCharges = 0;
 		double miscCharges = 0;
-		List<String> transactionDates = new ArrayList<>();
+		Map<String, Double> transactionDatesMap = new HashMap<>();
 
 		for (Asset entity : stockEntities) {
 			totalValue += entity.getTotalValue();
 			quantity += entity.getQuantity();
 			brokerCharges += entity.getBrokerCharges();
 			miscCharges += entity.getMiscCharges();
-			transactionDates.add(TLocaleDate.convertToString(entity.getTransactionDate()));
+			transactionDatesMap.put(TLocaleDate.convertToString(entity.getTransactionDate()), entity.getQuantity());
 		}
 
 		assetResponse.setQuantity(quantity);
@@ -255,7 +248,10 @@ public class PortfolioService {
 		assetResponse.setPrice(totalValue / quantity);
 		assetResponse.setBrokerCharges(brokerCharges);
 		assetResponse.setMiscCharges(miscCharges);
-		assetResponse.setTransactionDates(transactionDates);
+		Map<String, Double> transactionQuantities = transactionDatesMap.entrySet().stream()
+				.sorted(Map.Entry.comparingByKey())
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+		assetResponse.setTransactionQuantities(transactionQuantities);
 		assetResponse.setTransactionDate(null);
 		return assetResponse;
 	}
@@ -387,11 +383,11 @@ public class PortfolioService {
 			double quantity = assetResponse.getQuantity();
 			assetResponse.setTotalQuantity(quantity);
 			String stockWithBroker = assetResponse.getStockCode() + assetResponse.getBrokerName();
-			assetResponse.setQuantity(assetQuantityMap.get(stockWithBroker));
+			assetResponse.setQuantity(assetQuantityMap.getOrDefault(stockWithBroker, 0.0));
 			return assetResponse;
 		};
 
-		return TCommonUtil.map(allAssets, quantityUpdater);
+		return TCommonUtil.mapAndApply(allAssets, quantityUpdater, assetResponse -> assetResponse.getQuantity() > 0);
 	}
 
 	private Function<Asset, String> stockWithCodeAndBroker() {

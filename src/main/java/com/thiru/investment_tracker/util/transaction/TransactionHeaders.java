@@ -1,4 +1,4 @@
-package com.thiru.investment_tracker.util;
+package com.thiru.investment_tracker.util.transaction;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -14,7 +14,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import com.thiru.investment_tracker.common.parser.ExcelParser;
+import com.thiru.investment_tracker.util.parser.ExcelParser;
 import com.thiru.investment_tracker.dto.enums.ParserDataType;
 
 public class TransactionHeaders {

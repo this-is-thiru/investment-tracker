@@ -1,4 +1,4 @@
-package com.thiru.investment_tracker.common;
+package com.thiru.investment_tracker.util.collection;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

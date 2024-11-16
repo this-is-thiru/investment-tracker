@@ -1,11 +1,11 @@
-package com.thiru.investment_tracker.operation;
+package com.thiru.investment_tracker.util.db;
 
 import java.util.Set;
 
 import org.springframework.data.mongodb.core.query.Criteria;
 
-import com.thiru.investment_tracker.common.TCommonUtil;
-import com.thiru.investment_tracker.common.TLocaleDate;
+import com.thiru.investment_tracker.util.collection.TCommonUtil;
+import com.thiru.investment_tracker.util.collection.TLocaleDate;
 
 public class CriteriaBuilder {
 

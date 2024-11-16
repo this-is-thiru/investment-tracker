@@ -6,7 +6,7 @@ spring:
     name: investment-tracker
   data:
     mongodb:
-      uri: mongodb+srv://pthirumalayadav:g2sBWcz1MtxHi6wz@cluster0.x6trgen.mongodb.net/?retryWrites=true&w=majority
+      uri: mongodb+srv://pthirumalayadav:pthirumalayadav@cluster0.x6trgen.mongodb.net/?retryWrites=true&w=majority
       database: Cluster0
 
 # RabbitMQ configuration

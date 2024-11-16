@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.thiru.investment_tracker.common.TObjectMapper;
+import com.thiru.investment_tracker.util.collection.TObjectMapper;
 import com.thiru.investment_tracker.dto.AssetRequest;
 import com.thiru.investment_tracker.dto.AssetResponse;
 import com.thiru.investment_tracker.dto.BulkGetRequest;
@@ -25,7 +25,7 @@ import com.thiru.investment_tracker.entity.Transaction;
 import com.thiru.investment_tracker.service.PortfolioService;
 import com.thiru.investment_tracker.service.TemporaryService;
 import com.thiru.investment_tracker.service.TransactionService;
-import com.thiru.investment_tracker.user.UserMail;
+import com.thiru.investment_tracker.dto.user.UserMail;
 
 import lombok.AllArgsConstructor;
 
@@ -127,11 +127,11 @@ public class PortfolioController {
 		return ResponseEntity.ok(assets);
 	}
 
-	@PostMapping("/request3/{message}")
-	public ResponseEntity<String> testRequest(@PathVariable String email, @PathVariable String message) {
-
-		temporaryService.producerMethod(message);
-		return ResponseEntity.ok("Hey! Message seeded for process");
-	}
+//	@PostMapping("/request3/{message}")
+//	public ResponseEntity<String> testRequest(@PathVariable String email, @PathVariable String message) {
+//
+//		temporaryService.producerMethod(message);
+//		return ResponseEntity.ok("Hey! Message seeded for process");
+//	}
 
 }

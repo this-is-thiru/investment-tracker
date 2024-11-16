@@ -23,30 +23,31 @@ import lombok.AllArgsConstructor;
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final AuthService authService;
-    private final AuthenticationManager authenticationManager;
+	private final AuthService authService;
+	private final AuthenticationManager authenticationManager;
 
-    @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
+	@PostMapping("/login")
+	public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
 
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword());
-        Authentication authentication = authenticationManager.authenticate(auth);
-        if (authentication.isAuthenticated()) {
-            String token = authService.generateToken(loginRequest.getEmail());
-            LoginResponse loginResponse = LoginResponse.from(token);
-            return ResponseEntity.ok(loginResponse);
-        } else {
-            throw new UsernameNotFoundException("Invalid user request");
-        }
-    }
+		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
+				loginRequest.getPassword());
+		Authentication authentication = authenticationManager.authenticate(auth);
+		if (authentication.isAuthenticated()) {
+			String token = authService.generateToken(loginRequest.getEmail());
+			LoginResponse loginResponse = LoginResponse.from(token);
+			return ResponseEntity.ok(loginResponse);
+		} else {
+			throw new UsernameNotFoundException("Invalid user request");
+		}
+	}
 
-    @PostMapping("/register")
-    public String addNewUser(@RequestBody RegistrationRequest request){
-        return authService.addUser(request);
-    }
+	@PostMapping("/register")
+	public String addNewUser(@RequestBody RegistrationRequest request) {
+		return authService.addUser(request);
+	}
 
-    @GetMapping("/login")
-    public String login1() {
-        return "login";
-    }
+	@GetMapping("/login")
+	public String login1() {
+		return "login";
+	}
 }

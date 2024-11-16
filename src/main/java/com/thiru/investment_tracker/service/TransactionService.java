@@ -3,11 +3,11 @@ package com.thiru.investment_tracker.service;
 import java.time.LocalDate;
 import java.util.List;
 
-import com.thiru.investment_tracker.user.UserMail;
+import com.thiru.investment_tracker.dto.user.UserMail;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.thiru.investment_tracker.common.TObjectMapper;
+import com.thiru.investment_tracker.util.collection.TObjectMapper;
 import com.thiru.investment_tracker.dto.AssetRequest;
 import com.thiru.investment_tracker.entity.Transaction;
 import com.thiru.investment_tracker.repository.TransactionRepository;

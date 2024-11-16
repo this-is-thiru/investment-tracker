@@ -9,8 +9,8 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.thiru.investment_tracker.common.TObjectMapper;
-import com.thiru.investment_tracker.common.TOptional;
+import com.thiru.investment_tracker.util.collection.TObjectMapper;
+import com.thiru.investment_tracker.util.collection.TOptional;
 import com.thiru.investment_tracker.dto.ProfitAndLossContext;
 import com.thiru.investment_tracker.dto.ProfitAndLossResponse;
 import com.thiru.investment_tracker.dto.enums.AccountType;
@@ -21,7 +21,7 @@ import com.thiru.investment_tracker.entity.ProfitAndLossEntity;
 import com.thiru.investment_tracker.entity.RealisedProfits;
 import com.thiru.investment_tracker.entity.ReportModel;
 import com.thiru.investment_tracker.repository.ProfitAndLossRepository;
-import com.thiru.investment_tracker.user.UserMail;
+import com.thiru.investment_tracker.dto.user.UserMail;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package com.thiru.investment_tracker.operation;
+package com.thiru.investment_tracker.util.db;
 
 import java.util.ArrayList;
 import java.util.List;
