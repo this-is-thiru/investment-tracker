@@ -3,10 +3,10 @@ package com.thiru.investment_tracker.service;
 import org.springframework.stereotype.Service;
 
 import com.thiru.investment_tracker.dto.ReportContext;
-import com.thiru.investment_tracker.common.TObjectMapper;
+import com.thiru.investment_tracker.util.collection.TObjectMapper;
 import com.thiru.investment_tracker.entity.Report;
 import com.thiru.investment_tracker.repository.ReportRepository;
-import com.thiru.investment_tracker.user.UserMail;
+import com.thiru.investment_tracker.dto.user.UserMail;
 
 import lombok.AllArgsConstructor;
 

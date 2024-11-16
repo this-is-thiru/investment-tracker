@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import com.thiru.investment_tracker.common.TCommonUtil;
+import com.thiru.investment_tracker.util.collection.TCommonUtil;
 
 import lombok.Data;
 

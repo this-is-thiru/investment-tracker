@@ -1,4 +1,4 @@
-package com.thiru.investment_tracker.common.parser;
+package com.thiru.investment_tracker.util.parser;
 
 import com.thiru.investment_tracker.dto.enums.ParserDataType;
 

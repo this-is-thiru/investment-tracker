@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import com.thiru.investment_tracker.common.TCommonUtil;
+import com.thiru.investment_tracker.util.collection.TCommonUtil;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
 
