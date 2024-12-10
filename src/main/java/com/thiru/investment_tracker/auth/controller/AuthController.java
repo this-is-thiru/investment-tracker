@@ -1,5 +1,6 @@
 package com.thiru.investment_tracker.auth.controller;
 
+import com.thiru.investment_tracker.util.collection.TObjectMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -33,9 +34,9 @@ public class AuthController {
 				loginRequest.getPassword());
 		Authentication authentication = authenticationManager.authenticate(auth);
 		if (authentication.isAuthenticated()) {
-			String token = authService.generateToken(loginRequest.getEmail());
-			LoginResponse loginResponse = LoginResponse.from(token);
-			return ResponseEntity.ok(loginResponse);
+			LoginResponse loginResponse = authService.generateToken(loginRequest.getEmail());
+			LoginResponse response = TObjectMapper.copy(loginResponse, LoginResponse.class);
+			return ResponseEntity.ok(response);
 		} else {
 			throw new UsernameNotFoundException("Invalid user request");
 		}

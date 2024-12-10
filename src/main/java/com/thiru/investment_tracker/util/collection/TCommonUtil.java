@@ -20,6 +20,7 @@ public class TCommonUtil {
 
 	public static final String DATE_FORMAT = "yyyy-MM-dd";
 
+
 	public static <T, R, U> Map<R, U> toMap(Collection<T> source, Function<T, R> keyMapper,
 			Function<T, U> valueMapper) {
 		return stream(source).collect(Collectors.toMap(keyMapper, valueMapper));

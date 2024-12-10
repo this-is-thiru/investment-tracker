@@ -30,12 +30,13 @@ public class AuthConfig {
 	private final AuthFilter authFilter;
 	private final UserDetailsRepository userDetailsRepo;
 	private final PasswordEncoder passwordEncoder;
+	private final UserDetailsService userDetailsService;
 
 	// authentication
-	@Bean
-	public UserDetailsService userDetailsService() {
-		return new UserDetailsServiceImpl(userDetailsRepo);
-	}
+//	@Bean
+//	public UserDetailsService userDetailsService() {
+//		return new UserDetailsServiceImpl(userDetailsRepo);
+//	}
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -47,10 +48,9 @@ public class AuthConfig {
 				.addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class).build();
 	}
 
-	@Bean
-	public AuthenticationProvider authenticationProvider() {
+	private AuthenticationProvider authenticationProvider() {
 		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-		authenticationProvider.setUserDetailsService(userDetailsService());
+		authenticationProvider.setUserDetailsService(userDetailsService);
 		authenticationProvider.setPasswordEncoder(passwordEncoder);
 		return authenticationProvider;
 	}
