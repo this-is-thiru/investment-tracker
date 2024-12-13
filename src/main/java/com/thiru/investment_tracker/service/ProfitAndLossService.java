@@ -3,9 +3,11 @@ package com.thiru.investment_tracker.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.thiru.investment_tracker.entity.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,12 +16,6 @@ import com.thiru.investment_tracker.util.collection.TOptional;
 import com.thiru.investment_tracker.dto.ProfitAndLossContext;
 import com.thiru.investment_tracker.dto.ProfitAndLossResponse;
 import com.thiru.investment_tracker.dto.enums.AccountType;
-import com.thiru.investment_tracker.entity.FinancialReport;
-import com.thiru.investment_tracker.entity.FortnightReport;
-import com.thiru.investment_tracker.entity.MonthlyReport;
-import com.thiru.investment_tracker.entity.ProfitAndLossEntity;
-import com.thiru.investment_tracker.entity.RealisedProfits;
-import com.thiru.investment_tracker.entity.ReportModel;
 import com.thiru.investment_tracker.repository.ProfitAndLossRepository;
 import com.thiru.investment_tracker.dto.user.UserMail;
 
@@ -216,6 +212,16 @@ public class ProfitAndLossService {
 	public void deleteProfitAndLoss(UserMail userMail) {
 		profitAndLossRepository.deleteByEmail(userMail.getEmail());
 	}
+
+//	public void updateTransactions() {
+//		List<ProfitAndLossEntity> transactions = profitAndLossRepository.findAll();
+//
+//		transactions.forEach(transaction -> {
+//					AccountType accountType = transaction.getAccountType();
+//					transaction.setAccountType(accountType == AccountType.OUT_SOURCE ? AccountType.OUTSOURCED : accountType);
+//				}
+//		);
+//	}
 }
 
 @Data

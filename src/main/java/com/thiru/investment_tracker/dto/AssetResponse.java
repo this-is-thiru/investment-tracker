@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import com.thiru.investment_tracker.util.collection.TCommonUtil;
+import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
 
@@ -39,7 +39,7 @@ public class AssetResponse {
 	private double miscCharges;
 	private String comment;
 
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCommonUtil.DATE_FORMAT)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCollectionUtil.DATE_FORMAT)
 	private LocalDate transactionDate;
 
 	private Map<String, Double> transactionQuantities;

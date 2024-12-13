@@ -1,12 +1,23 @@
 package com.thiru.investment_tracker.service;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
+import com.thiru.investment_tracker.dto.*;
+import com.thiru.investment_tracker.dto.enums.HoldingType;
+import com.thiru.investment_tracker.dto.enums.ParserDataType;
+import com.thiru.investment_tracker.dto.enums.TransactionType;
+import com.thiru.investment_tracker.dto.user.UserMail;
+import com.thiru.investment_tracker.entity.Asset;
+import com.thiru.investment_tracker.exception.BadRequestException;
+import com.thiru.investment_tracker.repository.PortfolioRepository;
+import com.thiru.investment_tracker.util.collection.TCollectionUtil;
+import com.thiru.investment_tracker.util.collection.TLocaleDate;
+import com.thiru.investment_tracker.util.collection.TObjectMapper;
+import com.thiru.investment_tracker.util.db.CriteriaBuilder;
+import com.thiru.investment_tracker.util.db.Filter;
+import com.thiru.investment_tracker.util.parser.ExcelParser;
+import com.thiru.investment_tracker.util.transaction.TransactionHeaders;
+import com.thiru.investment_tracker.util.transaction.TransactionParser;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -14,30 +25,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.thiru.investment_tracker.util.collection.TCommonUtil;
-import com.thiru.investment_tracker.util.collection.TLocaleDate;
-import com.thiru.investment_tracker.util.collection.TObjectMapper;
-import com.thiru.investment_tracker.util.parser.ExcelParser;
-import com.thiru.investment_tracker.dto.AssetRequest;
-import com.thiru.investment_tracker.dto.AssetResponse;
-import com.thiru.investment_tracker.dto.InputRecords;
-import com.thiru.investment_tracker.dto.ProfitAndLossContext;
-import com.thiru.investment_tracker.dto.ProfitAndLossResponse;
-import com.thiru.investment_tracker.dto.ReportContext;
-import com.thiru.investment_tracker.dto.enums.HoldingType;
-import com.thiru.investment_tracker.dto.enums.ParserDataType;
-import com.thiru.investment_tracker.dto.enums.TransactionType;
-import com.thiru.investment_tracker.entity.Asset;
-import com.thiru.investment_tracker.exception.BadRequestException;
-import com.thiru.investment_tracker.util.db.CriteriaBuilder;
-import com.thiru.investment_tracker.util.db.Filter;
-import com.thiru.investment_tracker.repository.PortfolioRepository;
-import com.thiru.investment_tracker.dto.user.UserMail;
-import com.thiru.investment_tracker.util.transaction.TransactionHeaders;
-import com.thiru.investment_tracker.util.transaction.TransactionParser;
-
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @AllArgsConstructor
@@ -89,7 +82,7 @@ public class PortfolioService {
 
 			InputRecords inputRecords = ExcelParser.getRecordsFromExcel(file.getInputStream(), dataTypeMap);
 			List<AssetRequest> assetRequests = TransactionParser.getTransactionRecords(inputRecords);
-			TCommonUtil.map(assetRequests, assetRequest -> addTransaction(userMail, assetRequest));
+			TCollectionUtil.map(assetRequests, assetRequest -> addTransaction(userMail, assetRequest));
 
 			return "Transactions uploaded successfully";
 		} catch (IOException e) {
@@ -151,7 +144,7 @@ public class PortfolioService {
 		validateTransaction(stockEntities, assetRequest);
 
 		updateQuantity(userMail, stockEntities, assetRequest);
-		List<String> updatedStockEntities = TCommonUtil.applyMap(stockEntities, asset -> asset.getQuantity() == 0,
+		List<String> updatedStockEntities = TCollectionUtil.applyMap(stockEntities, asset -> asset.getQuantity() == 0,
 				Asset::getId);
 		portfolioRepository.saveAll(stockEntities);
 
@@ -165,7 +158,7 @@ public class PortfolioService {
 			throw new IllegalArgumentException("Stock not found");
 		}
 
-		double existingQuantity = TCommonUtil.mapToDouble(stockEntities, Asset::getQuantity).sum();
+		double existingQuantity = TCollectionUtil.mapToDouble(stockEntities, Asset::getQuantity).sum();
 
 		if (existingQuantity < assetRequest.getQuantity()) {
 			throw new IllegalArgumentException("Not enough stocks to sell");
@@ -186,7 +179,7 @@ public class PortfolioService {
 			throw new IllegalArgumentException("Stock not found");
 		}
 
-		return TCommonUtil.map(stockEntities, asset -> TObjectMapper.copy(asset, AssetResponse.class));
+		return TCollectionUtil.map(stockEntities, asset -> TObjectMapper.copy(asset, AssetResponse.class));
 	}
 
 	public List<AssetResponse> getAllStocks(UserMail userMail) {
@@ -196,7 +189,7 @@ public class PortfolioService {
 		Map<String, List<Asset>> stockEntityMap = stockEntities.stream()
 				.collect(Collectors.groupingBy(stockWithCodeAndBroker()));
 
-		List<AssetResponse> responseEntities = TCommonUtil.map(stockEntityMap.values(),
+		List<AssetResponse> responseEntities = TCollectionUtil.map(stockEntityMap.values(),
 				PortfolioService::combineAllDetailsOfEntities);
 
 		log.info("Fetching portfolio stocks of {}", userMail.getEmail());
@@ -211,7 +204,7 @@ public class PortfolioService {
 
 		Map<String, List<Asset>> stockEntityMap = stockEntities.stream()
 				.collect(Collectors.groupingBy(stockWithCodeAndBroker()));
-		List<AssetResponse> responseEntities = TCommonUtil.map(stockEntityMap.values(),
+		List<AssetResponse> responseEntities = TCollectionUtil.map(stockEntityMap.values(),
 				PortfolioService::combineAllDetailsOfEntities);
 
 		log.info("Fetching stocks from portfolio between {} and {}", startDate, endDate);
@@ -222,8 +215,7 @@ public class PortfolioService {
 	 * A method that combines all details of stock entities to single entity based
 	 * on a given stock code.
 	 *
-	 * @param stockEntities
-	 *            a list of stock entities to search through
+	 * @param stockEntities a list of stock entities to search through
 	 * @return the response entity that matches the provided stock code
 	 */
 	private static AssetResponse combineAllDetailsOfEntities(List<Asset> stockEntities) {
@@ -370,11 +362,11 @@ public class PortfolioService {
 
 		Map<String, List<Asset>> resultedAssetsMap = assets.stream()
 				.collect(Collectors.groupingBy(stockWithCodeAndBroker()));
-		List<AssetResponse> resultedAssets = TCommonUtil.map(resultedAssetsMap.values(),
+		List<AssetResponse> resultedAssets = TCollectionUtil.map(resultedAssetsMap.values(),
 				PortfolioService::combineAllDetailsOfEntities);
 
-		List<String> stockCodes = TCommonUtil.map(resultedAssets, AssetResponse::getStockCode);
-		Map<String, Double> assetQuantityMap = TCommonUtil.toMap(resultedAssets, stockCodeWithBroker(),
+		List<String> stockCodes = TCollectionUtil.map(resultedAssets, AssetResponse::getStockCode);
+		Map<String, Double> assetQuantityMap = TCollectionUtil.toMap(resultedAssets, stockCodeWithBroker(),
 				AssetResponse::getQuantity);
 
 		List<AssetResponse> allAssets = getStockEntities(userMail, new HashSet<>(stockCodes));
@@ -387,7 +379,7 @@ public class PortfolioService {
 			return assetResponse;
 		};
 
-		return TCommonUtil.mapAndApply(allAssets, quantityUpdater, assetResponse -> assetResponse.getQuantity() > 0);
+		return TCollectionUtil.mapAndApply(allAssets, quantityUpdater, assetResponse -> assetResponse.getQuantity() > 0);
 	}
 
 	private Function<Asset, String> stockWithCodeAndBroker() {
@@ -405,7 +397,7 @@ public class PortfolioService {
 		Map<String, List<Asset>> stockEntityMap = stockEntities.stream()
 				.collect(Collectors.groupingBy(stockWithCodeAndBroker()));
 
-		return TCommonUtil.map(stockEntityMap.values(), PortfolioService::combineAllDetailsOfEntities);
+		return TCollectionUtil.map(stockEntityMap.values(), PortfolioService::combineAllDetailsOfEntities);
 	}
 
 	private List<Asset> getLongTermHeldAssets(UserMail userMail, String oneYearBeforeDate) {
@@ -444,7 +436,7 @@ public class PortfolioService {
 
 	private static void isFiltersHavingEmail(List<Filter> filters) {
 
-		List<Filter> invalidFilters = TCommonUtil.filter(filters, filter -> Asset.EMAIL.equals(filter.getFilterKey()));
+		List<Filter> invalidFilters = TCollectionUtil.filter(filters, filter -> Asset.EMAIL.equals(filter.getFilterKey()));
 
 		if (!invalidFilters.isEmpty()) {
 			throw new BadRequestException("Kindly remove email filter from payload");
@@ -453,15 +445,37 @@ public class PortfolioService {
 
 	private static void validateFilters(List<Filter> filters) {
 
-		List<Filter> invalidFilters = TCommonUtil.filter(filters,
+		List<Filter> invalidFilters = TCollectionUtil.filter(filters,
 				filter -> !Asset.ALLOWED_FIELDS.contains(filter.getFilterKey()));
 
-		List<String> invalidFieldsForFilter = TCommonUtil.map(invalidFilters, Filter::getFilterKey);
+		List<String> invalidFieldsForFilter = TCollectionUtil.map(invalidFilters, Filter::getFilterKey);
 
 		if (!invalidFieldsForFilter.isEmpty()) {
 			throw new BadRequestException("These fields are not allowed for filtering: " + invalidFieldsForFilter);
 		}
 	}
+
+//	public String updateTransactions() {
+//
+//		log.info("Initiated deletion of all records of user: {}", "userMail.getEmail()");
+//
+//		List<Asset> all = portfolioRepository.findAll();
+//		portfolioRepository.findAll().forEach(transaction -> {
+//			AccountType accountType = transaction.getAccountType();
+//			transaction.setAccountType(accountType == AccountType.OUT_SOURCE ? AccountType.OUTSOURCED : accountType);
+//		});
+//		portfolioRepository.saveAll(all);
+//
+//		log.info("Deleted all portfolio stocks for user: {}", "userMail.getEmail()");
+//		reportService.updateTransactions();
+//		log.info("Deleted all reports for user: {}", "userMail.getEmail()");
+//		transactionService.updateTransactions();
+//		log.info("Deleted all transactions for user: {}", "userMail.getEmail()");
+////		profitAndLossService.deleteProfitAndLoss(userMail);
+////		log.info("Deleted all profit and loss reports for user: {}", userMail.getEmail());
+////
+//		return "User: " + "userMail.getEmail()" + ", records and transactions deleted successfully";
+//	}
 
 	public ByteArrayInputStream downloadTemplate() {
 		return TransactionHeaders.downloadTemplate();

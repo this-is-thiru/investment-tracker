@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import com.thiru.investment_tracker.util.collection.TCommonUtil;
+import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.dto.enums.AccountType;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
@@ -67,7 +67,7 @@ public class Transaction {
 	@Field(name = "asset_type", targetType = FieldType.STRING)
 	private AssetType assetType;
 
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCommonUtil.DATE_FORMAT)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCollectionUtil.DATE_FORMAT)
 	@Field("maturity_date")
 	private LocalDate maturityDate;
 
@@ -83,7 +83,7 @@ public class Transaction {
 	@Field(name = "transaction_type", targetType = FieldType.STRING)
 	private TransactionType transactionType;
 
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCommonUtil.DATE_FORMAT)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCollectionUtil.DATE_FORMAT)
 	@Field("transaction_date")
 	private LocalDate transactionDate;
 

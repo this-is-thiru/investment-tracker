@@ -19,7 +19,7 @@ public class TLocaleDate {
 
     public static LocalDate convertToDate(String date) {
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(TCommonUtil.DATE_FORMAT);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(TCollectionUtil.DATE_FORMAT);
         return LocalDate.parse(date, formatter);
     }
 }

@@ -127,10 +127,10 @@ public class PortfolioController {
 		return ResponseEntity.ok(assets);
 	}
 
-//	@PostMapping("/request3/{message}")
-//	public ResponseEntity<String> testRequest(@PathVariable String email, @PathVariable String message) {
+//	@PostMapping("/update")
+//	public ResponseEntity<String> testRequest(@PathVariable String email) {
 //
-//		temporaryService.producerMethod(message);
+//		portfolioService.updateTransactions();
 //		return ResponseEntity.ok("Hey! Message seeded for process");
 //	}
 

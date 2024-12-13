@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.thiru.investment_tracker.util.collection.TCommonUtil;
+import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.parser.CellDetail;
 import com.thiru.investment_tracker.dto.AssetRequest;
 import com.thiru.investment_tracker.dto.InputRecord;
@@ -17,7 +17,7 @@ import com.thiru.investment_tracker.dto.enums.TransactionType;
 public class TransactionParser {
 
 	public static List<AssetRequest> getTransactionRecords(InputRecords records) {
-		return TCommonUtil.map(sanitizeRecords(records), TransactionParser::toAssetRequest);
+		return TCollectionUtil.map(sanitizeRecords(records), TransactionParser::toAssetRequest);
 	}
 
 	public static List<InputRecord> sanitizeRecords(InputRecords records) {

@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.thiru.investment_tracker.auth.model.LoginResponse;
 import io.jsonwebtoken.*;
@@ -12,6 +13,8 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
 import lombok.extern.log4j.Log4j2;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,24 +34,42 @@ public class AuthService {
     private final UserDetailsRepository userDetailsRepo;
     private final PasswordEncoder passwordEncoder;
 
-    public UserDetails getUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<UserDetail> optionalUserDetails = userDetailsRepo.findById(username);
-        return optionalUserDetails.map(UserDetailsImpl::new)
-                .orElseThrow(() -> new UsernameNotFoundException("user not found " + username));
-    }
-
     public String addUser(RegistrationRequest request) {
+
+        Optional<UserDetail> optionalUserDetails = userDetailsRepo.findById(request.getEmail());
+        if (optionalUserDetails.isPresent()) {
+            throw new IllegalArgumentException("User with email " + request.getEmail() + " already exists");
+        }
 
         UserDetail userEntity = new UserDetail();
         userEntity.setEmail(request.getEmail());
         userEntity.setPassword(passwordEncoder.encode(request.getPassword()));
-        StringBuilder roles = new StringBuilder();
-        for (String role : request.getRoles().split(",")) {
-            roles.append("ROLE_").append(role).append(",");
-        }
-        userEntity.setRoles(roles.toString());
+        userEntity.setRoles(request.getRole().name());
         userDetailsRepo.save(userEntity);
         return "user with username " + request.getEmail() + " added to system ";
+    }
+
+
+    /**
+     * This needs to be re-visited
+     * This method upgrades the role of a user in the system
+     * @param request The object containing the email and the role to be upgraded
+     * @return a success message
+     * @throws IllegalArgumentException if the user already exists
+     */
+    public String upgradeRole(RegistrationRequest request) {
+
+        Optional<UserDetail> optionalUserDetails = userDetailsRepo.findById(request.getEmail());
+        if (optionalUserDetails.isPresent()) {
+            throw new IllegalArgumentException("User with email " + request.getEmail() + " already exists");
+        }
+
+        UserDetail userEntity = new UserDetail();
+        userEntity.setEmail(request.getEmail());
+        userEntity.setPassword(passwordEncoder.encode(request.getPassword()));
+        userEntity.setRoles(request.getRole().name());
+        userDetailsRepo.save(userEntity);
+        return "user with username " + request.getEmail() + " added to system";
     }
 
     /**
@@ -78,20 +99,20 @@ public class AuthService {
         return claims.getExpiration().before(new Date());
     }
 
-    public Boolean validateToken(Claims claims, UserDetails userDetails) {
-        final String username = claims.getSubject();
-        return username.equals(userDetails.getUsername()) && !isTokenExpired(claims);
+    public Boolean validateToken(Claims claims) {
+        return !isTokenExpired(claims);
     }
 
-    public LoginResponse generateToken(String username) {
-
-        Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, username);
+    public LoginResponse generateToken(String username, Authentication authentication) {
+        return createToken(username, authentication);
     }
 
-    private LoginResponse createToken(Map<String, Object> claims, String username) {
+    private LoginResponse createToken(String username, Authentication authentication) {
         int expirationTime = 60 * 30;
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("roles", authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
         Date expiration = new Date(System.currentTimeMillis() + 1000 * expirationTime);
+
         String token = Jwts.builder().setClaims(claims).setSubject(username).setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(expiration)
                 .signWith(getSignKey(), SignatureAlgorithm.HS256).compact();

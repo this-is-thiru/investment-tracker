@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import com.thiru.investment_tracker.util.collection.TCommonUtil;
+import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 
 import lombok.Getter;
@@ -28,9 +28,9 @@ public class TransactionResponse {
 	private String actor;
 	private AssetType assetType;
 
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCommonUtil.DATE_FORMAT)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCollectionUtil.DATE_FORMAT)
 	private LocalDate maturityDate;
 
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCommonUtil.DATE_FORMAT)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCollectionUtil.DATE_FORMAT)
 	private LocalDate transactionDate;
 }

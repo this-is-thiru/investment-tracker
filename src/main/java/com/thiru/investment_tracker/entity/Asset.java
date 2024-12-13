@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import com.thiru.investment_tracker.util.collection.TCommonUtil;
+import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.dto.enums.AccountType;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
@@ -65,14 +65,14 @@ public class Asset {
 	@Field("misc_charges")
 	private double miscCharges;
 
-	@JsonFormat(pattern = TCommonUtil.DATE_FORMAT)
+	@JsonFormat(pattern = TCollectionUtil.DATE_FORMAT)
 	@Field("maturity_date")
 	private LocalDate maturityDate;
 
 	@Field("actor_name")
 	private String actor;
 
-	@JsonFormat(pattern = TCommonUtil.DATE_FORMAT)
+	@JsonFormat(pattern = TCollectionUtil.DATE_FORMAT)
 	@Field("transaction_date")
 	private LocalDate transactionDate;
 

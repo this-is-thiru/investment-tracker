@@ -4,7 +4,7 @@ import java.util.Set;
 
 import org.springframework.data.mongodb.core.query.Criteria;
 
-import com.thiru.investment_tracker.util.collection.TCommonUtil;
+import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.collection.TLocaleDate;
 
 public class CriteriaBuilder {
@@ -17,7 +17,7 @@ public class CriteriaBuilder {
 		Filter.FilterOperation operation = filter.getOperation();
 		String filterKey = filter.getFilterKey();
 
-		Criteria queryCriteria = TCommonUtil.findFirst(criteriaSet, criteria -> filterKey.equals(criteria.getKey()));
+		Criteria queryCriteria = TCollectionUtil.findFirst(criteriaSet, criteria -> filterKey.equals(criteria.getKey()));
 
 		boolean isNewCriteria = false;
 		if (queryCriteria == null) {
