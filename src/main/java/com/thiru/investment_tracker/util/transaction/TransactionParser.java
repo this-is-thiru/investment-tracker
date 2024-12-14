@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.parser.CellDetail;
 import com.thiru.investment_tracker.dto.AssetRequest;
@@ -16,153 +17,168 @@ import com.thiru.investment_tracker.dto.enums.TransactionType;
 
 public class TransactionParser {
 
-	public static List<AssetRequest> getTransactionRecords(InputRecords records) {
-		return TCollectionUtil.map(sanitizeRecords(records), TransactionParser::toAssetRequest);
-	}
+    public static List<AssetRequest> getTransactionRecords(InputRecords records) {
+        return TCollectionUtil.map(sanitizeRecords(records), TransactionParser::toAssetRequest);
+    }
 
-	public static List<InputRecord> sanitizeRecords(InputRecords records) {
-		return records.getRecords().stream().filter(Objects::nonNull)
-				.filter(inputRecord -> inputRecord.getRecord() != null).collect(Collectors.toList());
-	}
+    public static List<InputRecord> sanitizeRecords(InputRecords records) {
+        return records.getRecords().stream().filter(Objects::nonNull)
+                .filter(inputRecord -> inputRecord.getRecord() != null).collect(Collectors.toList());
+    }
 
-	private static AssetRequest toAssetRequest(InputRecord inputRecord) {
+    private static AssetRequest toAssetRequest(InputRecord inputRecord) {
 
-		Map<String, CellDetail> record = inputRecord.getRecord();
+        Map<String, CellDetail> record = inputRecord.getRecord();
 
-		AssetRequest assetRequest = new AssetRequest();
+        AssetRequest assetRequest = new AssetRequest();
 
-		setStockCode(assetRequest, record);
-		setStockName(assetRequest, record);
-		setExchangeName(assetRequest, record);
-		setBrokerName(assetRequest, record);
-		setActor(assetRequest, record);
-		setAssetType(assetRequest, record);
-		setMaturityDate(assetRequest, record);
-		setPrice(assetRequest, record);
-		setQuantity(assetRequest, record);
-		setTransactionType(assetRequest, record);
-		setTransactionDate(assetRequest, record);
-		setBrokerCharges(assetRequest, record);
-		setMiscCharges(assetRequest, record);
-		setComment(assetRequest, record);
+        setStockCode(assetRequest, record);
+        setStockName(assetRequest, record);
+        setExchangeName(assetRequest, record);
+        setBrokerName(assetRequest, record);
+        setActor(assetRequest, record);
+        setAssetType(assetRequest, record);
+        setMaturityDate(assetRequest, record);
+        setPrice(assetRequest, record);
+        setQuantity(assetRequest, record);
+        setTransactionType(assetRequest, record);
+        setTransactionDate(assetRequest, record);
+        setBrokerCharges(assetRequest, record);
+        setMiscCharges(assetRequest, record);
+        setComment(assetRequest, record);
 
-		return assetRequest;
-	}
+        return assetRequest;
+    }
 
-	private static void setStockCode(AssetRequest assetRequest, Map<String, CellDetail> record) {
+    private static void setStockCode(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-		CellDetail cellDetail = record.get(TransactionHeaders.STOCK_CODE);
-		assetRequest.setStockCode((String) cellDetail.getCellValue());
-	}
+        CellDetail cellDetail = record.get(TransactionHeaders.STOCK_CODE);
+        assetRequest.setStockCode((String) cellDetail.getCellValue());
+    }
 
-	private static void setStockName(AssetRequest assetRequest, Map<String, CellDetail> record) {
+    private static void setStockName(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-		CellDetail cellDetail = record.get(TransactionHeaders.STOCK_NAME);
-		assetRequest.setStockName((String) cellDetail.getCellValue());
-	}
+        CellDetail cellDetail = record.get(TransactionHeaders.STOCK_NAME);
+        assetRequest.setStockName((String) cellDetail.getCellValue());
+    }
 
-	private static void setExchangeName(AssetRequest assetRequest, Map<String, CellDetail> record) {
+    private static void setExchangeName(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-		CellDetail cellDetail = record.get(TransactionHeaders.EXCHANGE_NAME);
-		assetRequest.setExchangeName((String) cellDetail.getCellValue());
-	}
+        CellDetail cellDetail = record.get(TransactionHeaders.EXCHANGE_NAME);
+        assetRequest.setExchangeName((String) cellDetail.getCellValue());
+    }
 
-	private static void setBrokerName(AssetRequest assetRequest, Map<String, CellDetail> record) {
-		CellDetail cellDetail = record.get(TransactionHeaders.BROKER_NAME);
-		assetRequest.setBrokerName((String) cellDetail.getCellValue());
-	}
+    private static void setBrokerName(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-	private static void setActor(AssetRequest assetRequest, Map<String, CellDetail> record) {
+        CellDetail cellDetail = record.get(TransactionHeaders.BROKER_NAME);
+        String brokerName = (String) cellDetail.getCellValue();
 
-		CellDetail cellDetail = record.get(TransactionHeaders.ACTOR);
-		assetRequest.setActor((String) cellDetail.getCellValue());
-	}
+        switch (brokerName) {
+            case "UPSTOX":
+                assetRequest.setBrokerName(BrokerName.UPSTOX);
+                break;
+            case "FYERS":
+                assetRequest.setBrokerName(BrokerName.FYERS);
+                break;
+            case "ZERODHA":
+                assetRequest.setBrokerName(BrokerName.ZERODHA);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid broker name" + brokerName);
+        }
+    }
 
-	private static void setAssetType(AssetRequest assetRequest, Map<String, CellDetail> record) {
+    private static void setActor(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-		CellDetail cellDetail = record.get(TransactionHeaders.ASSET_TYPE);
-		String assetType = (String) cellDetail.getCellValue();
+        CellDetail cellDetail = record.get(TransactionHeaders.ACTOR);
+        assetRequest.setActor((String) cellDetail.getCellValue());
+    }
 
-		switch (assetType) {
-			case "EQUITY" :
-				assetRequest.setAssetType(AssetType.EQUITY);
-				break;
-			case "MUTUAL_FUND" :
-				assetRequest.setAssetType(AssetType.MUTUAL_FUND);
-				break;
-			case "BOND" :
-				assetRequest.setAssetType(AssetType.BOND);
-				break;
-			case "GOLD_BOND" :
-				assetRequest.setAssetType(AssetType.GOLD_BOND);
-				break;
-			case "FD" :
-				assetRequest.setAssetType(AssetType.FD);
-				break;
-			case "INSURANCE" :
-				assetRequest.setAssetType(AssetType.INSURANCE);
-				break;
-			default :
-				break;
-		}
-	}
+    private static void setAssetType(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-	private static void setMaturityDate(AssetRequest assetRequest, Map<String, CellDetail> record) {
+        CellDetail cellDetail = record.get(TransactionHeaders.ASSET_TYPE);
+        String assetType = (String) cellDetail.getCellValue();
 
-		CellDetail cellDetail = record.getOrDefault(TransactionHeaders.MATURITY_DATE, CellDetail.def());
-		assetRequest.setMaturityDate((LocalDate) cellDetail.getCellValue());
-	}
+        switch (assetType) {
+            case "EQUITY":
+                assetRequest.setAssetType(AssetType.EQUITY);
+                break;
+            case "MUTUAL_FUND":
+                assetRequest.setAssetType(AssetType.MUTUAL_FUND);
+                break;
+            case "BOND":
+                assetRequest.setAssetType(AssetType.BOND);
+                break;
+            case "GOLD_BOND":
+                assetRequest.setAssetType(AssetType.GOLD_BOND);
+                break;
+            case "FD":
+                assetRequest.setAssetType(AssetType.FD);
+                break;
+            case "INSURANCE":
+                assetRequest.setAssetType(AssetType.INSURANCE);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid asset type" + assetType);
+        }
+    }
 
-	private static void setPrice(AssetRequest assetRequest, Map<String, CellDetail> record) {
+    private static void setMaturityDate(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-		CellDetail cellDetail = record.get(TransactionHeaders.PRICE);
-		assetRequest.setPrice((Double) cellDetail.getCellValue());
-	}
+        CellDetail cellDetail = record.getOrDefault(TransactionHeaders.MATURITY_DATE, CellDetail.def());
+        assetRequest.setMaturityDate((LocalDate) cellDetail.getCellValue());
+    }
 
-	private static void setQuantity(AssetRequest assetRequest, Map<String, CellDetail> record) {
+    private static void setPrice(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-		CellDetail cellDetail = record.get(TransactionHeaders.QUANTITY);
-		assetRequest.setQuantity((Double) cellDetail.getCellValue());
-	}
+        CellDetail cellDetail = record.get(TransactionHeaders.PRICE);
+        assetRequest.setPrice((Double) cellDetail.getCellValue());
+    }
 
-	private static void setTransactionDate(AssetRequest assetRequest, Map<String, CellDetail> record) {
+    private static void setQuantity(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-		CellDetail cellDetail = record.get(TransactionHeaders.TRANSACTION_DATE);
-		assetRequest.setTransactionDate((LocalDate) cellDetail.getCellValue());
-	}
+        CellDetail cellDetail = record.get(TransactionHeaders.QUANTITY);
+        assetRequest.setQuantity((Double) cellDetail.getCellValue());
+    }
 
-	private static void setTransactionType(AssetRequest assetRequest, Map<String, CellDetail> record) {
+    private static void setTransactionDate(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-		CellDetail cellDetail = record.get(TransactionHeaders.TRANSACTION_TYPE);
-		String transactionType = (String) cellDetail.getCellValue();
+        CellDetail cellDetail = record.get(TransactionHeaders.TRANSACTION_DATE);
+        assetRequest.setTransactionDate((LocalDate) cellDetail.getCellValue());
+    }
 
-		switch (transactionType) {
-			case "BUY" :
-				assetRequest.setTransactionType(TransactionType.BUY);
-				break;
-			case "SELL" :
-				assetRequest.setTransactionType(TransactionType.SELL);
-				break;
-			default :
-				break;
-		}
-	}
+    private static void setTransactionType(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-	private static void setBrokerCharges(AssetRequest assetRequest, Map<String, CellDetail> record) {
+        CellDetail cellDetail = record.get(TransactionHeaders.TRANSACTION_TYPE);
+        String transactionType = (String) cellDetail.getCellValue();
 
-		CellDetail cellDetail = record.get(TransactionHeaders.BROKER_CHARGES);
-		assetRequest.setBrokerCharges((Double) cellDetail.getCellValue());
-	}
+        switch (transactionType) {
+            case "BUY":
+                assetRequest.setTransactionType(TransactionType.BUY);
+                break;
+            case "SELL":
+                assetRequest.setTransactionType(TransactionType.SELL);
+                break;
+            default:
+                break;
+        }
+    }
 
-	private static void setMiscCharges(AssetRequest assetRequest, Map<String, CellDetail> record) {
+    private static void setBrokerCharges(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-		CellDetail cellDetail = record.get(TransactionHeaders.MISC_CHARGES);
-		assetRequest.setMiscCharges((Double) cellDetail.getCellValue());
-	}
+        CellDetail cellDetail = record.get(TransactionHeaders.BROKER_CHARGES);
+        assetRequest.setBrokerCharges((Double) cellDetail.getCellValue());
+    }
 
-	private static void setComment(AssetRequest assetRequest, Map<String, CellDetail> record) {
+    private static void setMiscCharges(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-		CellDetail cellDetail = record.get(TransactionHeaders.COMMENT);
-		assetRequest.setComment((String) cellDetail.getCellValue());
-	}
+        CellDetail cellDetail = record.get(TransactionHeaders.MISC_CHARGES);
+        assetRequest.setMiscCharges((Double) cellDetail.getCellValue());
+    }
+
+    private static void setComment(AssetRequest assetRequest, Map<String, CellDetail> record) {
+
+        CellDetail cellDetail = record.get(TransactionHeaders.COMMENT);
+        assetRequest.setComment((String) cellDetail.getCellValue());
+    }
 }

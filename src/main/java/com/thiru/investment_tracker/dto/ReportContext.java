@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import com.thiru.investment_tracker.dto.enums.AccountType;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 
+import com.thiru.investment_tracker.dto.enums.BrokerName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,7 +24,7 @@ public class ReportContext {
 	private String stockCode;
 	private String stockName;
 	private String exchangeName;
-	private String brokerName;
+	private BrokerName brokerName;
 	private double totalValue;
 	private AssetType assetType;
 	private String actor;

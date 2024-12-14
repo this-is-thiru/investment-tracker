@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.dto.enums.AccountType;
 import com.thiru.investment_tracker.dto.enums.AssetType;
@@ -23,7 +24,7 @@ public class AssetRequest {
 	private String stockCode;
 	private String stockName;
 	private String exchangeName;
-	private String brokerName;
+	private BrokerName brokerName;
 	private AssetType assetType;
 	private Double price;
 	private Double quantity;

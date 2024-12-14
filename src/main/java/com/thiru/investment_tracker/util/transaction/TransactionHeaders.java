@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.thiru.investment_tracker.service.PortfolioService;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
@@ -79,12 +80,12 @@ public class TransactionHeaders {
 			dataRow.createCell(3).setCellValue("NSE");
 			dataRow.createCell(4).setCellValue("Fyers");
 			dataRow.createCell(5).setCellValue("Equity");
-			setDateField(dataRow.createCell(6), LocalDate.now());
+			PortfolioService.setDateField(dataRow.createCell(6), LocalDate.now());
 			dataRow.createCell(7).setCellValue(0);
 			dataRow.createCell(8).setCellValue(0);
 			dataRow.createCell(9).setCellValue("BUY");
 			dataRow.createCell(10).setCellValue("actor@gmail.com");
-			setDateField(dataRow.createCell(11), LocalDate.now());
+			PortfolioService.setDateField(dataRow.createCell(11), LocalDate.now());
 			dataRow.createCell(12).setCellValue(0);
 			dataRow.createCell(13).setCellValue(0);
 			dataRow.createCell(14).setCellValue("comment");
@@ -94,13 +95,5 @@ public class TransactionHeaders {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	private static void setDateField(Cell cell, LocalDate date) {
-		CellStyle dateStyle = cell.getSheet().getWorkbook().createCellStyle();
-		CreationHelper createHelper = cell.getSheet().getWorkbook().getCreationHelper();
-		dateStyle.setDataFormat(createHelper.createDataFormat().getFormat("yyyy-mm-dd"));
-		cell.setCellStyle(dateStyle);
-		cell.setCellValue(date);
 	}
 }

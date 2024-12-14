@@ -1,6 +1,7 @@
 package com.thiru.investment_tracker.service;
 
 import com.thiru.investment_tracker.dto.enums.AccountType;
+import com.thiru.investment_tracker.dto.enums.AssetType;
 import org.springframework.stereotype.Service;
 
 import com.thiru.investment_tracker.dto.ReportContext;
@@ -32,14 +33,14 @@ public class ReportService {
         reportRepository.deleteByEmail(userMail.getEmail());
     }
 
-//    public void updateTransactions() {
-//        List<Report> transactions = reportRepository.findAll();
-//
-//        transactions.forEach(transaction -> {
-//                    AccountType accountType = transaction.getAccountType();
-//                    transaction.setAccountType(accountType == AccountType.OUT_SOURCE ? AccountType.OUTSOURCED : accountType);
-//                }
-//        );
-//        reportRepository.saveAll(transactions);
-//    }
+    public void updateReports() {
+        List<Report> reports = reportRepository.findAll();
+
+        reports.forEach(report -> {
+                    AssetType assetType = report.getAssetType();
+                    report.setAssetType(assetType == null ? AssetType.MUTUAL_FUND : assetType);
+                }
+        );
+        reportRepository.saveAll(reports);
+    }
 }

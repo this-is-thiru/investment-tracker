@@ -3,6 +3,7 @@ package com.thiru.investment_tracker.entity;
 import java.time.LocalDate;
 
 import com.thiru.investment_tracker.dto.enums.AccountType;
+import com.thiru.investment_tracker.dto.enums.BrokerName;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
@@ -41,8 +42,8 @@ public class Report {
 	@Field("exchange_name")
 	private String exchangeName;
 
-	@Field("broker_name")
-	private String brokerName;
+	@Field(name = "broker_name", targetType = FieldType.STRING)
+	private BrokerName brokerName;
 
 	@Field("purchase_price")
 	private double purchasePrice;

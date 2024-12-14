@@ -1,7 +1,9 @@
 package com.thiru.investment_tracker.service;
 
 import com.thiru.investment_tracker.dto.AssetRequest;
+import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.user.UserMail;
+import com.thiru.investment_tracker.entity.Report;
 import com.thiru.investment_tracker.entity.Transaction;
 import com.thiru.investment_tracker.repository.TransactionRepository;
 import com.thiru.investment_tracker.util.collection.TObjectMapper;
@@ -32,6 +34,17 @@ public class TransactionService {
         log.info("Transaction: {}, Stock: '{}' on '{}' noted successfully", transaction.getTransactionType(),
                 transaction.getStockName(), transaction.getTransactionDate());
         transactionRepository.save(transaction);
+    }
+
+    public void updateTransactions() {
+        List<Transaction> transactions = transactionRepository.findAll();
+
+        transactions.forEach(transaction -> {
+                    AssetType assetType = transaction.getAssetType();
+                    transaction.setAssetType(assetType == null ? AssetType.MUTUAL_FUND : assetType);
+                }
+        );
+        transactionRepository.saveAll(transactions);
     }
 
     public void deleteTransactions(UserMail userMail) {
