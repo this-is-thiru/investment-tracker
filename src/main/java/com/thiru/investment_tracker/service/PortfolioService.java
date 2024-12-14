@@ -23,13 +23,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.util.Pair;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
@@ -493,13 +488,12 @@ public class PortfolioService {
         log.info("Updated all reports");
         transactionService.updateTransactions();
         log.info("Updated all transactions");
-//
     }
 
     public Pair<InputStreamResource, String> downloadPortfolioStocks(UserMail userMail) {
         List<AssetResponse> userStocks = getAllStocks(userMail);
 
-        String fileName = "portfolio.xlsx";
+        String fileName = ExcelParser.PORTFOLIO_FILE_NAME;
         ByteArrayInputStream inputStream = downloadPortfolioStocks(userStocks);
         InputStreamResource resource = new InputStreamResource(inputStream);
 
@@ -511,7 +505,7 @@ public class PortfolioService {
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try (XSSFWorkbook workbook = new XSSFWorkbook()) {
-            ExcelParser.dataToExcel(workbook);
+            ExcelParser.initialiseExcel(workbook, ExcelParser.getPortfolioHeaders(), ExcelParser.ASSETS);
             Sheet sheet = workbook.getSheetAt(0);
 
             int rowCount = 1;
@@ -519,20 +513,17 @@ public class PortfolioService {
 
                 Row row = sheet.createRow(rowCount);
                 row.createCell(0).setCellValue(assetResponse.getEmail());
-                row.createCell(1).setCellValue(assetResponse.getStockCode());
-                row.createCell(2).setCellValue(assetResponse.getStockName());
-                row.createCell(3).setCellValue(assetResponse.getExchangeName());
-                row.createCell(4).setCellValue(assetResponse.getBrokerName().name());
-                row.createCell(5).setCellValue(assetResponse.getAssetType().name());
-                setDateField(row.createCell(6), assetResponse.getMaturityDate());
-                row.createCell(7).setCellValue(assetResponse.getPrice());
-                row.createCell(8).setCellValue(assetResponse.getQuantity());
-                row.createCell(9).setCellValue("BUY");
-                row.createCell(10).setCellValue(assetResponse.getEmail());
-                setDateField(row.createCell(11), LocalDate.now());
-                row.createCell(12).setCellValue(assetResponse.getBrokerCharges());
-                row.createCell(13).setCellValue(assetResponse.getMiscCharges());
-                row.createCell(14).setCellValue(assetResponse.getComment());
+                row.createCell(1).setCellValue(assetResponse.getStockName());
+                row.createCell(2).setCellValue(assetResponse.getStockCode());
+                row.createCell(3).setCellValue(assetResponse.getQuantity());
+                row.createCell(4).setCellValue(assetResponse.getPrice());
+                row.createCell(5).setCellValue(assetResponse.getTotalValue());
+                row.createCell(6).setCellValue(assetResponse.getExchangeName());
+                row.createCell(7).setCellValue(assetResponse.getBrokerName().name());
+                row.createCell(8).setCellValue(assetResponse.getAssetType().name());
+                setDateField(row.createCell(10), assetResponse.getMaturityDate());
+                row.createCell(11).setCellValue(assetResponse.getBrokerCharges());
+                row.createCell(12).setCellValue(assetResponse.getMiscCharges());
                 rowCount++;
             }
 

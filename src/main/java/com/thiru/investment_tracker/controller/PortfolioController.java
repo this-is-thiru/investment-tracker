@@ -134,5 +134,4 @@ public class PortfolioController {
         List<Asset> assets = portfolioService.searchAssets(UserMail.from(email), bulkGetRequest.getFilters());
         return ResponseEntity.ok(assets);
     }
-
 }

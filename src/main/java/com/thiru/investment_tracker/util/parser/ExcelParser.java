@@ -29,110 +29,121 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ExcelParser {
 
-	private static final String EXCEL_TYPE = "text/xls";
+    private static final String EXCEL_TYPE = "text/xls";
 
-	public static boolean isValidExcelFile(MultipartFile file) {
-		return EXCEL_TYPE.equals(file.getContentType());
-	}
+    public static final String ASSETS = "ASSETS";
+    public static final String TRANSACTIONS = "TRANSACTIONS";
+    public static final String PORTFOLIO_FILE_NAME = "portfolio.xlsx";
+    public static final String TRANSACTION_FILE_NAME = "transactions.xlsx";
 
-	public static InputRecords getRecordsFromExcel(InputStream inputStream, Map<String, ParserDataType> dataTypeMap) {
+    public static String[] getPortfolioHeaders() {
+        return new String[]{TransactionHeaders.EMAIL, TransactionHeaders.STOCK_NAME, TransactionHeaders.STOCK_CODE,
+                TransactionHeaders.QUANTITY, TransactionHeaders.PRICE, TransactionHeaders.TOTAL_VALUE,
+                TransactionHeaders.EXCHANGE_NAME, TransactionHeaders.BROKER_NAME, TransactionHeaders.ASSET_TYPE,
+                TransactionHeaders.MATURITY_DATE, TransactionHeaders.BROKER_CHARGES, TransactionHeaders.MISC_CHARGES};
+    }
 
-		try {
-			XSSFWorkbook excelWorkbook = new XSSFWorkbook(inputStream);
-			XSSFSheet tradeSheet = excelWorkbook.getSheetAt(0);
-			InputRecords inputRecords = new InputRecords();
+    public static boolean isValidExcelFile(MultipartFile file) {
+        return EXCEL_TYPE.equals(file.getContentType());
+    }
 
-			int rowIndex = 0;
-			for (Row row : tradeSheet) {
-				if (rowIndex == 0) {
-					List<String> fileHeaders = extractHeaders(row);
-					inputRecords.setHeaders(fileHeaders);
-				} else {
+    public static InputRecords getRecordsFromExcel(InputStream inputStream, Map<String, ParserDataType> dataTypeMap) {
 
-					InputRecord inputRecord = new InputRecord();
-					Map<String, CellDetail> record = extractRows(row, inputRecords.getHeaders(), dataTypeMap);
-					inputRecord.setRecord(record);
-					inputRecord.setRecordNumber(rowIndex);
+        try {
+            XSSFWorkbook excelWorkbook = new XSSFWorkbook(inputStream);
+            XSSFSheet tradeSheet = excelWorkbook.getSheetAt(0);
+            InputRecords inputRecords = new InputRecords();
 
-					inputRecords.getRecords().add(inputRecord);
-				}
-				rowIndex++;
-			}
+            int rowIndex = 0;
+            for (Row row : tradeSheet) {
+                if (rowIndex == 0) {
+                    List<String> fileHeaders = extractHeaders(row);
+                    inputRecords.setHeaders(fileHeaders);
+                } else {
 
-			return inputRecords;
-		} catch (IOException e) {
-			throw new BadRequestException("Data is not in valid format");
-		}
-	}
+                    InputRecord inputRecord = new InputRecord();
+                    Map<String, CellDetail> record = extractRows(row, inputRecords.getHeaders(), dataTypeMap);
+                    inputRecord.setRecord(record);
+                    inputRecord.setRecordNumber(rowIndex);
 
-	private static List<String> extractHeaders(Row row) {
-		Iterator<Cell> cellIterator = row.cellIterator();
+                    inputRecords.getRecords().add(inputRecord);
+                }
+                rowIndex++;
+            }
 
-		List<String> fileHeaders = new ArrayList<>();
-		while (cellIterator.hasNext()) {
-			Cell cell = cellIterator.next();
-			fileHeaders.add(cell.getStringCellValue());
-		}
-		return fileHeaders;
-	}
+            return inputRecords;
+        } catch (IOException e) {
+            throw new BadRequestException("Data is not in valid format");
+        }
+    }
 
-	private static Map<String, CellDetail> extractRows(Row row, List<String> fileHeaders,
-			Map<String, ParserDataType> dataTypeMap) {
+    private static List<String> extractHeaders(Row row) {
+        Iterator<Cell> cellIterator = row.cellIterator();
 
-		Iterator<Cell> cellIterator = row.cellIterator();
-		Map<String, CellDetail> record = new HashMap<>();
+        List<String> fileHeaders = new ArrayList<>();
+        while (cellIterator.hasNext()) {
+            Cell cell = cellIterator.next();
+            fileHeaders.add(cell.getStringCellValue());
+        }
+        return fileHeaders;
+    }
 
-		int columnIndex = 0;
-		while (cellIterator.hasNext()) {
-			Cell cell = cellIterator.next();
-			String cellHeader = fileHeaders.get(columnIndex);
-			CellDetail cellDetail = getCellDetail(cell, cellHeader, dataTypeMap);
-			record.put(cellHeader, cellDetail);
-			columnIndex++;
-		}
-		if (record.size() != fileHeaders.size()) {
-			return null;
-		}
+    private static Map<String, CellDetail> extractRows(Row row, List<String> fileHeaders,
+                                                       Map<String, ParserDataType> dataTypeMap) {
 
-		log.info("Parsed Record: {}", record);
-		return record;
-	}
+        Iterator<Cell> cellIterator = row.cellIterator();
+        Map<String, CellDetail> record = new HashMap<>();
 
-	private static CellDetail getCellDetail(Cell cell, String cellHeader, Map<String, ParserDataType> dataTypeMap) {
+        int columnIndex = 0;
+        while (cellIterator.hasNext()) {
+            Cell cell = cellIterator.next();
+            String cellHeader = fileHeaders.get(columnIndex);
+            CellDetail cellDetail = getCellDetail(cell, cellHeader, dataTypeMap);
+            record.put(cellHeader, cellDetail);
+            columnIndex++;
+        }
+        if (record.size() != fileHeaders.size()) {
+            return null;
+        }
 
-		ParserDataType parserDataType = dataTypeMap.getOrDefault(cellHeader, ParserDataType.NULL);
+        log.info("Parsed Record: {}", record);
+        return record;
+    }
 
-		return switch (parserDataType) {
-			case BOOLEAN -> CellDetail.of(ParserDataType.BOOLEAN, cell.getBooleanCellValue());
-			case INTEGER, LONG -> CellDetail.of(ParserDataType.LONG, (long) cell.getNumericCellValue());
-			case DOUBLE -> CellDetail.of(ParserDataType.DOUBLE, cell.getNumericCellValue());
-			case STRING -> CellDetail.of(ParserDataType.STRING, cell.getStringCellValue());
-			case LOCAL_DATE_TIME -> CellDetail.of(ParserDataType.LOCAL_DATE_TIME, cell.getLocalDateTimeCellValue());
-			case LOCAL_DATE -> CellDetail.of(ParserDataType.LOCAL_DATE,
-					TOptional.map1(cell.getLocalDateTimeCellValue(), LocalDateTime::toLocalDate));
-			case ERROR -> CellDetail.of(ParserDataType.ERROR, cell.getErrorCellValue());
-			case NULL -> CellDetail.of(ParserDataType.NULL, null);
-		};
-	}
+    private static CellDetail getCellDetail(Cell cell, String cellHeader, Map<String, ParserDataType> dataTypeMap) {
 
-	public static void dataToExcel(XSSFWorkbook workbook) {
+        ParserDataType parserDataType = dataTypeMap.getOrDefault(cellHeader, ParserDataType.NULL);
 
-		String[] headers = TransactionHeaders.getHeaders();
-		XSSFSheet sheet = workbook.createSheet(TransactionHeaders.MAIN_SHEET);
+        return switch (parserDataType) {
+            case BOOLEAN -> CellDetail.of(ParserDataType.BOOLEAN, cell.getBooleanCellValue());
+            case INTEGER, LONG -> CellDetail.of(ParserDataType.LONG, (long) cell.getNumericCellValue());
+            case DOUBLE -> CellDetail.of(ParserDataType.DOUBLE, cell.getNumericCellValue());
+            case STRING -> CellDetail.of(ParserDataType.STRING, cell.getStringCellValue());
+            case LOCAL_DATE_TIME -> CellDetail.of(ParserDataType.LOCAL_DATE_TIME, cell.getLocalDateTimeCellValue());
+            case LOCAL_DATE -> CellDetail.of(ParserDataType.LOCAL_DATE,
+                    TOptional.map1(cell.getLocalDateTimeCellValue(), LocalDateTime::toLocalDate));
+            case ERROR -> CellDetail.of(ParserDataType.ERROR, cell.getErrorCellValue());
+            case NULL -> CellDetail.of(ParserDataType.NULL, null);
+        };
+    }
 
-		Row headerRow = sheet.createRow(0);
-		for (int i = 0; i < headers.length; i++) {
-			Cell headerCell = headerRow.createCell(i);
-			headerCell.setCellValue(headers[i]);
+    public static void initialiseExcel(XSSFWorkbook workbook, String[] headers, String sheetName) {
 
-			// Create cell style with bold font
-			CellStyle headerCellStyle = workbook.createCellStyle();
-			Font headerFont = workbook.createFont();
-			headerFont.setBold(true);
-			headerCellStyle.setFont(headerFont);
+        XSSFSheet sheet = workbook.createSheet(sheetName);
 
-			// Apply style to header cells
-			headerCell.setCellStyle(headerCellStyle);
-		}
-	}
+        Row headerRow = sheet.createRow(0);
+        for (int i = 0; i < headers.length; i++) {
+            Cell headerCell = headerRow.createCell(i);
+            headerCell.setCellValue(headers[i]);
+
+            // Create cell style with bold font
+            CellStyle headerCellStyle = workbook.createCellStyle();
+            Font headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerCellStyle.setFont(headerFont);
+
+            // Apply style to header cells
+            headerCell.setCellStyle(headerCellStyle);
+        }
+    }
 }
