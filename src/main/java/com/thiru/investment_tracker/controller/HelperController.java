@@ -34,7 +34,7 @@ public class HelperController {
 	@GetMapping("/template/fields")
 	public ResponseEntity<String[]> getTemplateFields() {
 
-		String[] templateFields = TransactionHeaders.getHeaders();
+		String[] templateFields = TransactionHeaders.getTransactionHeaders();
 		return ResponseEntity.ok(templateFields);
 	}
 }

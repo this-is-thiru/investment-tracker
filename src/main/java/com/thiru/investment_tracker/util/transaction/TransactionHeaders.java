@@ -8,9 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.thiru.investment_tracker.service.PortfolioService;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -20,7 +17,6 @@ import com.thiru.investment_tracker.dto.enums.ParserDataType;
 
 public class TransactionHeaders {
 
-	public static final String MAIN_SHEET = "main_sheet";
 	public static final String HELPER_SHEET = "helper_sheet";
 
 	public static final String EMAIL = "Email";
@@ -31,6 +27,7 @@ public class TransactionHeaders {
 	public static final String ASSET_TYPE = "Asset Type";
 	public static final String MATURITY_DATE = "Maturity Date";
 	public static final String PRICE = "Price";
+	public static final String TOTAL_VALUE = "Total Value";
 	public static final String QUANTITY = "Quantity";
 	public static final String TRANSACTION_TYPE = "Transaction Type";
 	public static final String ACTOR = "Actor";
@@ -61,7 +58,7 @@ public class TransactionHeaders {
 		return dataTypeMap;
 	}
 
-	public static String[] getHeaders() {
+	public static String[] getTransactionHeaders() {
 		return new String[]{EMAIL, STOCK_CODE, STOCK_NAME, EXCHANGE_NAME, BROKER_NAME, ASSET_TYPE, MATURITY_DATE, PRICE,
 				QUANTITY, TRANSACTION_TYPE, ACTOR, TRANSACTION_DATE, BROKER_CHARGES, MISC_CHARGES, COMMENT};
 	}
@@ -70,7 +67,7 @@ public class TransactionHeaders {
 
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		try (XSSFWorkbook workbook = new XSSFWorkbook()) {
-			ExcelParser.dataToExcel(workbook);
+			ExcelParser.initialiseExcel(workbook, TransactionHeaders.getTransactionHeaders(), ExcelParser.TRANSACTIONS);
 			Sheet sheet = workbook.getSheetAt(0);
 
 			Row dataRow = sheet.createRow(1);
