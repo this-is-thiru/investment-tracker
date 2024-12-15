@@ -38,11 +38,11 @@ public class TransactionParser {
         setBrokerName(assetRequest, record);
         setActor(assetRequest, record);
         setAssetType(assetRequest, record);
-        setMaturityDate(assetRequest, record);
         setPrice(assetRequest, record);
         setQuantity(assetRequest, record);
         setTransactionType(assetRequest, record);
         setTransactionDate(assetRequest, record);
+        setMaturityDate(assetRequest, record);
         setBrokerCharges(assetRequest, record);
         setMiscCharges(assetRequest, record);
         setComment(assetRequest, record);
@@ -126,7 +126,8 @@ public class TransactionParser {
     private static void setMaturityDate(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
         CellDetail cellDetail = record.getOrDefault(TransactionHeaders.MATURITY_DATE, CellDetail.def());
-        assetRequest.setMaturityDate((LocalDate) cellDetail.getCellValue());
+        LocalDate maturityDate = getDefaultMaturity(assetRequest.getAssetType(), assetRequest.getTransactionDate(), (LocalDate) cellDetail.getCellValue());
+        assetRequest.setMaturityDate(maturityDate);
     }
 
     private static void setPrice(AssetRequest assetRequest, Map<String, CellDetail> record) {
@@ -160,7 +161,7 @@ public class TransactionParser {
                 assetRequest.setTransactionType(TransactionType.SELL);
                 break;
             default:
-                break;
+                throw new IllegalArgumentException("Invalid transaction type" + transactionType);
         }
     }
 
@@ -180,5 +181,13 @@ public class TransactionParser {
 
         CellDetail cellDetail = record.get(TransactionHeaders.COMMENT);
         assetRequest.setComment((String) cellDetail.getCellValue());
+    }
+
+    private static LocalDate getDefaultMaturity(AssetType assetType, LocalDate transactionDate, LocalDate maturityDate) {
+
+        return switch (assetType) {
+            case EQUITY, BOND, MUTUAL_FUND, FD, INSURANCE -> null;
+            case GOLD_BOND -> maturityDate != null ? maturityDate : transactionDate.plusYears(8);
+        };
     }
 }

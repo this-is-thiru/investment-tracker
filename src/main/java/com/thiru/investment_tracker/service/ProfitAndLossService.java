@@ -224,6 +224,12 @@ public class ProfitAndLossService {
 //	}
 }
 
+
+/**
+ * Name: InternalContext, need to be refactored by @thiru
+ * Represents the internal context for calculating profit and loss details,
+ * including associated charges and whether the gains are short-term.
+ */
 @Data
 @NoArgsConstructor
 class InternalContext {

@@ -40,6 +40,8 @@ import java.util.stream.Collectors;
 @Service
 public class PortfolioService {
 
+    private static final int DEFAULT_DECIMAL_PLACES = 2;
+
     private final PortfolioRepository portfolioRepository;
     private final TransactionService transactionService;
     private final ProfitAndLossService profitAndLossService;
@@ -502,7 +504,6 @@ public class PortfolioService {
 
     public ByteArrayInputStream downloadPortfolioStocks(List<AssetResponse> userStocks) {
 
-
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try (XSSFWorkbook workbook = new XSSFWorkbook()) {
             ExcelParser.initialiseExcel(workbook, ExcelParser.getPortfolioHeaders(), ExcelParser.ASSETS);
@@ -515,15 +516,15 @@ public class PortfolioService {
                 row.createCell(0).setCellValue(assetResponse.getEmail());
                 row.createCell(1).setCellValue(assetResponse.getStockName());
                 row.createCell(2).setCellValue(assetResponse.getStockCode());
-                row.createCell(3).setCellValue(assetResponse.getQuantity());
-                row.createCell(4).setCellValue(assetResponse.getPrice());
-                row.createCell(5).setCellValue(assetResponse.getTotalValue());
+                row.createCell(3).setCellValue(getRoundedValue(assetResponse.getQuantity()));
+                row.createCell(4).setCellValue(getRoundedValue(assetResponse.getPrice()));
+                row.createCell(5).setCellValue(getRoundedValue(assetResponse.getTotalValue()));
                 row.createCell(6).setCellValue(assetResponse.getExchangeName());
                 row.createCell(7).setCellValue(assetResponse.getBrokerName().name());
                 row.createCell(8).setCellValue(assetResponse.getAssetType().name());
-                setDateField(row.createCell(10), assetResponse.getMaturityDate());
-                row.createCell(11).setCellValue(assetResponse.getBrokerCharges());
-                row.createCell(12).setCellValue(assetResponse.getMiscCharges());
+                setDateField(row.createCell(9), assetResponse.getMaturityDate());
+                row.createCell(10).setCellValue(getRoundedValue(assetResponse.getBrokerCharges()));
+                row.createCell(11).setCellValue(getRoundedValue(assetResponse.getMiscCharges()));
                 rowCount++;
             }
 
@@ -544,5 +545,11 @@ public class PortfolioService {
         dateStyle.setDataFormat(createHelper.createDataFormat().getFormat("yyyy-mm-dd"));
         cell.setCellStyle(dateStyle);
         cell.setCellValue(date);
+    }
+
+    public static double getRoundedValue(double doubleValue) {
+
+        double scale = Math.pow(10, DEFAULT_DECIMAL_PLACES);
+        return Math.round(doubleValue * scale) / scale;
     }
 }
