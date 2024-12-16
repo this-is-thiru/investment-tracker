@@ -93,10 +93,19 @@ public class PortfolioController {
         return ResponseEntity.ok(transactionService.allTransactions());
     }
 
-    @GetMapping("/all/assets")
-    public ResponseEntity<List<AssetResponse>> allAssets(@PathVariable String email, @RequestParam("type") String type) {
-        List<AssetResponse> assets = portfolioService.getAssets(UserMail.from(email), HoldingType.valueOf(type));
+    @GetMapping("/assets/holding/{holdingType}")
+    public ResponseEntity<List<AssetResponse>> allAssets(@PathVariable String email, @PathVariable String holdingType) {
+        List<AssetResponse> assets = portfolioService.getAssets(UserMail.from(email), HoldingType.valueOf(holdingType));
         return ResponseEntity.ok(assets);
+    }
+
+    @GetMapping("/assets/holding/{holdingType}/excel")
+    public ResponseEntity<InputStreamResource> downloadAssets(@PathVariable String email, @PathVariable String holdingType) {
+        Pair<InputStreamResource, String> resourcePair = portfolioService.downloadAssets(UserMail.from(email), HoldingType.valueOf(holdingType));
+        String mediaType = "application/vnd.ms-excel";
+        String headerValue = "attachment; filename=" + resourcePair.getSecond();
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, headerValue)
+                .contentType(MediaType.parseMediaType(mediaType)).body(resourcePair.getFirst());
     }
 
     @PutMapping("/stocks/download")

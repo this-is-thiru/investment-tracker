@@ -28,6 +28,7 @@ public class ExcelParser {
     public static final String TRANSACTIONS = "TRANSACTIONS";
     public static final String PORTFOLIO_FILE_NAME = "portfolio.xlsx";
     public static final String TRANSACTION_FILE_NAME = "transactions.xlsx";
+    public static final String HOLDINGS_FILE_NAME = "holdings.xlsx";
 
     public static boolean isValidExcelFile(MultipartFile file) {
         return EXCEL_TYPE.equals(file.getContentType());
@@ -113,7 +114,7 @@ public class ExcelParser {
         };
     }
 
-    public static void initialiseExcel(XSSFWorkbook workbook, String[] headers, String sheetName) {
+    public static void initialiseExcelSheet(XSSFWorkbook workbook, String[] headers, String sheetName) {
 
         XSSFSheet sheet = workbook.createSheet(sheetName);
 

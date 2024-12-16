@@ -1,28 +1,25 @@
 package com.thiru.investment_tracker.service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import com.thiru.investment_tracker.entity.*;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.thiru.investment_tracker.util.collection.TObjectMapper;
-import com.thiru.investment_tracker.util.collection.TOptional;
 import com.thiru.investment_tracker.dto.ProfitAndLossContext;
 import com.thiru.investment_tracker.dto.ProfitAndLossResponse;
 import com.thiru.investment_tracker.dto.enums.AccountType;
-import com.thiru.investment_tracker.repository.ProfitAndLossRepository;
 import com.thiru.investment_tracker.dto.user.UserMail;
-
+import com.thiru.investment_tracker.entity.*;
+import com.thiru.investment_tracker.repository.ProfitAndLossRepository;
+import com.thiru.investment_tracker.util.collection.TObjectMapper;
+import com.thiru.investment_tracker.util.collection.TOptional;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @AllArgsConstructor
@@ -213,45 +210,29 @@ public class ProfitAndLossService {
 		profitAndLossRepository.deleteByEmail(userMail.getEmail());
 	}
 
-//	public void updateTransactions() {
-//		List<ProfitAndLossEntity> transactions = profitAndLossRepository.findAll();
-//
-//		transactions.forEach(transaction -> {
-//					AccountType accountType = transaction.getAccountType();
-//					transaction.setAccountType(accountType == AccountType.OUT_SOURCE ? AccountType.OUTSOURCED : accountType);
-//				}
-//		);
-//	}
-}
+	@Data
+	@NoArgsConstructor
+	static class InternalContext {
+		private boolean isShortTermGain;
+		private double purchasePrice;
+		private double sellPrice;
+		private double profit;
+		private double brokerCharges;
+		private double miscCharges;
+		private ProfitAndLossContext profitAndLossContext;
 
+		InternalContext(ProfitAndLossContext profitAndLossContext) {
+			this.profitAndLossContext = profitAndLossContext;
+			isShortTermCapitalGain();
+		}
 
-/**
- * Name: InternalContext, need to be refactored by @thiru
- * Represents the internal context for calculating profit and loss details,
- * including associated charges and whether the gains are short-term.
- */
-@Data
-@NoArgsConstructor
-class InternalContext {
-	private boolean isShortTermGain;
-	private double purchasePrice;
-	private double sellPrice;
-	private double profit;
-	private double brokerCharges;
-	private double miscCharges;
-	private ProfitAndLossContext profitAndLossContext;
+		private void isShortTermCapitalGain() {
 
-	InternalContext(ProfitAndLossContext profitAndLossContext) {
-		this.profitAndLossContext = profitAndLossContext;
-		isShortTermCapitalGain();
-	}
+			LocalDate purchaseDate = profitAndLossContext.getPurchaseContext().getTransactionDate();
+			LocalDate sellDate = profitAndLossContext.getSellContext().getTransactionDate();
 
-	private void isShortTermCapitalGain() {
-
-		LocalDate purchaseDate = profitAndLossContext.getPurchaseContext().getTransactionDate();
-		LocalDate sellDate = profitAndLossContext.getSellContext().getTransactionDate();
-
-		LocalDate thresholdDate = purchaseDate.plusYears(1);
-		this.isShortTermGain = sellDate.isBefore(thresholdDate);
+			LocalDate thresholdDate = purchaseDate.plusYears(1);
+			this.isShortTermGain = sellDate.isBefore(thresholdDate);
+		}
 	}
 }

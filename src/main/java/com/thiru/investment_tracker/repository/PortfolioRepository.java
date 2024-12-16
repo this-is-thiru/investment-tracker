@@ -2,6 +2,7 @@ package com.thiru.investment_tracker.repository;
 
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.entity.Asset;
+import org.springframework.data.mongodb.repository.Meta;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.time.LocalDate;
@@ -22,6 +23,7 @@ public interface PortfolioRepository extends MongoRepository<Asset, String> {
     Optional<Asset> findByEmailAndStockCodeAndBrokerNameAndAccountHolderAndTransactionDate(String email,
                                                                                            String stockCode, BrokerName brokerName, String accountHolder, LocalDate transactionDate);
 
+    @Meta()
     List<Asset> findByEmailAndStockCodeAndBrokerNameAndAccountHolderOrderByTransactionDate(String email,
                                                                                            String stockCode, BrokerName brokerName, String accountHolder);
 

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.thiru.investment_tracker.dto.enums.ParserDataType;
+import com.thiru.investment_tracker.entity.Transaction;
 
 public class ExcelHeaders {
 
@@ -53,8 +54,12 @@ public class ExcelHeaders {
 
 	public static String[] getPortfolioHeaders() {
 		return new String[]{ExcelHeaders.EMAIL, ExcelHeaders.STOCK_NAME, ExcelHeaders.STOCK_CODE,
-				ExcelHeaders.QUANTITY, ExcelHeaders.PRICE, ExcelHeaders.TOTAL_VALUE,
+				ExcelHeaders.QUANTITY, "Total Quantity", ExcelHeaders.PRICE, ExcelHeaders.TOTAL_VALUE,
 				ExcelHeaders.EXCHANGE_NAME, ExcelHeaders.BROKER_NAME, ExcelHeaders.ASSET_TYPE,
 				ExcelHeaders.MATURITY_DATE, ExcelHeaders.BROKER_CHARGES, ExcelHeaders.MISC_CHARGES};
+	}
+
+	public static String[] getTransactionQuantityHeaders() {
+		return new String[]{ExcelHeaders.STOCK_CODE, ExcelHeaders.BROKER_NAME, "Transaction Date", ExcelHeaders.QUANTITY};
 	}
 }

@@ -494,7 +494,17 @@ public class PortfolioService {
         List<AssetResponse> userStocks = getAllStocks(userMail);
 
         String fileName = ExcelParser.PORTFOLIO_FILE_NAME;
-        ByteArrayInputStream inputStream = ExcelBuilder.downloadPortfolioStocks(userStocks);
+        ByteArrayInputStream inputStream = ExcelBuilder.downloadAssets(userStocks, false);
+        InputStreamResource resource = new InputStreamResource(inputStream);
+
+        return Pair.of(resource, fileName);
+    }
+
+    public Pair<InputStreamResource, String> downloadAssets(UserMail userMail, HoldingType holdingType) {
+
+        List<AssetResponse> assets = this.getAssets(userMail, holdingType);
+        String fileName = ExcelParser.HOLDINGS_FILE_NAME;
+        ByteArrayInputStream inputStream = ExcelBuilder.downloadAssets(assets, true);
         InputStreamResource resource = new InputStreamResource(inputStream);
 
         return Pair.of(resource, fileName);
