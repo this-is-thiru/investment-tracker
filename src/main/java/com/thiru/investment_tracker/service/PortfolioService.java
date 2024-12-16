@@ -11,13 +11,12 @@ import com.thiru.investment_tracker.util.collection.TLocaleDate;
 import com.thiru.investment_tracker.util.collection.TObjectMapper;
 import com.thiru.investment_tracker.util.db.CriteriaBuilder;
 import com.thiru.investment_tracker.util.db.Filter;
+import com.thiru.investment_tracker.util.parser.ExcelBuilder;
 import com.thiru.investment_tracker.util.parser.ExcelParser;
-import com.thiru.investment_tracker.util.transaction.TransactionHeaders;
+import com.thiru.investment_tracker.util.transaction.ExcelHeaders;
 import com.thiru.investment_tracker.util.transaction.TransactionParser;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -28,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
@@ -83,7 +81,7 @@ public class PortfolioService {
                 throw new BadRequestException("Invalid data format");
             }
 
-            Map<String, ParserDataType> dataTypeMap = TransactionHeaders.getDataTypeMap();
+            Map<String, ParserDataType> dataTypeMap = ExcelHeaders.getDataTypeMap();
 
             InputRecords inputRecords = ExcelParser.getRecordsFromExcel(file.getInputStream(), dataTypeMap);
             List<AssetRequest> assetRequests = TransactionParser.getTransactionRecords(inputRecords);
@@ -496,60 +494,13 @@ public class PortfolioService {
         List<AssetResponse> userStocks = getAllStocks(userMail);
 
         String fileName = ExcelParser.PORTFOLIO_FILE_NAME;
-        ByteArrayInputStream inputStream = downloadPortfolioStocks(userStocks);
+        ByteArrayInputStream inputStream = ExcelBuilder.downloadPortfolioStocks(userStocks);
         InputStreamResource resource = new InputStreamResource(inputStream);
 
         return Pair.of(resource, fileName);
     }
 
-    public ByteArrayInputStream downloadPortfolioStocks(List<AssetResponse> userStocks) {
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try (XSSFWorkbook workbook = new XSSFWorkbook()) {
-            ExcelParser.initialiseExcel(workbook, ExcelParser.getPortfolioHeaders(), ExcelParser.ASSETS);
-            Sheet sheet = workbook.getSheetAt(0);
-
-            int rowCount = 1;
-            for (AssetResponse assetResponse : userStocks) {
-
-                Row row = sheet.createRow(rowCount);
-                row.createCell(0).setCellValue(assetResponse.getEmail());
-                row.createCell(1).setCellValue(assetResponse.getStockName());
-                row.createCell(2).setCellValue(assetResponse.getStockCode());
-                row.createCell(3).setCellValue(getRoundedValue(assetResponse.getQuantity()));
-                row.createCell(4).setCellValue(getRoundedValue(assetResponse.getPrice()));
-                row.createCell(5).setCellValue(getRoundedValue(assetResponse.getTotalValue()));
-                row.createCell(6).setCellValue(assetResponse.getExchangeName());
-                row.createCell(7).setCellValue(assetResponse.getBrokerName().name());
-                row.createCell(8).setCellValue(assetResponse.getAssetType().name());
-                setDateField(row.createCell(9), assetResponse.getMaturityDate());
-                row.createCell(10).setCellValue(getRoundedValue(assetResponse.getBrokerCharges()));
-                row.createCell(11).setCellValue(getRoundedValue(assetResponse.getMiscCharges()));
-                rowCount++;
-            }
-
-            workbook.write(outputStream);
-            return new ByteArrayInputStream(outputStream.toByteArray());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public ByteArrayInputStream downloadTemplate() {
-        return TransactionHeaders.downloadTemplate();
-    }
-
-    public static void setDateField(Cell cell, LocalDate date) {
-        CellStyle dateStyle = cell.getSheet().getWorkbook().createCellStyle();
-        CreationHelper createHelper = cell.getSheet().getWorkbook().getCreationHelper();
-        dateStyle.setDataFormat(createHelper.createDataFormat().getFormat("yyyy-mm-dd"));
-        cell.setCellStyle(dateStyle);
-        cell.setCellValue(date);
-    }
-
-    public static double getRoundedValue(double doubleValue) {
-
-        double scale = Math.pow(10, DEFAULT_DECIMAL_PLACES);
-        return Math.round(doubleValue * scale) / scale;
+        return ExcelBuilder.downloadTemplate();
     }
 }

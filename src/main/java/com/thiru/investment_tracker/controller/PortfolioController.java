@@ -56,11 +56,11 @@ public class PortfolioController {
     }
 
     @PostMapping("/clear/all")
-    public ResponseEntity<String> getProfitAndLoss(@PathVariable String email) {
+    public ResponseEntity<String> deleteAllRecords(@PathVariable String email) {
         return ResponseEntity.ok(portfolioService.clearAllRecordsForCustomer(UserMail.from(email)));
     }
 
-    @GetMapping("/all")
+    @GetMapping("/stocks/all")
     public ResponseEntity<List<AssetResponse>> getAllStocks(@PathVariable String email) {
         return ResponseEntity.ok(portfolioService.getAllStocks(UserMail.from(email)));
     }
@@ -70,9 +70,9 @@ public class PortfolioController {
         return ResponseEntity.ok(portfolioService.getMutualFunds(UserMail.from(email)));
     }
 
-    @PostMapping("/allStocks")
-    public ResponseEntity<List<AssetResponse>> getAllStocks(@PathVariable String email,
-                                                            @RequestBody BulkGetRequest bulkGetRequest) {
+    @PostMapping("/stocks")
+    public ResponseEntity<List<AssetResponse>> getStocks(@PathVariable String email,
+                                                         @RequestBody BulkGetRequest bulkGetRequest) {
 
         LocalDate startDate = bulkGetRequest.getDateRange().getStartDate();
         LocalDate endDate = bulkGetRequest.getDateRange().getEndDate();

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.thiru.investment_tracker.service.PortfolioService;
-import com.thiru.investment_tracker.util.transaction.TransactionHeaders;
+import com.thiru.investment_tracker.util.transaction.ExcelHeaders;
 
 import lombok.AllArgsConstructor;
 
@@ -34,7 +34,7 @@ public class HelperController {
 	@GetMapping("/template/fields")
 	public ResponseEntity<String[]> getTemplateFields() {
 
-		String[] templateFields = TransactionHeaders.getTransactionHeaders();
+		String[] templateFields = ExcelHeaders.getTransactionHeaders();
 		return ResponseEntity.ok(templateFields);
 	}
 }

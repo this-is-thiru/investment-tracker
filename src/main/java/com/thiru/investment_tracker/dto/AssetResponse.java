@@ -44,5 +44,4 @@ public class AssetResponse {
 	private LocalDate transactionDate;
 
 	private Map<String, Double> transactionQuantities;
-
 }

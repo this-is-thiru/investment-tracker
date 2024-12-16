@@ -1,19 +1,19 @@
 package com.thiru.investment_tracker.util.transaction;
 
+import com.thiru.investment_tracker.dto.AssetRequest;
+import com.thiru.investment_tracker.dto.InputRecord;
+import com.thiru.investment_tracker.dto.InputRecords;
+import com.thiru.investment_tracker.dto.enums.AssetType;
+import com.thiru.investment_tracker.dto.enums.BrokerName;
+import com.thiru.investment_tracker.dto.enums.TransactionType;
+import com.thiru.investment_tracker.util.collection.TCollectionUtil;
+import com.thiru.investment_tracker.util.parser.CellDetail;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import com.thiru.investment_tracker.dto.enums.BrokerName;
-import com.thiru.investment_tracker.util.collection.TCollectionUtil;
-import com.thiru.investment_tracker.util.parser.CellDetail;
-import com.thiru.investment_tracker.dto.AssetRequest;
-import com.thiru.investment_tracker.dto.InputRecord;
-import com.thiru.investment_tracker.dto.InputRecords;
-import com.thiru.investment_tracker.dto.enums.AssetType;
-import com.thiru.investment_tracker.dto.enums.TransactionType;
 
 public class TransactionParser {
 
@@ -52,25 +52,25 @@ public class TransactionParser {
 
     private static void setStockCode(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-        CellDetail cellDetail = record.get(TransactionHeaders.STOCK_CODE);
+        CellDetail cellDetail = record.get(ExcelHeaders.STOCK_CODE);
         assetRequest.setStockCode((String) cellDetail.getCellValue());
     }
 
     private static void setStockName(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-        CellDetail cellDetail = record.get(TransactionHeaders.STOCK_NAME);
+        CellDetail cellDetail = record.get(ExcelHeaders.STOCK_NAME);
         assetRequest.setStockName((String) cellDetail.getCellValue());
     }
 
     private static void setExchangeName(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-        CellDetail cellDetail = record.get(TransactionHeaders.EXCHANGE_NAME);
+        CellDetail cellDetail = record.get(ExcelHeaders.EXCHANGE_NAME);
         assetRequest.setExchangeName((String) cellDetail.getCellValue());
     }
 
     private static void setBrokerName(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-        CellDetail cellDetail = record.get(TransactionHeaders.BROKER_NAME);
+        CellDetail cellDetail = record.get(ExcelHeaders.BROKER_NAME);
         String brokerName = (String) cellDetail.getCellValue();
 
         switch (brokerName) {
@@ -90,13 +90,13 @@ public class TransactionParser {
 
     private static void setActor(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-        CellDetail cellDetail = record.get(TransactionHeaders.ACTOR);
+        CellDetail cellDetail = record.get(ExcelHeaders.ACTOR);
         assetRequest.setActor((String) cellDetail.getCellValue());
     }
 
     private static void setAssetType(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-        CellDetail cellDetail = record.get(TransactionHeaders.ASSET_TYPE);
+        CellDetail cellDetail = record.get(ExcelHeaders.ASSET_TYPE);
         String assetType = (String) cellDetail.getCellValue();
 
         switch (assetType) {
@@ -125,32 +125,32 @@ public class TransactionParser {
 
     private static void setMaturityDate(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-        CellDetail cellDetail = record.getOrDefault(TransactionHeaders.MATURITY_DATE, CellDetail.def());
+        CellDetail cellDetail = record.getOrDefault(ExcelHeaders.MATURITY_DATE, CellDetail.def());
         LocalDate maturityDate = getDefaultMaturity(assetRequest.getAssetType(), assetRequest.getTransactionDate(), (LocalDate) cellDetail.getCellValue());
         assetRequest.setMaturityDate(maturityDate);
     }
 
     private static void setPrice(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-        CellDetail cellDetail = record.get(TransactionHeaders.PRICE);
+        CellDetail cellDetail = record.get(ExcelHeaders.PRICE);
         assetRequest.setPrice((Double) cellDetail.getCellValue());
     }
 
     private static void setQuantity(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-        CellDetail cellDetail = record.get(TransactionHeaders.QUANTITY);
+        CellDetail cellDetail = record.get(ExcelHeaders.QUANTITY);
         assetRequest.setQuantity((Double) cellDetail.getCellValue());
     }
 
     private static void setTransactionDate(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-        CellDetail cellDetail = record.get(TransactionHeaders.TRANSACTION_DATE);
+        CellDetail cellDetail = record.get(ExcelHeaders.TRANSACTION_DATE);
         assetRequest.setTransactionDate((LocalDate) cellDetail.getCellValue());
     }
 
     private static void setTransactionType(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-        CellDetail cellDetail = record.get(TransactionHeaders.TRANSACTION_TYPE);
+        CellDetail cellDetail = record.get(ExcelHeaders.TRANSACTION_TYPE);
         String transactionType = (String) cellDetail.getCellValue();
 
         switch (transactionType) {
@@ -167,19 +167,19 @@ public class TransactionParser {
 
     private static void setBrokerCharges(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-        CellDetail cellDetail = record.get(TransactionHeaders.BROKER_CHARGES);
+        CellDetail cellDetail = record.get(ExcelHeaders.BROKER_CHARGES);
         assetRequest.setBrokerCharges((Double) cellDetail.getCellValue());
     }
 
     private static void setMiscCharges(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-        CellDetail cellDetail = record.get(TransactionHeaders.MISC_CHARGES);
+        CellDetail cellDetail = record.get(ExcelHeaders.MISC_CHARGES);
         assetRequest.setMiscCharges((Double) cellDetail.getCellValue());
     }
 
     private static void setComment(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-        CellDetail cellDetail = record.get(TransactionHeaders.COMMENT);
+        CellDetail cellDetail = record.get(ExcelHeaders.COMMENT);
         assetRequest.setComment((String) cellDetail.getCellValue());
     }
 

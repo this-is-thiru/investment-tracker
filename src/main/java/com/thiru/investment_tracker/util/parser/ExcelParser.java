@@ -1,14 +1,11 @@
 package com.thiru.investment_tracker.util.parser;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
+import com.thiru.investment_tracker.dto.InputRecord;
+import com.thiru.investment_tracker.dto.InputRecords;
+import com.thiru.investment_tracker.dto.enums.ParserDataType;
+import com.thiru.investment_tracker.exception.BadRequestException;
+import com.thiru.investment_tracker.util.collection.TOptional;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
@@ -17,14 +14,10 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.thiru.investment_tracker.util.collection.TOptional;
-import com.thiru.investment_tracker.dto.InputRecord;
-import com.thiru.investment_tracker.dto.InputRecords;
-import com.thiru.investment_tracker.dto.enums.ParserDataType;
-import com.thiru.investment_tracker.exception.BadRequestException;
-import com.thiru.investment_tracker.util.transaction.TransactionHeaders;
-
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Slf4j
 public class ExcelParser {
@@ -35,13 +28,6 @@ public class ExcelParser {
     public static final String TRANSACTIONS = "TRANSACTIONS";
     public static final String PORTFOLIO_FILE_NAME = "portfolio.xlsx";
     public static final String TRANSACTION_FILE_NAME = "transactions.xlsx";
-
-    public static String[] getPortfolioHeaders() {
-        return new String[]{TransactionHeaders.EMAIL, TransactionHeaders.STOCK_NAME, TransactionHeaders.STOCK_CODE,
-                TransactionHeaders.QUANTITY, TransactionHeaders.PRICE, TransactionHeaders.TOTAL_VALUE,
-                TransactionHeaders.EXCHANGE_NAME, TransactionHeaders.BROKER_NAME, TransactionHeaders.ASSET_TYPE,
-                TransactionHeaders.MATURITY_DATE, TransactionHeaders.BROKER_CHARGES, TransactionHeaders.MISC_CHARGES};
-    }
 
     public static boolean isValidExcelFile(MultipartFile file) {
         return EXCEL_TYPE.equals(file.getContentType());
