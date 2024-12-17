@@ -4,6 +4,8 @@ import com.thiru.investment_tracker.dto.AssetRequest;
 import com.thiru.investment_tracker.dto.CorporateActionWrapper;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.user.UserMail;
+
+import com.thiru.investment_tracker.entity.Asset;
 import com.thiru.investment_tracker.entity.Transaction;
 import com.thiru.investment_tracker.repository.TransactionRepository;
 import com.thiru.investment_tracker.util.collection.TObjectMapper;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
