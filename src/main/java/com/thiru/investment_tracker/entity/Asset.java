@@ -1,8 +1,11 @@
 package com.thiru.investment_tracker.entity;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
+import com.thiru.investment_tracker.dto.CorporateActionWrapper;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -89,6 +92,15 @@ public class Asset {
 
 	@Field("comments")
 	private String comment;
+
+	@Field("buy_transaction_ids")
+	private List<String> buyTransactionIds = new ArrayList<>();
+
+	@Field("sell_transaction_ids")
+	private List<String> sellTransactionIds = new ArrayList<>();
+
+	@Field("corporate_actions")
+	List<CorporateActionWrapper> corporateActions = new ArrayList<>();
 
 	// this email we can't accept from the request payload, we are formatting this through the code
 	public static final String EMAIL = "email";

@@ -1,8 +1,11 @@
 package com.thiru.investment_tracker.entity;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.thiru.investment_tracker.dto.enums.BrokerName;
+import com.thiru.investment_tracker.dto.CorporateActionWrapper;
+import com.thiru.investment_tracker.dto.enums.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
@@ -12,9 +15,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
-import com.thiru.investment_tracker.dto.enums.AccountType;
-import com.thiru.investment_tracker.dto.enums.AssetType;
-import com.thiru.investment_tracker.dto.enums.TransactionType;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -87,5 +87,8 @@ public class Transaction {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCollectionUtil.DATE_FORMAT)
 	@Field("transaction_date")
 	private LocalDate transactionDate;
+
+	@Field("corporate_actions")
+	List<CorporateActionWrapper> corporateActions = new ArrayList<>();
 
 }

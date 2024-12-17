@@ -22,4 +22,11 @@ public class TLocaleDate {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(TCollectionUtil.DATE_FORMAT);
         return LocalDate.parse(date, formatter);
     }
+
+    public static String standardDateFormattedString(LocalDate date) {
+
+        LocalDate localDate = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(TCollectionUtil.DATE_FORMAT);
+        return localDate.format(formatter);
+    }
 }
