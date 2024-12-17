@@ -23,9 +23,10 @@ public interface PortfolioRepository extends MongoRepository<Asset, String> {
     Optional<Asset> findByEmailAndStockCodeAndBrokerNameAndAccountHolderAndTransactionDate(String email,
                                                                                            String stockCode, BrokerName brokerName, String accountHolder, LocalDate transactionDate);
 
-    @Meta()
     List<Asset> findByEmailAndStockCodeAndBrokerNameAndAccountHolderOrderByTransactionDate(String email,
                                                                                            String stockCode, BrokerName brokerName, String accountHolder);
+
+    List<Asset> findByEmailAndStockCodeAndTransactionDateBefore(String email, String stockCode,LocalDate transactionDate);
 
     List<Asset> findByEmailAndStockCodeOrderByTransactionDate(String email, String stockCode);
 

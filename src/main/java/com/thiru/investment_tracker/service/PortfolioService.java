@@ -51,20 +51,20 @@ public class PortfolioService {
 
         sanitizeAssetRequest(assetRequest);
 
+        // Add transaction
+        String transactionId = addTransactionInternal(assetRequest);
+
         TransactionType transactionType = assetRequest.getTransactionType();
-        String message = switch (transactionType) {
+        return switch (transactionType) {
             case BUY -> {
-                buyStock(userMail, assetRequest);
+                buyStock(userMail, transactionId, assetRequest);
                 yield "Stock buy added to portfolio";
             }
             case SELL -> {
-                sellStock(userMail, assetRequest);
+                sellStock(userMail, transactionId, assetRequest);
                 yield "Stock sell updated in portfolio and profit and loss updated in profit and loss";
             }
         };
-        addTransactionInternal(assetRequest);
-
-        return message;
     }
 
     private static void sanitizeAssetRequest(AssetRequest assetRequest) {
@@ -93,7 +93,7 @@ public class PortfolioService {
         }
     }
 
-    public void buyStock(UserMail userMail, AssetRequest assetRequest) {
+    public void buyStock(UserMail userMail, String transactionId, AssetRequest assetRequest) {
 
         String email = userMail.getEmail();
         assetRequest.setEmail(email);
@@ -130,10 +130,11 @@ public class PortfolioService {
             asset.setTotalValue(totalValueOfTransaction);
         }
 
+        asset.getBuyTransactionIds().add(transactionId);
         portfolioRepository.save(asset);
     }
 
-    public void sellStock(UserMail userMail, AssetRequest assetRequest) {
+    public void sellStock(UserMail userMail, String transactionId, AssetRequest assetRequest) {
 
         String email = userMail.getEmail();
         String stockCode = assetRequest.getStockCode();
@@ -146,7 +147,7 @@ public class PortfolioService {
 
         validateTransaction(stockEntities, assetRequest);
 
-        updateQuantity(userMail, stockEntities, assetRequest);
+        updateQuantity(userMail, transactionId, stockEntities, assetRequest);
         List<String> updatedStockEntities = TCollectionUtil.applyMap(stockEntities, asset -> asset.getQuantity() == 0,
                 Asset::getId);
         portfolioRepository.saveAll(stockEntities);
@@ -168,8 +169,8 @@ public class PortfolioService {
         }
     }
 
-    private void addTransactionInternal(AssetRequest assetRequest) {
-        transactionService.addTransaction(assetRequest);
+    private String addTransactionInternal(AssetRequest assetRequest) {
+        return transactionService.addTransaction(assetRequest);
     }
 
     public List<AssetResponse> getStockQuantity(UserMail userMail, String stockCode) {
@@ -255,7 +256,7 @@ public class PortfolioService {
         return assetRequest.getPrice() * assetRequest.getQuantity();
     }
 
-    private void updateQuantity(UserMail userMail, List<Asset> stockEntities, AssetRequest assetRequest) {
+    private void updateQuantity(UserMail userMail, String transactionId, List<Asset> stockEntities, AssetRequest assetRequest) {
 
         double sellQuantity = assetRequest.getQuantity();
 
@@ -263,6 +264,7 @@ public class PortfolioService {
         while (sellQuantity > 0) {
 
             Asset asset = stockEntitiesIterator.next();
+            asset.getSellTransactionIds().add(transactionId);
             Double assetQuantity = asset.getQuantity();
 
             ReportContext reportContext;
@@ -336,6 +338,53 @@ public class PortfolioService {
         criteriaSet.forEach(query::addCriteria);
 
         return mongoTemplate.find(query, Asset.class);
+    }
+
+    @Transactional
+    public String updateCorporateAction(UserMail userMail, CorporateActionWrapper actionWrapper) {
+
+        CorporateAction action = actionWrapper.getAction();
+        if (Objects.requireNonNull(action) == CorporateAction.STOCK_SPLIT) {
+            processStockSplit(userMail, actionWrapper);
+        } else {
+            throw new IllegalArgumentException("Invalid action type" + action);
+        }
+
+        return "Hii";
+    }
+
+    private void processStockSplit(UserMail userMail, CorporateActionWrapper actionWrapper) {
+
+        String email = userMail.getEmail();
+        String stockCode = actionWrapper.getStockCode();
+        LocalDate recordDate = actionWrapper.getRecordDate();
+        String[] splitRatio = actionWrapper.getSplitRatio().split(":");
+        double multiplier = Integer.parseInt(splitRatio[0]);
+        double ratio = Double.parseDouble(splitRatio[1]);
+
+        double quantityMultiplier = multiplier / ratio;
+        double priceMultiplier = 1 / quantityMultiplier;
+
+        List<Asset> stockEntities = portfolioRepository.findByEmailAndStockCodeAndTransactionDateBefore(email, stockCode, recordDate);
+
+        double quantity = 0;
+        for (Asset asset : stockEntities) {
+            double previousQuantity = asset.getQuantity();
+
+            asset.setQuantity(previousQuantity * quantityMultiplier);
+            asset.setPrice(asset.getPrice() * priceMultiplier);
+
+            CorporateActionWrapper corporateActionWrapper = TObjectMapper.copy(actionWrapper, CorporateActionWrapper.class);
+            asset.getCorporateActions().add(corporateActionWrapper);
+            quantity += previousQuantity;
+        }
+        transactionService.processStockSplit(userMail, quantity, actionWrapper);
+        portfolioRepository.saveAll(stockEntities);
+    }
+
+    public List<Asset> testMethod(UserMail userMail, String stockCode, LocalDate recordDate) {
+
+        return portfolioRepository.findByEmailAndStockCodeAndTransactionDateBefore(userMail.getEmail(), stockCode, recordDate);
     }
 
     public String clearAllRecordsForCustomer(UserMail userMail) {

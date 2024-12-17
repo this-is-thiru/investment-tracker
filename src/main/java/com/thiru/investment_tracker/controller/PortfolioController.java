@@ -8,6 +8,7 @@ import com.thiru.investment_tracker.entity.Transaction;
 import com.thiru.investment_tracker.service.PortfolioService;
 import com.thiru.investment_tracker.service.TemporaryService;
 import com.thiru.investment_tracker.service.TransactionService;
+import com.thiru.investment_tracker.util.collection.TLocaleDate;
 import com.thiru.investment_tracker.util.collection.TObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
@@ -119,6 +120,13 @@ public class PortfolioController {
                 .contentType(MediaType.parseMediaType(mediaType)).body(resourcePair.getFirst());
     }
 
+    @PutMapping("/stocks/perform/corporate-action")
+    public ResponseEntity<String> updateCorporateAction(@PathVariable String email, @RequestBody CorporateActionWrapper corporateActionRequest) {
+
+        String message = portfolioService.updateCorporateAction(UserMail.from(email), corporateActionRequest);
+        return ResponseEntity.ok(message);
+    }
+
     // Note: Below this comment is for testing purpose only
 
     @PostMapping("/request")
@@ -141,6 +149,18 @@ public class PortfolioController {
     public ResponseEntity<List<Asset>> testRequest(@PathVariable String email,
                                                    @RequestBody BulkGetRequest bulkGetRequest) {
         List<Asset> assets = portfolioService.searchAssets(UserMail.from(email), bulkGetRequest.getFilters());
+        return ResponseEntity.ok(assets);
+    }
+
+//    @GetMapping("/assets/purchase/before/{stockCode}/{date}")
+//    public ResponseEntity<List<Asset>> testRequest(@PathVariable String email, @PathVariable String stockCode, @PathVariable String date) {
+//        List<Asset> assets = portfolioService.testMethod(UserMail.from(email), stockCode, TLocaleDate.convertToDate(date));
+//        return ResponseEntity.ok(assets);
+//    }
+
+    @GetMapping("/assets/purchase/before/{stockCode}/{date}")
+    public ResponseEntity<List<Transaction>> testRequest1(@PathVariable String email, @PathVariable String stockCode, @PathVariable String date) {
+        List<Transaction> assets = transactionService.testMethod(UserMail.from(email), stockCode, TLocaleDate.convertToDate(date));
         return ResponseEntity.ok(assets);
     }
 }
