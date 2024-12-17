@@ -240,6 +240,7 @@ public class PortfolioService {
         }
 
         assetResponse.setQuantity(quantity);
+        assetResponse.setTotalQuantity(quantity);
         assetResponse.setTotalValue(totalValue);
         assetResponse.setPrice(totalValue / quantity);
         assetResponse.setBrokerCharges(brokerCharges);
