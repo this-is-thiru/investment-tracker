@@ -35,7 +35,7 @@ public class QueryFilter {
 		List<QueryFilter> invalidQueryFilters = TCollectionUtil.filter(queryFilters, filter -> Asset.EMAIL.equals(filter.getFilterKey()));
 
 		if (!invalidQueryFilters.isEmpty()) {
-			throw new BadRequestException("Kindly remove email filter from payload");
+			throw new BadRequestException("Email filter is not allowed");
 		}
 
 		addEmailToFilter(queryFilters, userMail.getEmail());
@@ -61,15 +61,4 @@ public class QueryFilter {
 			throw new BadRequestException("These fields are not allowed for filtering: " + invalidFieldsForFilter);
 		}
 	}
-
-//	public static void isFiltersHavingEmail(List<Filter> filters) {
-//
-//		List<Filter> invalidFilters = TCollectionUtil.filter(filters, filter -> Asset.EMAIL.equals(filter.getFilterKey()));
-//
-//		if (!invalidFilters.isEmpty()) {
-//			throw new BadRequestException("Kindly remove email filter from payload");
-//		}
-//	}
-
-
 }
