@@ -9,8 +9,7 @@ import com.thiru.investment_tracker.repository.PortfolioRepository;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.collection.TLocaleDate;
 import com.thiru.investment_tracker.util.collection.TObjectMapper;
-import com.thiru.investment_tracker.util.db.CriteriaBuilder;
-import com.thiru.investment_tracker.util.db.Filter;
+import com.thiru.investment_tracker.util.db.QueryFilter;
 import com.thiru.investment_tracker.util.parser.ExcelBuilder;
 import com.thiru.investment_tracker.util.parser.ExcelParser;
 import com.thiru.investment_tracker.util.transaction.ExcelHeaders;
@@ -18,9 +17,6 @@ import com.thiru.investment_tracker.util.transaction.TransactionParser;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,23 +34,21 @@ import java.util.stream.Collectors;
 @Service
 public class PortfolioService {
 
-    private static final int DEFAULT_DECIMAL_PLACES = 2;
-
     private final PortfolioRepository portfolioRepository;
     private final TransactionService transactionService;
     private final ProfitAndLossService profitAndLossService;
     private final ReportService reportService;
-    private final MongoTemplate mongoTemplate;
+    private final MongoTemplateService mongoTemplateService;
 
     @Transactional
     public String addTransaction(UserMail userMail, AssetRequest assetRequest) {
 
         sanitizeAssetRequest(assetRequest);
 
+        TransactionType transactionType = assetRequest.getTransactionType();
         // Add transaction
         String transactionId = addTransactionInternal(assetRequest);
 
-        TransactionType transactionType = assetRequest.getTransactionType();
         return switch (transactionType) {
             case BUY -> {
                 buyStock(userMail, transactionId, assetRequest);
@@ -326,67 +320,22 @@ public class PortfolioService {
         return profitAndLossService.getProfitAndLoss(userMail, financialYear);
     }
 
-    public List<Asset> searchAssets(UserMail userMail, List<Filter> filters) {
-
-        isFiltersHavingEmail(filters);
-        addEmailToFilter(filters, userMail.getEmail());
-        validateFilters(filters);
-
-        Query query = new Query();
-        Set<Criteria> criteriaSet = new HashSet<>();
-
-        filters.forEach(filter -> CriteriaBuilder.constructCriteria(filter, criteriaSet));
-        criteriaSet.forEach(query::addCriteria);
-
-        return mongoTemplate.find(query, Asset.class);
+    public List<Asset> searchAssets(UserMail userMail, List<QueryFilter> queryFilters) {
+        return mongoTemplateService.getDocuments(userMail, queryFilters, Asset.class);
     }
 
-    @Transactional
-    public String updateCorporateAction(UserMail userMail, CorporateActionWrapper actionWrapper) {
-
-        CorporateAction action = actionWrapper.getAction();
-        if (Objects.requireNonNull(action) == CorporateAction.STOCK_SPLIT) {
-            processStockSplit(userMail, actionWrapper);
-        } else {
-            throw new IllegalArgumentException("Invalid action type" + action);
-        }
-
-        return "Hii";
-    }
-
-    private void processStockSplit(UserMail userMail, CorporateActionWrapper actionWrapper) {
-
-        String email = userMail.getEmail();
-        String stockCode = actionWrapper.getStockCode();
-        LocalDate recordDate = actionWrapper.getRecordDate();
-        String[] splitRatio = actionWrapper.getSplitRatio().split(":");
-        double multiplier = Integer.parseInt(splitRatio[0]);
-        double ratio = Double.parseDouble(splitRatio[1]);
-
-        double quantityMultiplier = multiplier / ratio;
-        double priceMultiplier = 1 / quantityMultiplier;
-
-        List<Asset> stockEntities = portfolioRepository.findByEmailAndStockCodeAndTransactionDateBefore(email, stockCode, recordDate);
-
-        double quantity = 0;
-        for (Asset asset : stockEntities) {
-            double previousQuantity = asset.getQuantity();
-
-            asset.setQuantity(previousQuantity * quantityMultiplier);
-            asset.setPrice(asset.getPrice() * priceMultiplier);
-
-            CorporateActionWrapper corporateActionWrapper = TObjectMapper.copy(actionWrapper, CorporateActionWrapper.class);
-            asset.getCorporateActions().add(corporateActionWrapper);
-            quantity += previousQuantity;
-        }
-        transactionService.processStockSplit(userMail, quantity, actionWrapper);
-        portfolioRepository.saveAll(stockEntities);
-    }
-
-    public List<Asset> testMethod(UserMail userMail, String stockCode, LocalDate recordDate) {
-
+    public List<Asset> stocksForCorporateActions(UserMail userMail, String stockCode, LocalDate recordDate) {
         return portfolioRepository.findByEmailAndStockCodeAndTransactionDateBefore(userMail.getEmail(), stockCode, recordDate);
     }
+
+    public void saveCorporateActionProcessedStocks(List<Asset> stocks) {
+        portfolioRepository.saveAll(stocks);
+    }
+
+//    public List<Asset> testMethod(UserMail userMail, String stockCode, LocalDate recordDate) {
+//
+//        return portfolioRepository.findByEmailAndStockCodeAndTransactionDateBefore(userMail.getEmail(), stockCode, recordDate);
+//    }
 
     public String clearAllRecordsForCustomer(UserMail userMail) {
 
@@ -454,71 +403,42 @@ public class PortfolioService {
     }
 
     private List<Asset> getLongTermHeldAssets(UserMail userMail, String oneYearBeforeDate) {
-        Filter filter = new Filter();
-        filter.setFilterKey("transaction_date");
-        filter.setValue(oneYearBeforeDate);
-        filter.setOperation(Filter.FilterOperation.LESSER_THAN);
-        filter.setIsDateField(true);
+        QueryFilter queryFilter = new QueryFilter();
+        queryFilter.setFilterKey("transaction_date");
+        queryFilter.setValue(oneYearBeforeDate);
+        queryFilter.setOperation(QueryFilter.FilterOperation.LESSER_THAN);
+        queryFilter.setIsDateField(true);
 
-        List<Filter> filters = new ArrayList<>();
-        filters.add(filter);
+        List<QueryFilter> queryFilters = new ArrayList<>();
+        queryFilters.add(queryFilter);
 
-        return searchAssets(userMail, filters);
+        return searchAssets(userMail, queryFilters);
     }
 
     private List<Asset> getShortTermHeldAssets(UserMail userMail, String oneYearBeforeDate) {
-        Filter filter = new Filter();
-        filter.setFilterKey("transaction_date");
-        filter.setValue(oneYearBeforeDate);
-        filter.setOperation(Filter.FilterOperation.GREATER_THAN);
-        filter.setIsDateField(true);
+        QueryFilter queryFilter = new QueryFilter();
+        queryFilter.setFilterKey("transaction_date");
+        queryFilter.setValue(oneYearBeforeDate);
+        queryFilter.setOperation(QueryFilter.FilterOperation.GREATER_THAN);
+        queryFilter.setIsDateField(true);
 
-        List<Filter> filters = new ArrayList<>();
-        filters.add(filter);
+        List<QueryFilter> queryFilters = new ArrayList<>();
+        queryFilters.add(queryFilter);
 
-        return searchAssets(userMail, filters);
-    }
-
-    private static void addEmailToFilter(List<Filter> filters, String email) {
-        Filter filter = new Filter();
-        filter.setFilterKey("email");
-        filter.setValue(email);
-        filter.setOperation(Filter.FilterOperation.EQUALS);
-        filters.add(filter);
-    }
-
-    private static void isFiltersHavingEmail(List<Filter> filters) {
-
-        List<Filter> invalidFilters = TCollectionUtil.filter(filters, filter -> Asset.EMAIL.equals(filter.getFilterKey()));
-
-        if (!invalidFilters.isEmpty()) {
-            throw new BadRequestException("Kindly remove email filter from payload");
-        }
-    }
-
-    private static void validateFilters(List<Filter> filters) {
-
-        List<Filter> invalidFilters = TCollectionUtil.filter(filters,
-                filter -> !Asset.ALLOWED_FIELDS.contains(filter.getFilterKey()));
-
-        List<String> invalidFieldsForFilter = TCollectionUtil.map(invalidFilters, Filter::getFilterKey);
-
-        if (!invalidFieldsForFilter.isEmpty()) {
-            throw new BadRequestException("These fields are not allowed for filtering: " + invalidFieldsForFilter);
-        }
+        return searchAssets(userMail, queryFilters);
     }
 
     public List<AssetResponse> getMutualFunds(UserMail userMail) {
 
-        List<Asset> stockEntities = portfolioRepository.findByEmail(userMail.getEmail());
+        List<Asset> mutualFunds = portfolioRepository.findByEmailAndAssetType(userMail.getEmail(), AssetType.MUTUAL_FUND);
 
-        Map<String, List<Asset>> stockEntityMap = stockEntities.stream()
+        Map<String, List<Asset>> fundsMap = mutualFunds.stream()
                 .collect(Collectors.groupingBy(stockWithCodeAndBroker()));
 
-        List<AssetResponse> responseEntities = TCollectionUtil.map(stockEntityMap.values(),
+        List<AssetResponse> responseEntities = TCollectionUtil.map(fundsMap.values(),
                 PortfolioService::combineAllDetailsOfEntities);
 
-        log.info("Fetching portfolio stocks of {}", userMail.getEmail());
+        log.info("Fetch holding Mutual Funds of {}", userMail.getEmail());
         return responseEntities;
     }
 

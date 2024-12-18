@@ -129,8 +129,8 @@ public class ExcelBuilder {
             dataRow.createCell(1).setCellValue("STOCK");
             dataRow.createCell(2).setCellValue("Stock Name");
             dataRow.createCell(3).setCellValue("NSE");
-            dataRow.createCell(4).setCellValue("Fyers");
-            dataRow.createCell(5).setCellValue("Equity");
+            dataRow.createCell(4).setCellValue("ZERODHA");
+            dataRow.createCell(5).setCellValue("EQUITY");
             setDateField(dataRow.createCell(6), LocalDate.now());
             dataRow.createCell(7).setCellValue(0);
             dataRow.createCell(8).setCellValue(0);
