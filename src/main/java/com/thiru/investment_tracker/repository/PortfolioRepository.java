@@ -1,5 +1,6 @@
 package com.thiru.investment_tracker.repository;
 
+import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.entity.Asset;
 import org.springframework.data.mongodb.repository.Meta;
@@ -31,6 +32,8 @@ public interface PortfolioRepository extends MongoRepository<Asset, String> {
     List<Asset> findByEmailAndStockCodeOrderByTransactionDate(String email, String stockCode);
 
     List<Asset> findByEmailAndStockCodeIn(String email, Collection<String> stockCodes);
+
+    List<Asset> findByEmailAndAssetType(String email, AssetType assetType);
 
     List<Asset> findByEmailAndTransactionDateBetween(String email, LocalDate startDate, LocalDate endDate);
 

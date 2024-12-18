@@ -1,7 +1,6 @@
 package com.thiru.investment_tracker.service;
 
 import com.thiru.investment_tracker.dto.AssetRequest;
-import com.thiru.investment_tracker.dto.CorporateActionWrapper;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.user.UserMail;
 
@@ -9,6 +8,7 @@ import com.thiru.investment_tracker.entity.Asset;
 import com.thiru.investment_tracker.entity.Transaction;
 import com.thiru.investment_tracker.repository.TransactionRepository;
 import com.thiru.investment_tracker.util.collection.TObjectMapper;
+import com.thiru.investment_tracker.util.db.QueryFilter;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,6 +25,7 @@ import java.util.List;
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;
+    private final MongoTemplateService mongoTemplateService;
 
     public String addTransaction(AssetRequest assetRequest) {
 
@@ -40,37 +41,35 @@ public class TransactionService {
         return savedTransaction.getId();
     }
 
-    public void processStockSplit(UserMail userMail, double quantity, CorporateActionWrapper actionWrapper) {
+    public List<Transaction> transactionsForCorporateActions(UserMail userMail, double quantity, String stockCode, LocalDate recordDate) {
 
         String email = userMail.getEmail();
-        String stockCode = actionWrapper.getStockCode();
-        LocalDate recordDate = actionWrapper.getRecordDate();
-        String[] splitRatio = actionWrapper.getSplitRatio().split(":");
-        double multiplier = Integer.parseInt(splitRatio[0]);
-        double ratio = Double.parseDouble(splitRatio[1]);
-
-        double quantityMultiplier = multiplier / ratio;
-        double priceMultiplier = 1 / quantityMultiplier;
-
         List<Transaction> transactions = transactionRepository.findByEmailAndStockCodeAndTransactionDateBeforeOrderByTransactionDateDesc(email, stockCode, recordDate);
 
+        List<Transaction> transactionsToConsider = new ArrayList<>();
         for (Transaction transaction : transactions) {
             if (quantity <= 0) {
                 break;
             }
 
-            double previousQuantity = transaction.getQuantity();
-            transaction.setQuantity(previousQuantity * quantityMultiplier);
-            transaction.setPrice(transaction.getPrice() * priceMultiplier);
-            transaction.getCorporateActions().add(actionWrapper);
-            quantity -= previousQuantity;
+            transactionsToConsider.add(transaction);
+            quantity -= transaction.getQuantity();
         }
 
         if (quantity > 0) {
             throw new IllegalArgumentException("Invalid transactions");
         }
+        return transactionsToConsider;
+    }
+
+    public void saveCorporateActionProcessedTransactions(List<Transaction> transactions) {
         transactionRepository.saveAll(transactions);
     }
+
+    public List<Transaction> getUserTransactions(UserMail userMail, List<QueryFilter> queryFilters) {
+        return mongoTemplateService.getDocuments(userMail, queryFilters, Transaction.class);
+    }
+
 
     public List<Transaction> testMethod(UserMail userMail, String stockCode, LocalDate recordDate) {
 

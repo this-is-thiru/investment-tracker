@@ -120,13 +120,6 @@ public class PortfolioController {
                 .contentType(MediaType.parseMediaType(mediaType)).body(resourcePair.getFirst());
     }
 
-    @PutMapping("/stocks/perform/corporate-action")
-    public ResponseEntity<String> updateCorporateAction(@PathVariable String email, @RequestBody CorporateActionWrapper corporateActionRequest) {
-
-        String message = portfolioService.updateCorporateAction(UserMail.from(email), corporateActionRequest);
-        return ResponseEntity.ok(message);
-    }
-
     // Note: Below this comment is for testing purpose only
 
     @PostMapping("/request")
@@ -148,7 +141,7 @@ public class PortfolioController {
     @PostMapping("/request2")
     public ResponseEntity<List<Asset>> testRequest(@PathVariable String email,
                                                    @RequestBody BulkGetRequest bulkGetRequest) {
-        List<Asset> assets = portfolioService.searchAssets(UserMail.from(email), bulkGetRequest.getFilters());
+        List<Asset> assets = portfolioService.searchAssets(UserMail.from(email), bulkGetRequest.getQueryFilters());
         return ResponseEntity.ok(assets);
     }
 

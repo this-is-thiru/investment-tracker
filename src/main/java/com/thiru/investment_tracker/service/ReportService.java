@@ -1,16 +1,13 @@
 package com.thiru.investment_tracker.service;
 
-import com.thiru.investment_tracker.dto.enums.AccountType;
-import com.thiru.investment_tracker.dto.enums.AssetType;
-import org.springframework.stereotype.Service;
-
 import com.thiru.investment_tracker.dto.ReportContext;
-import com.thiru.investment_tracker.util.collection.TObjectMapper;
+import com.thiru.investment_tracker.dto.enums.AssetType;
+import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.Report;
 import com.thiru.investment_tracker.repository.ReportRepository;
-import com.thiru.investment_tracker.dto.user.UserMail;
-
+import com.thiru.investment_tracker.util.collection.TObjectMapper;
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -27,6 +24,11 @@ public class ReportService {
         report.setEmail(userMail.getEmail());
 
         reportRepository.save(report);
+    }
+
+    public List<Report> getStockReport(UserMail userMail) {
+
+        return reportRepository.findByEmail(userMail.getEmail());
     }
 
     public void deleteReports(UserMail userMail) {

@@ -11,11 +11,11 @@ public class CriteriaBuilder {
 
 	private static final Object NULL = null;
 
-	public static void constructCriteria(Filter filter, Set<Criteria> criteriaSet) {
-		sanitize(filter);
+	public static void constructCriteria(QueryFilter queryFilter, Set<Criteria> criteriaSet) {
+		sanitize(queryFilter);
 
-		Filter.FilterOperation operation = filter.getOperation();
-		String filterKey = filter.getFilterKey();
+		QueryFilter.FilterOperation operation = queryFilter.getOperation();
+		String filterKey = queryFilter.getFilterKey();
 
 		Criteria queryCriteria = TCollectionUtil.findFirst(criteriaSet, criteria -> filterKey.equals(criteria.getKey()));
 
@@ -26,14 +26,14 @@ public class CriteriaBuilder {
 		}
 
 		switch (operation) {
-			case EQUALS -> queryCriteria.is(filter.getValue());
-			case NOT_EQUALS -> queryCriteria.ne(filter.getValue());
-			case GREATER_THAN -> queryCriteria.gt(filter.getValue());
-			case LESSER_THAN -> queryCriteria.lt(filter.getValue());
-			case GREATER_THAN_OR_EQUAL_TO -> queryCriteria.gte(filter.getValue());
-			case LESSER_THAN_OR_EQUAL_TO -> queryCriteria.lte(filter.getValue());
-			case STARTS_WITH -> queryCriteria.regex(filter.getValue().toString());
-			case CONTAINS -> queryCriteria.in(filter.getValues());
+			case EQUALS -> queryCriteria.is(queryFilter.getValue());
+			case NOT_EQUALS -> queryCriteria.ne(queryFilter.getValue());
+			case GREATER_THAN -> queryCriteria.gt(queryFilter.getValue());
+			case LESSER_THAN -> queryCriteria.lt(queryFilter.getValue());
+			case GREATER_THAN_OR_EQUAL_TO -> queryCriteria.gte(queryFilter.getValue());
+			case LESSER_THAN_OR_EQUAL_TO -> queryCriteria.lte(queryFilter.getValue());
+			case STARTS_WITH -> queryCriteria.regex(queryFilter.getValue().toString());
+			case CONTAINS -> queryCriteria.in(queryFilter.getValues());
 			case IS_NULL -> queryCriteria.is(NULL);
 			case IS_NOT_NULL -> queryCriteria.ne(NULL);
 		}
@@ -43,10 +43,10 @@ public class CriteriaBuilder {
 		}
 	}
 
-	private static void sanitize(Filter filter) {
-		if (filter.getIsDateField()) {
-			String value = (String) filter.getValue();
-			filter.setValue(TLocaleDate.convertToDate(value));
+	private static void sanitize(QueryFilter queryFilter) {
+		if (queryFilter.getIsDateField()) {
+			String value = (String) queryFilter.getValue();
+			queryFilter.setValue(TLocaleDate.convertToDate(value));
 		}
 	}
 }
