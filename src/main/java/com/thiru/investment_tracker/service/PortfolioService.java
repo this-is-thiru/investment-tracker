@@ -470,7 +470,7 @@ public class PortfolioService {
         return Pair.of(resource, fileName);
     }
 
-    public Pair<InputStreamResource, String> downloadAssets(UserMail userMail, HoldingType holdingType) {
+    public Pair<InputStreamResource, String> downloadTermAssets(UserMail userMail, HoldingType holdingType) {
 
         List<AssetResponse> assets = this.getAssets(userMail, holdingType);
         String fileName = ExcelParser.HOLDINGS_FILE_NAME;

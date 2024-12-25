@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface TransactionRepository extends MongoRepository<Transaction, String> {
 
+    List<Transaction> findByEmail(String email);
     List<Transaction> findByEmailAndStockCodeAndTransactionDateBefore(String email, String stockCode, LocalDate transactionDate);
     List<Transaction> findByEmailAndStockCodeAndTransactionDateBeforeOrderByTransactionDateDesc(String email, String stockCode, LocalDate transactionDate);
 
