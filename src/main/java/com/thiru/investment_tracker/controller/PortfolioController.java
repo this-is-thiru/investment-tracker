@@ -102,7 +102,7 @@ public class PortfolioController {
 
     @GetMapping("/assets/holding/{holdingType}/excel")
     public ResponseEntity<InputStreamResource> downloadAssets(@PathVariable String email, @PathVariable String holdingType) {
-        Pair<InputStreamResource, String> resourcePair = portfolioService.downloadAssets(UserMail.from(email), HoldingType.valueOf(holdingType));
+        Pair<InputStreamResource, String> resourcePair = portfolioService.downloadTermAssets(UserMail.from(email), HoldingType.valueOf(holdingType));
         String mediaType = "application/vnd.ms-excel";
         String headerValue = "attachment; filename=" + resourcePair.getSecond();
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, headerValue)

@@ -81,7 +81,7 @@ public class ExcelBuilder {
     }
 
 
-    public ByteArrayInputStream downloadTransactions(List<TransactionResponse> userTransactions) {
+    public static ByteArrayInputStream downloadTransactions(List<TransactionResponse> userTransactions) {
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try (XSSFWorkbook workbook = new XSSFWorkbook()) {

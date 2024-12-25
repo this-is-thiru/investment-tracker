@@ -1,19 +1,23 @@
 package com.thiru.investment_tracker.service;
 
 import com.thiru.investment_tracker.dto.AssetRequest;
+import com.thiru.investment_tracker.dto.TransactionResponse;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.user.UserMail;
-
-import com.thiru.investment_tracker.entity.Asset;
 import com.thiru.investment_tracker.entity.Transaction;
 import com.thiru.investment_tracker.repository.TransactionRepository;
 import com.thiru.investment_tracker.util.collection.TObjectMapper;
 import com.thiru.investment_tracker.util.db.QueryFilter;
+import com.thiru.investment_tracker.util.parser.ExcelBuilder;
+import com.thiru.investment_tracker.util.parser.ExcelParser;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,6 +72,21 @@ public class TransactionService {
 
     public List<Transaction> getUserTransactions(UserMail userMail, List<QueryFilter> queryFilters) {
         return mongoTemplateService.getDocuments(userMail, queryFilters, Transaction.class);
+    }
+
+    public Pair<InputStreamResource, String> downloadAllTransactions(UserMail userMail) {
+        List<TransactionResponse> userTransactions = getAllTransactions(userMail);
+
+        String fileName = ExcelParser.TRANSACTION_FILE_NAME;
+        ByteArrayInputStream inputStream = ExcelBuilder.downloadTransactions(userTransactions);
+        InputStreamResource resource = new InputStreamResource(inputStream);
+
+        return Pair.of(resource, fileName);
+    }
+
+    private List<TransactionResponse> getAllTransactions(UserMail userMail) {
+        List<Transaction> transactions = transactionRepository.findByEmail(userMail.getEmail());
+        return transactions.stream().map(transaction -> TObjectMapper.copy(transaction, TransactionResponse.class)).toList();
     }
 
 

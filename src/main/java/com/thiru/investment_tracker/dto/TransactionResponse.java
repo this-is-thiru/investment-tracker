@@ -1,6 +1,8 @@
 package com.thiru.investment_tracker.dto;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -41,4 +43,6 @@ public class TransactionResponse {
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCollectionUtil.DATE_FORMAT)
 	private LocalDate transactionDate;
+
+	List<CorporateActionWrapper> corporateActions = new ArrayList<>();
 }
