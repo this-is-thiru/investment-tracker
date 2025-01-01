@@ -1,30 +1,23 @@
 package com.thiru.investment_tracker.auth.service;
 
-import java.security.Key;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
+import com.thiru.investment_tracker.auth.entity.UserDetail;
 import com.thiru.investment_tracker.auth.model.LoginResponse;
+import com.thiru.investment_tracker.auth.model.RegistrationRequest;
+import com.thiru.investment_tracker.auth.repository.UserDetailsRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-
+import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.thiru.investment_tracker.auth.entity.UserDetail;
-import com.thiru.investment_tracker.auth.model.RegistrationRequest;
-import com.thiru.investment_tracker.auth.repository.UserDetailsRepository;
-
-import lombok.AllArgsConstructor;
+import java.security.Key;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -53,6 +46,7 @@ public class AuthService {
     /**
      * This needs to be re-visited
      * This method upgrades the role of a user in the system
+     *
      * @param request The object containing the email and the role to be upgraded
      * @return a success message
      * @throws IllegalArgumentException if the user already exists
@@ -101,6 +95,30 @@ public class AuthService {
 
     public Boolean validateToken(Claims claims) {
         return !isTokenExpired(claims);
+    }
+
+    public String changePassword(String email, RegistrationRequest request) {
+
+        if (!Objects.equals(email, request.getEmail())) {
+            throw new IllegalArgumentException("Email mismatch");
+        }
+
+        if (Objects.equals(request.getPassword(), request.getNewPassword())) {
+            throw new IllegalArgumentException("Old password cannot be same as new password");
+        }
+
+        Optional<UserDetail> optionalUserDetails = userDetailsRepo.findById(email);
+        if (optionalUserDetails.isEmpty()) {
+            throw new UsernameNotFoundException("User with email " + email + " not found");
+        }
+
+        UserDetail userEntity = optionalUserDetails.get();
+        if (!passwordEncoder.matches(request.getPassword(), userEntity.getPassword())) {
+            throw new IllegalArgumentException("Invalid old password");
+        }
+        userEntity.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userDetailsRepo.save(userEntity);
+        return email + "'s password changed successfully";
     }
 
     public LoginResponse generateToken(String username, Authentication authentication) {
