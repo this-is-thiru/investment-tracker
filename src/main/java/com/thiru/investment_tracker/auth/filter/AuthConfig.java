@@ -12,7 +12,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,9 +31,9 @@ public class AuthConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth.requestMatchers(
-                                "/auth/login", "/auth/register", "/helper/**").permitAll()
-                        .requestMatchers("/auth/**","/portfolio/**", "/reports/**", "transactions/**").authenticated())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/login", "/auth/register", "/helper/**").permitAll()
+                        .requestMatchers("/auth/**", "/portfolio/**", "/reports/**", "/transactions/**").authenticated())
                 .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(Customizer.withDefaults())
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class).build();
@@ -47,11 +46,6 @@ public class AuthConfig {
         authProvider.setPasswordEncoder(passwordEncoder);
         CustomAuthenticationProvider customAuthenticationProvider = new CustomAuthenticationProvider(passwordEncoder, userDetailsService);
         return new ProviderManager(authProvider, customAuthenticationProvider);
-    }
-
-    public AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry requestMatchers(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth) throws Exception {
-        return auth.requestMatchers("/auth/login", "/auth/register", "/helper/**").permitAll()
-                .requestMatchers("/auth/**","/portfolio/**").authenticated();
     }
 
 }
