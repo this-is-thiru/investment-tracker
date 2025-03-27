@@ -24,13 +24,13 @@ jobs:
       - name: Publish image to docker hub
         run: docker push tperamasani/investment-tracker:latest
 
-  deploy:
-    needs: build
-    runs-on: self-hosted
-    steps:
-      - name: Pull Image from docker hub
-        run: docker pull tperamasani/investment-tracker:latest
-      - name: Delete old container
-        run: docker rm -f investment-tracker-container
-      - name: Run docker container
-        run: docker run -d -p 8080:8080 --name investment-tracker-container tperamasani/investment-tracker
+#  deploy:
+#    needs: build
+#    runs-on: self-hosted
+#    steps:
+#      - name: Pull Image from docker hub
+#        run: docker pull tperamasani/investment-tracker:latest
+#      - name: Delete old container
+#        run: docker rm -f investment-tracker-container
+#      - name: Run docker container
+#        run: docker run -d -p 8080:8080 --name investment-tracker-container tperamasani/investment-tracker
