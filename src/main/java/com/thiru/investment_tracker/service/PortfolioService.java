@@ -230,7 +230,13 @@ public class PortfolioService {
             quantity += entity.getQuantity();
             brokerCharges += entity.getBrokerCharges();
             miscCharges += entity.getMiscCharges();
-            transactionDatesMap.put(TLocaleDate.convertToString(entity.getTransactionDate()), entity.getQuantity());
+
+            Double existingQuantity = transactionDatesMap.get(TLocaleDate.convertToString(entity.getTransactionDate()));
+            Double latestQuantity = entity.getQuantity();
+            if (existingQuantity != null) {
+                latestQuantity += existingQuantity;
+            }
+            transactionDatesMap.put(TLocaleDate.convertToString(entity.getTransactionDate()), latestQuantity);
         }
 
         assetResponse.setQuantity(quantity);

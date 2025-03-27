@@ -15,6 +15,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -73,7 +76,12 @@ public class AuthService {
 
     public Claims extractAllClaims(String authToken) {
         try {
-            return Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(authToken).getBody();
+            return Jwts.parser()
+                    .verifyWith(getSignInKey())
+                    .build()
+                    .parseSignedClaims(authToken)
+                    .getPayload();
+//            return Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(authToken).getBody();
         } catch (MalformedJwtException e) {
             log.error("Invalid JWT token: {}", e.getMessage());
         } catch (ExpiredJwtException e) {
@@ -131,11 +139,23 @@ public class AuthService {
         claims.put("roles", authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
         Date expiration = new Date(System.currentTimeMillis() + 1000 * expirationTime);
 
-        String token = Jwts.builder().setClaims(claims).setSubject(username).setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(expiration)
-                .signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
+        String token = Jwts.builder()
+                .claims(claims)
+                .subject(username)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(expiration)
+                .signWith(getSignInKey())
+                .compact();
+//        String token = Jwts.builder().setClaims(claims).setSubject(username).setIssuedAt(new Date(System.currentTimeMillis()))
+//                .setExpiration(expiration)
+//                .signWith(getSignInKey(), SignatureAlgorithm.HS256).compact();
         return LoginResponse.from(token, expirationTime);
     }
+
+    private SecretKey getSignInKey() {
+        byte[] bytes = Base64.getDecoder()
+                .decode(SECRET);
+        return new SecretKeySpec(bytes, "HmacSHA256"); }
 
     private Key getSignKey() {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET);
