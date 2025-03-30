@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @AllArgsConstructor
@@ -33,6 +34,9 @@ public class PortfolioController {
 
     @PostMapping("/transaction")
     public ResponseEntity<String> addTransaction(@PathVariable String email, @RequestBody AssetRequest assetRequest) {
+//        LocalDateTime time = assetRequest.getOrderDateTime();
+//        System.out.println(time);
+//        throw new RuntimeException("hiiii");
         return ResponseEntity.ok(portfolioService.addTransaction(UserMail.from(email), assetRequest));
     }
 

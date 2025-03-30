@@ -1,29 +1,29 @@
 package com.thiru.investment_tracker.entity;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thiru.investment_tracker.dto.CorporateActionWrapper;
+import com.thiru.investment_tracker.dto.OrderTimeQuantity;
+import com.thiru.investment_tracker.dto.enums.AccountType;
+import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
+import com.thiru.investment_tracker.dto.enums.TransactionType;
+import com.thiru.investment_tracker.util.collection.TCollectionUtil;
+import com.thiru.investment_tracker.util.collection.TLocaleDate;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import com.thiru.investment_tracker.util.collection.TCollectionUtil;
-import com.thiru.investment_tracker.dto.enums.AccountType;
-import com.thiru.investment_tracker.dto.enums.AssetType;
-import com.thiru.investment_tracker.dto.enums.TransactionType;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 @Document(value = "assets")
 @AllArgsConstructor
@@ -79,6 +79,19 @@ public class Asset {
 	@JsonFormat(pattern = TCollectionUtil.DATE_FORMAT)
 	@Field("transaction_date")
 	private LocalDate transactionDate;
+
+	@Field("order_id")
+	private String orderId;
+
+	// remove this as we use orderTimeQuantity
+	@Field("order_execution_time")
+	private Instant orderExecutionTime;
+
+	@Field("order_time_quantities")
+	private List<OrderTimeQuantity> orderTimeQuantities = new ArrayList<>();
+
+	@Field("timezone_id")
+	private String timezoneId = TLocaleDate.TIME_ZONE_IST;
 
 	@Field(name = "account_type", targetType = FieldType.STRING)
 	private AccountType accountType;

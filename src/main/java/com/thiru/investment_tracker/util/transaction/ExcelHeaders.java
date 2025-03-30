@@ -11,6 +11,9 @@ public class ExcelHeaders {
 	public static final String EMAIL = "Email";
 	public static final String STOCK_CODE = "Stock Code";
 	public static final String STOCK_NAME = "Stock Name";
+	public static final String ORDER_ID = "Order ID";
+	public static final String ORDER_EXECUTION_TIME = "Order Execution Time";
+	public static final String TIME_ZONE = "Time Zone";
 	public static final String EXCHANGE_NAME = "Exchange Name";
 	public static final String BROKER_NAME = "Broker Name";
 	public static final String ASSET_TYPE = "Asset Type";
@@ -42,6 +45,9 @@ public class ExcelHeaders {
 		dataTypeMap.put(ExcelHeaders.TRANSACTION_DATE, ParserDataType.LOCAL_DATE);
 		dataTypeMap.put(ExcelHeaders.BROKER_CHARGES, ParserDataType.DOUBLE);
 		dataTypeMap.put(ExcelHeaders.MISC_CHARGES, ParserDataType.DOUBLE);
+		dataTypeMap.put(ExcelHeaders.ORDER_ID, ParserDataType.STRING);
+		dataTypeMap.put(ExcelHeaders.ORDER_EXECUTION_TIME, ParserDataType.LOCAL_DATE_TIME);
+		dataTypeMap.put(ExcelHeaders.TIME_ZONE, ParserDataType.STRING);
 		dataTypeMap.put(ExcelHeaders.COMMENT, ParserDataType.STRING);
 
 		return dataTypeMap;

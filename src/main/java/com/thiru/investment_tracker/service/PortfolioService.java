@@ -25,6 +25,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -64,6 +67,14 @@ public class PortfolioService {
     private static void sanitizeAssetRequest(AssetRequest assetRequest) {
         if (assetRequest.getTransactionDate() == null) {
             assetRequest.setTransactionDate(LocalDate.now());
+        }
+
+        // Convert local date time to instant
+        LocalDateTime orderExecutionTime = assetRequest.getOrderDateTime();
+        if (orderExecutionTime != null) {
+            ZoneId zoneId = ZoneId.of(assetRequest.getTimezoneId());
+            ZonedDateTime zonedDateTime = orderExecutionTime.atZone(zoneId);
+            assetRequest.setOrderExecutionTime(zonedDateTime.toInstant());
         }
     }
 
@@ -117,11 +128,23 @@ public class PortfolioService {
             asset.setPrice(newPrice);
             asset.setQuantity(newQuantity);
             asset.setTotalValue(newTotalValue);
+
+            OrderTimeQuantity orderTimeQuantity = new OrderTimeQuantity();
+            orderTimeQuantity.setOrderExecutionTime(assetRequest.getOrderExecutionTime());
+            orderTimeQuantity.setQuantity(assetRequest.getQuantity());
+
+            assetRequest.getOrderTimeQuantities().add(orderTimeQuantity);
         } else {
             asset = TObjectMapper.copy(assetRequest, Asset.class);
             double totalValueOfTransaction = getTotalValue(assetRequest);
 
             asset.setTotalValue(totalValueOfTransaction);
+
+            OrderTimeQuantity orderTimeQuantity = new OrderTimeQuantity();
+            orderTimeQuantity.setOrderExecutionTime(assetRequest.getOrderExecutionTime());
+            orderTimeQuantity.setQuantity(assetRequest.getQuantity());
+
+            asset.getOrderTimeQuantities().add(orderTimeQuantity);
         }
 
         asset.getBuyTransactionIds().add(transactionId);

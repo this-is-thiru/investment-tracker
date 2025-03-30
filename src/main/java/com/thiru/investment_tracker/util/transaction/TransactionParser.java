@@ -10,6 +10,7 @@ import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.parser.CellDetail;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -45,6 +46,9 @@ public class TransactionParser {
         setMaturityDate(assetRequest, record);
         setBrokerCharges(assetRequest, record);
         setMiscCharges(assetRequest, record);
+        setBrokerOrderId(assetRequest, record);
+        setBrokerOrderTime(assetRequest, record);
+        setTimezoneId(assetRequest, record);
         setComment(assetRequest, record);
 
         return assetRequest;
@@ -175,6 +179,24 @@ public class TransactionParser {
 
         CellDetail cellDetail = record.get(ExcelHeaders.MISC_CHARGES);
         assetRequest.setMiscCharges((Double) cellDetail.getCellValue());
+    }
+
+    private static void setBrokerOrderId(AssetRequest assetRequest, Map<String, CellDetail> record) {
+
+        CellDetail cellDetail = record.getOrDefault(ExcelHeaders.ORDER_ID, CellDetail.def());
+        assetRequest.setOrderId((String) cellDetail.getCellValue());
+    }
+
+    private static void setBrokerOrderTime(AssetRequest assetRequest, Map<String, CellDetail> record) {
+
+        CellDetail cellDetail = record.getOrDefault(ExcelHeaders.ORDER_EXECUTION_TIME, CellDetail.def());
+        assetRequest.setOrderDateTime((LocalDateTime) cellDetail.getCellValue());
+    }
+
+    private static void setTimezoneId(AssetRequest assetRequest, Map<String, CellDetail> record) {
+
+        CellDetail cellDetail = record.getOrDefault(ExcelHeaders.TIME_ZONE, CellDetail.def());
+        assetRequest.setTimezoneId((String) cellDetail.getCellValue());
     }
 
     private static void setComment(AssetRequest assetRequest, Map<String, CellDetail> record) {

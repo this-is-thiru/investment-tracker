@@ -1,5 +1,6 @@
 package com.thiru.investment_tracker.dto;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +12,7 @@ import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 
+import com.thiru.investment_tracker.util.collection.TLocaleDate;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -32,6 +34,9 @@ public class TransactionResponse {
 	private double totalValue;
 	private TransactionType transactionType;
 	private String actor;
+	private String orderId;
+	private Instant orderExecutionTime;
+	private String timezoneId = TLocaleDate.TIME_ZONE_IST;
 	private String accountType;
 	private String accountHolder;
 	private double brokerCharges;

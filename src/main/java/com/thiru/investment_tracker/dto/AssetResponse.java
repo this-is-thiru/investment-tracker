@@ -5,11 +5,13 @@ import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
+import com.thiru.investment_tracker.util.collection.TLocaleDate;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +35,11 @@ public class AssetResponse {
 	private double totalValue;
 	private TransactionType transactionType;
 	private String actor;
+	private String orderId;
+	// remove this as we use orderTimeQuantity
+	private Instant orderExecutionTime;
+	private List<OrderTimeQuantity> orderTimeQuantities = new ArrayList<>();
+	private String timezoneId = TLocaleDate.TIME_ZONE_IST;
 	private String accountType;
 	private String accountHolder;
 	private String remarks;

@@ -1,11 +1,14 @@
 package com.thiru.investment_tracker.entity;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.thiru.investment_tracker.dto.CorporateActionWrapper;
+import com.thiru.investment_tracker.dto.OrderTimeQuantity;
 import com.thiru.investment_tracker.dto.enums.*;
+import com.thiru.investment_tracker.util.collection.TLocaleDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
@@ -71,6 +74,15 @@ public class Transaction {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCollectionUtil.DATE_FORMAT)
 	@Field("maturity_date")
 	private LocalDate maturityDate;
+
+	@Field("order_id")
+	private String orderId;
+
+	@Field("order_execution_time")
+	private Instant orderExecutionTime;
+
+	@Field("timezone_id")
+	private String timezoneId = TLocaleDate.TIME_ZONE_IST;
 
 	@Field(name = "account_type", targetType = FieldType.STRING)
 	private AccountType accountType;

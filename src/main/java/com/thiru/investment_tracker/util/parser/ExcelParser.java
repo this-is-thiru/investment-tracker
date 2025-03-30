@@ -4,6 +4,7 @@ import com.thiru.investment_tracker.dto.InputRecord;
 import com.thiru.investment_tracker.dto.InputRecords;
 import com.thiru.investment_tracker.dto.enums.ParserDataType;
 import com.thiru.investment_tracker.exception.BadRequestException;
+import com.thiru.investment_tracker.util.collection.TLocaleDate;
 import com.thiru.investment_tracker.util.collection.TOptional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
@@ -99,19 +100,25 @@ public class ExcelParser {
 
     private static CellDetail getCellDetail(Cell cell, String cellHeader, Map<String, ParserDataType> dataTypeMap) {
 
-        ParserDataType parserDataType = dataTypeMap.getOrDefault(cellHeader, ParserDataType.NULL);
+        try {
+            ParserDataType parserDataType = dataTypeMap.getOrDefault(cellHeader, ParserDataType.NULL);
 
-        return switch (parserDataType) {
-            case BOOLEAN -> CellDetail.of(ParserDataType.BOOLEAN, cell.getBooleanCellValue());
-            case INTEGER, LONG -> CellDetail.of(ParserDataType.LONG, (long) cell.getNumericCellValue());
-            case DOUBLE -> CellDetail.of(ParserDataType.DOUBLE, cell.getNumericCellValue());
-            case STRING -> CellDetail.of(ParserDataType.STRING, cell.getStringCellValue());
-            case LOCAL_DATE_TIME -> CellDetail.of(ParserDataType.LOCAL_DATE_TIME, cell.getLocalDateTimeCellValue());
-            case LOCAL_DATE -> CellDetail.of(ParserDataType.LOCAL_DATE,
-                    TOptional.map1(cell.getLocalDateTimeCellValue(), LocalDateTime::toLocalDate));
-            case ERROR -> CellDetail.of(ParserDataType.ERROR, cell.getErrorCellValue());
-            case NULL -> CellDetail.of(ParserDataType.NULL, null);
-        };
+            return switch (parserDataType) {
+                case BOOLEAN -> CellDetail.of(ParserDataType.BOOLEAN, cell.getBooleanCellValue());
+                case INTEGER, LONG -> CellDetail.of(ParserDataType.LONG, (long) cell.getNumericCellValue());
+                case DOUBLE -> CellDetail.of(ParserDataType.DOUBLE, cell.getNumericCellValue());
+                case STRING -> CellDetail.of(ParserDataType.STRING, cell.getStringCellValue());
+                case LOCAL_DATE_TIME -> CellDetail.of(ParserDataType.LOCAL_DATE_TIME,
+                        TLocaleDate.convertToDateTime(cell.getStringCellValue()));
+                case LOCAL_DATE -> CellDetail.of(ParserDataType.LOCAL_DATE,
+                        TOptional.map1(cell.getLocalDateTimeCellValue(), LocalDateTime::toLocalDate));
+                case ERROR -> CellDetail.of(ParserDataType.ERROR, cell.getErrorCellValue());
+                case NULL -> CellDetail.of(ParserDataType.NULL, null);
+            };
+        } catch (Exception e) {
+            log.error("Error while parsing excel file error: {}, cellHeader: {}", e, cellHeader);
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     public static void initialiseExcelSheet(XSSFWorkbook workbook, String[] headers, String sheetName) {

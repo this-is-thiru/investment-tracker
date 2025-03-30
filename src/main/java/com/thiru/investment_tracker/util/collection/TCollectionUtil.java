@@ -1,24 +1,21 @@
 package com.thiru.investment_tracker.util.collection;
 
+import lombok.AllArgsConstructor;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.ToDoubleFunction;
-import java.util.function.ToLongFunction;
+import java.util.function.*;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-import lombok.AllArgsConstructor;
-
 @AllArgsConstructor
 public class TCollectionUtil {
 
     public static final String DATE_FORMAT = "yyyy-MM-dd";
+    public static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 
 
     public static <T, R, U> Map<R, U> toMap(Collection<T> source, Function<T, R> keyMapper,
