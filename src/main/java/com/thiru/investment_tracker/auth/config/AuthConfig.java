@@ -1,10 +1,12 @@
-package com.thiru.investment_tracker.auth.filter;
+package com.thiru.investment_tracker.auth.config;
 
+import com.thiru.investment_tracker.auth.filter.AuthFilter;
 import com.thiru.investment_tracker.auth.service.CustomAuthenticationProvider;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -40,12 +42,16 @@ public class AuthConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager() {
+    public AuthenticationProvider authenticationProvider() {
+        return new CustomAuthenticationProvider(passwordEncoder, userDetailsService);
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationProvider authenticationProvider) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder);
-        CustomAuthenticationProvider customAuthenticationProvider = new CustomAuthenticationProvider(passwordEncoder, userDetailsService);
-        return new ProviderManager(authProvider, customAuthenticationProvider);
+        return new ProviderManager(authProvider, authenticationProvider);
     }
 
 }
