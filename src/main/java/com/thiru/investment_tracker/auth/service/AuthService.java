@@ -1,26 +1,21 @@
 package com.thiru.investment_tracker.auth.service;
 
 import com.thiru.investment_tracker.auth.entity.UserDetail;
+import com.thiru.investment_tracker.auth.model.AuthHelper;
 import com.thiru.investment_tracker.auth.model.LoginResponse;
 import com.thiru.investment_tracker.auth.model.RegistrationRequest;
 import com.thiru.investment_tracker.auth.repository.UserDetailsRepository;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
-import java.security.Key;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -81,7 +76,6 @@ public class AuthService {
                     .build()
                     .parseSignedClaims(authToken)
                     .getPayload();
-//            return Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(authToken).getBody();
         } catch (MalformedJwtException e) {
             log.error("Invalid JWT token: {}", e.getMessage());
         } catch (ExpiredJwtException e) {
@@ -136,7 +130,7 @@ public class AuthService {
     private LoginResponse createToken(String username, Authentication authentication) {
         int expirationTime = 60 * 30;
         Map<String, Object> claims = new HashMap<>();
-        claims.put("roles", authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
+        AuthHelper.setRoles(claims, authentication.getAuthorities());
         Date expiration = new Date(System.currentTimeMillis() + 1000 * expirationTime);
 
         String token = Jwts.builder()
@@ -146,19 +140,13 @@ public class AuthService {
                 .expiration(expiration)
                 .signWith(getSignInKey())
                 .compact();
-//        String token = Jwts.builder().setClaims(claims).setSubject(username).setIssuedAt(new Date(System.currentTimeMillis()))
-//                .setExpiration(expiration)
-//                .signWith(getSignInKey(), SignatureAlgorithm.HS256).compact();
+
         return LoginResponse.from(token, expirationTime);
     }
 
     private SecretKey getSignInKey() {
         byte[] bytes = Base64.getDecoder()
                 .decode(SECRET);
-        return new SecretKeySpec(bytes, "HmacSHA256"); }
-
-    private Key getSignKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET);
-        return Keys.hmacShaKeyFor(keyBytes);
+        return new SecretKeySpec(bytes, "HmacSHA256");
     }
 }

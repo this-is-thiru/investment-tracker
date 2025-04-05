@@ -1,15 +1,19 @@
 package com.thiru.investment_tracker.auth.model;
 
+import com.thiru.investment_tracker.util.collection.TObjectMapper;
 import io.jsonwebtoken.Claims;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AuthHelper {
+    private static final String ROLES = "roles";
+
     public enum Role {
         ROLE_SUPER_USER,
         ROLE_ADMIN,
@@ -39,9 +43,15 @@ public class AuthHelper {
         return role.name();
     }
 
-    @SuppressWarnings(value = "unchecked")
     public static List<GrantedAuthority> getAuthorities(Claims claims) {
-        List<String> roles = (List<String>) claims.get("roles");
+
+        List<String> roles = TObjectMapper.readAsList(claims.get(ROLES), String.class);
         return roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+    }
+
+    public static void setRoles(Map<String, Object> claims, Collection<? extends GrantedAuthority> authorities) {
+
+        List<String> roles = authorities.stream().map(GrantedAuthority::getAuthority).toList();
+        claims.put(ROLES, roles);
     }
 }
