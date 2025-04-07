@@ -14,3 +14,7 @@ spring:
     username: ejcdabas
     password: GAP558hOcfxjgBiTSM2dFifoXYxt57Rx
     addresses: amqps://ejcdabas:GAP558hOcfxjgBiTSM2dFifoXYxt57Rx@prawn-01.rmq.cloudamqp.com/ejcdabas
+
+springdoc:
+  swagger-ui:
+    url: /openapi.yaml
