@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
-@Component
+@Component("userDetailsService")
 @AllArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
     private final UserDetailsRepository userDetailsRepo;
