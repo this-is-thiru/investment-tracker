@@ -1,12 +1,11 @@
 package com.thiru.investment_tracker.entity;
 
-import java.time.Month;
-
-import org.springframework.data.mongodb.core.mapping.Field;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.springframework.data.mongodb.core.mapping.Field;
+
+import java.time.Month;
 
 @EqualsAndHashCode(callSuper = true)
 @Data

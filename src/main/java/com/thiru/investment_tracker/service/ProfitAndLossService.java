@@ -212,7 +212,7 @@ public class ProfitAndLossService {
 
 	@Data
 	@NoArgsConstructor
-	static class InternalContext {
+	private static class InternalContext {
 		private boolean isShortTermGain;
 		private double purchasePrice;
 		private double sellPrice;

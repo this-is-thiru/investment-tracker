@@ -353,8 +353,8 @@ public class PortfolioService {
         return mongoTemplateService.getDocuments(userMail, queryFilters, Asset.class);
     }
 
-    public List<Asset> stocksForCorporateActions(UserMail userMail, String stockCode, LocalDate recordDate) {
-        return portfolioRepository.findByEmailAndStockCodeAndTransactionDateBefore(userMail.getEmail(), stockCode, recordDate);
+    public List<Asset> stocksForCorporateActions(String stockCode, LocalDate recordDate) {
+        return portfolioRepository.findByStockCodeAndTransactionDateBefore( stockCode, recordDate);
     }
 
     public void saveCorporateActionProcessedStocks(List<Asset> stocks) {
@@ -432,11 +432,12 @@ public class PortfolioService {
     }
 
     private List<Asset> getLongTermHeldAssets(UserMail userMail, String oneYearBeforeDate) {
-        QueryFilter queryFilter = new QueryFilter();
-        queryFilter.setFilterKey("transaction_date");
-        queryFilter.setValue(oneYearBeforeDate);
-        queryFilter.setOperation(QueryFilter.FilterOperation.LESSER_THAN);
-        queryFilter.setIsDateField(true);
+
+        QueryFilter queryFilter = QueryFilter.builder()
+                .filterKey("transaction_date")
+                .value(oneYearBeforeDate)
+                .operation(QueryFilter.FilterOperation.LESSER_THAN)
+                .isDateField(true).build();
 
         List<QueryFilter> queryFilters = new ArrayList<>();
         queryFilters.add(queryFilter);
@@ -445,11 +446,12 @@ public class PortfolioService {
     }
 
     private List<Asset> getShortTermHeldAssets(UserMail userMail, String oneYearBeforeDate) {
-        QueryFilter queryFilter = new QueryFilter();
-        queryFilter.setFilterKey("transaction_date");
-        queryFilter.setValue(oneYearBeforeDate);
-        queryFilter.setOperation(QueryFilter.FilterOperation.GREATER_THAN);
-        queryFilter.setIsDateField(true);
+
+        QueryFilter queryFilter = QueryFilter.builder()
+                .filterKey("transaction_date")
+                .value(oneYearBeforeDate)
+                .operation(QueryFilter.FilterOperation.GREATER_THAN)
+                .isDateField(true).build();
 
         List<QueryFilter> queryFilters = new ArrayList<>();
         queryFilters.add(queryFilter);

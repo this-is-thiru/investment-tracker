@@ -9,11 +9,9 @@ import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
-import com.thiru.investment_tracker.util.collection.TLocaleDate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
@@ -21,7 +19,6 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -29,7 +26,6 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@ToString
 public class Asset {
 
 	@JsonIgnore
@@ -83,15 +79,15 @@ public class Asset {
 	@Field("order_id")
 	private String orderId;
 
-	// remove this as we use orderTimeQuantity
+	// TODO: Remove this as we use orderTimeQuantity
 	@Field("order_execution_time")
 	private Instant orderExecutionTime;
 
 	@Field("order_time_quantities")
-	private List<OrderTimeQuantity> orderTimeQuantities = new ArrayList<>();
+	private List<OrderTimeQuantity> orderTimeQuantities;
 
 	@Field("timezone_id")
-	private String timezoneId = TLocaleDate.TIME_ZONE_IST;
+	private String timezoneId;
 
 	@Field(name = "account_type", targetType = FieldType.STRING)
 	private AccountType accountType;
@@ -107,13 +103,13 @@ public class Asset {
 	private String comment;
 
 	@Field("buy_transaction_ids")
-	private List<String> buyTransactionIds = new ArrayList<>();
+	private List<String> buyTransactionIds;
 
 	@Field("sell_transaction_ids")
-	private List<String> sellTransactionIds = new ArrayList<>();
+	private List<String> sellTransactionIds;
 
 	@Field("corporate_actions")
-	List<CorporateActionWrapper> corporateActions = new ArrayList<>();
+	List<CorporateActionWrapper> corporateActions;
 
 	// this email we can't accept from the request payload, we are formatting this through the code
 	public static final String EMAIL = "email";

@@ -27,7 +27,7 @@ public interface PortfolioRepository extends MongoRepository<Asset, String> {
     List<Asset> findByEmailAndStockCodeAndBrokerNameAndAccountHolderOrderByTransactionDate(String email,
                                                                                            String stockCode, BrokerName brokerName, String accountHolder);
 
-    List<Asset> findByEmailAndStockCodeAndTransactionDateBefore(String email, String stockCode,LocalDate transactionDate);
+    List<Asset> findByStockCodeAndTransactionDateBefore(String stockCode,LocalDate transactionDate);
 
     List<Asset> findByEmailAndStockCodeOrderByTransactionDate(String email, String stockCode);
 

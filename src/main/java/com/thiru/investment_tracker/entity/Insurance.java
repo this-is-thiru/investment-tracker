@@ -1,26 +1,21 @@
 package com.thiru.investment_tracker.entity;
 
-import java.util.List;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.thiru.investment_tracker.dto.enums.InsuranceType;
+import com.thiru.investment_tracker.dto.enums.PolicyType;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import com.thiru.investment_tracker.dto.enums.InsuranceType;
-import com.thiru.investment_tracker.dto.enums.PolicyType;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import java.util.List;
 
 @Document(value = "insurances")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@ToString
 public class Insurance {
 
 	@JsonIgnore

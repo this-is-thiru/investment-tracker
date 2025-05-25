@@ -17,6 +17,7 @@ import java.util.List;
 @Service
 @Transactional
 public class MongoTemplateService {
+
     private final MongoTemplate mongoTemplate;
 
     public <T> List<T> getDocuments(UserMail userMail, List<QueryFilter> queryFilters, Class<T> clazz) {
@@ -29,6 +30,4 @@ public class MongoTemplateService {
         Query query = queryBuilder.build();
         return mongoTemplate.find(query, clazz);
     }
-
-
 }

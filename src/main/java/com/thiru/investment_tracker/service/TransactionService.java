@@ -45,10 +45,9 @@ public class TransactionService {
         return savedTransaction.getId();
     }
 
-    public List<Transaction> transactionsForCorporateActions(UserMail userMail, double quantity, String stockCode, LocalDate recordDate) {
+    public List<Transaction> transactionsForCorporateActions(double quantity, String stockCode, LocalDate recordDate) {
 
-        String email = userMail.getEmail();
-        List<Transaction> transactions = transactionRepository.findByEmailAndStockCodeAndTransactionDateBeforeOrderByTransactionDateDesc(email, stockCode, recordDate);
+        List<Transaction> transactions = transactionRepository.findByStockCodeAndTransactionDateBeforeOrderByTransactionDateDesc(stockCode, recordDate);
 
         List<Transaction> transactionsToConsider = new ArrayList<>();
         for (Transaction transaction : transactions) {
@@ -64,6 +63,10 @@ public class TransactionService {
             throw new IllegalArgumentException("Invalid transactions");
         }
         return transactionsToConsider;
+    }
+
+    public List<Transaction> transactionsForCorporateActions(String stockCode, LocalDate recordDate) {
+        return transactionRepository.findByStockCodeAndTransactionDateBeforeOrderByTransactionDateDesc(stockCode, recordDate);
     }
 
     public void saveCorporateActionProcessedTransactions(List<Transaction> transactions) {
