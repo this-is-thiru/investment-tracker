@@ -20,7 +20,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class Report {
+public class ReportEntity {
 	@JsonIgnore
 	@MongoId
 	private String id;

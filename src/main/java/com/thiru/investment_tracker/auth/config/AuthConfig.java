@@ -35,7 +35,7 @@ public class AuthConfig {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login", "/auth/register", "/helper/**", "/swagger-ui/**", "/v3/**", "/openapi.yaml", "/finances/**").permitAll()
-                        .requestMatchers("/auth/**", "/portfolio/**", "/reports/**", "/transactions/**").authenticated())
+                        .requestMatchers("/auth/**", "/portfolio/**", "/reports/**", "/transactions/**", "/corporate-action/**").authenticated())
                 .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(Customizer.withDefaults())
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class).build();

@@ -2,7 +2,7 @@ package com.thiru.investment_tracker.dto;
 
 import java.time.LocalDate;
 
-import com.thiru.investment_tracker.entity.Asset;
+import com.thiru.investment_tracker.entity.AssetEntity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,18 +19,18 @@ public class ProfitAndLossContext {
 	/**
 	 * Profit and loss context while selling the asset
 	 */
-	public static ProfitAndLossContext from(Asset asset, AssetRequest assetRequest, double sellQuantity) {
-		double purchasePrice = asset.getPrice();
-		LocalDate purchaseDate = asset.getTransactionDate();
+	public static ProfitAndLossContext from(AssetEntity assetEntity, AssetRequest assetRequest, double sellQuantity) {
+		double purchasePrice = assetEntity.getPrice();
+		LocalDate purchaseDate = assetEntity.getTransactionDate();
 
-		double purchaseBrokerCharge = (asset.getBrokerCharges() / asset.getQuantity()) * sellQuantity;
-		double purchaseMiscCharge = (asset.getMiscCharges() / asset.getQuantity()) * sellQuantity;
+		double purchaseBrokerCharge = (assetEntity.getBrokerCharges() / assetEntity.getQuantity()) * sellQuantity;
+		double purchaseMiscCharge = (assetEntity.getMiscCharges() / assetEntity.getQuantity()) * sellQuantity;
 
 		AssetContext purchaseContext = AssetContext.from();
 		purchaseContext.setPrice(purchasePrice);
-		purchaseContext.setQuantity(asset.getQuantity());
+		purchaseContext.setQuantity(assetEntity.getQuantity());
 		purchaseContext.setTransactionDate(purchaseDate);
-		purchaseContext.setAssetType(asset.getAssetType());
+		purchaseContext.setAssetType(assetEntity.getAssetType());
 		purchaseContext.setBrokerCharges(purchaseBrokerCharge);
 		purchaseContext.setMiscCharges(purchaseMiscCharge);
 

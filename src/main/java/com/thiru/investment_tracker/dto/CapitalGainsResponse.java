@@ -7,7 +7,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import com.thiru.investment_tracker.entity.MonthlyReport;
+import com.thiru.investment_tracker.entity.model.MonthlyReport;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

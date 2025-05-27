@@ -1,4 +1,4 @@
-package com.thiru.investment_tracker.entity;
+package com.thiru.investment_tracker.entity.model;
 
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Field;

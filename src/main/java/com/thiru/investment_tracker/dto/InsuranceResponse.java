@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.thiru.investment_tracker.dto.enums.InsuranceType;
 import com.thiru.investment_tracker.dto.enums.PolicyType;
-import com.thiru.investment_tracker.entity.PolicyDetails;
+import com.thiru.investment_tracker.entity.model.PolicyDetails;
 
 import lombok.Data;
 

@@ -4,7 +4,7 @@ import com.thiru.investment_tracker.dto.AssetRequest;
 import com.thiru.investment_tracker.dto.TransactionResponse;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.user.UserMail;
-import com.thiru.investment_tracker.entity.Transaction;
+import com.thiru.investment_tracker.entity.TransactionEntity;
 import com.thiru.investment_tracker.repository.TransactionRepository;
 import com.thiru.investment_tracker.util.collection.TObjectMapper;
 import com.thiru.investment_tracker.util.db.QueryFilter;
@@ -36,27 +36,26 @@ public class TransactionService {
         if (assetRequest.getTransactionDate() == null) {
             assetRequest.setTransactionDate(LocalDate.now());
         }
-        Transaction transaction = TObjectMapper.copy(assetRequest, Transaction.class);
-        transaction.setTotalValue(transaction.getPrice() * transaction.getQuantity());
+        TransactionEntity transactionEntity = assetRequest.getTransaction();
 
-        log.info("Transaction: {}, Stock: '{}' on '{}' noted successfully", transaction.getTransactionType(),
-                transaction.getStockName(), transaction.getTransactionDate());
-        Transaction savedTransaction = transactionRepository.save(transaction);
-        return savedTransaction.getId();
+        log.info("Transaction: {}, Stock: '{}' on '{}' noted successfully", transactionEntity.getTransactionType(),
+                transactionEntity.getStockName(), transactionEntity.getTransactionDate());
+        TransactionEntity savedTransactionEntity = transactionRepository.save(transactionEntity);
+        return savedTransactionEntity.getId();
     }
 
-    public List<Transaction> transactionsForCorporateActions(double quantity, String stockCode, LocalDate recordDate) {
+    public List<TransactionEntity> transactionsForCorporateActions(double quantity, String stockCode, LocalDate recordDate) {
 
-        List<Transaction> transactions = transactionRepository.findByStockCodeAndTransactionDateBeforeOrderByTransactionDateDesc(stockCode, recordDate);
+        List<TransactionEntity> transactionEntities = transactionRepository.findByStockCodeAndTransactionDateBeforeOrderByTransactionDateDesc(stockCode, recordDate);
 
-        List<Transaction> transactionsToConsider = new ArrayList<>();
-        for (Transaction transaction : transactions) {
+        List<TransactionEntity> transactionsToConsider = new ArrayList<>();
+        for (TransactionEntity transactionEntity : transactionEntities) {
             if (quantity <= 0) {
                 break;
             }
 
-            transactionsToConsider.add(transaction);
-            quantity -= transaction.getQuantity();
+            transactionsToConsider.add(transactionEntity);
+            quantity -= transactionEntity.getQuantity();
         }
 
         if (quantity > 0) {
@@ -65,16 +64,16 @@ public class TransactionService {
         return transactionsToConsider;
     }
 
-    public List<Transaction> transactionsForCorporateActions(String stockCode, LocalDate recordDate) {
+    public List<TransactionEntity> transactionsForCorporateActions(String stockCode, LocalDate recordDate) {
         return transactionRepository.findByStockCodeAndTransactionDateBeforeOrderByTransactionDateDesc(stockCode, recordDate);
     }
 
-    public void saveCorporateActionProcessedTransactions(List<Transaction> transactions) {
-        transactionRepository.saveAll(transactions);
+    public void saveCorporateActionProcessedTransactions(List<TransactionEntity> transactionEntities) {
+        transactionRepository.saveAll(transactionEntities);
     }
 
-    public List<Transaction> getUserTransactions(UserMail userMail, List<QueryFilter> queryFilters) {
-        return mongoTemplateService.getDocuments(userMail, queryFilters, Transaction.class);
+    public List<TransactionEntity> getUserTransactions(UserMail userMail, List<QueryFilter> queryFilters) {
+        return mongoTemplateService.getDocuments(userMail, queryFilters, TransactionEntity.class);
     }
 
     public Pair<InputStreamResource, String> downloadAllTransactions(UserMail userMail) {
@@ -88,8 +87,8 @@ public class TransactionService {
     }
 
     private List<TransactionResponse> getAllTransactions(UserMail userMail) {
-        List<Transaction> transactions = transactionRepository.findByEmail(userMail.getEmail());
-        return transactions.stream().map(transaction -> TObjectMapper.copy(transaction, TransactionResponse.class)).toList();
+        List<TransactionEntity> transactionEntities = transactionRepository.findByEmail(userMail.getEmail());
+        return transactionEntities.stream().map(transaction -> TObjectMapper.copy(transaction, TransactionResponse.class)).toList();
     }
 
 
@@ -100,21 +99,21 @@ public class TransactionService {
 //    }
 
     public void updateTransactions() {
-        List<Transaction> transactions = transactionRepository.findAll();
+        List<TransactionEntity> transactionEntities = transactionRepository.findAll();
 
-        transactions.forEach(transaction -> {
+        transactionEntities.forEach(transaction -> {
                     AssetType assetType = transaction.getAssetType();
                     transaction.setAssetType(assetType == null ? AssetType.MUTUAL_FUND : assetType);
                 }
         );
-        transactionRepository.saveAll(transactions);
+        transactionRepository.saveAll(transactionEntities);
     }
 
     public void deleteTransactions(UserMail userMail) {
         transactionRepository.deleteByEmail(userMail.getEmail());
     }
 
-    public List<Transaction> allTransactions() {
+    public List<TransactionEntity> allTransactions() {
         return transactionRepository.findAll();
     }
 }

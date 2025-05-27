@@ -3,12 +3,11 @@ package com.thiru.investment_tracker.controller;
 import com.thiru.investment_tracker.dto.*;
 import com.thiru.investment_tracker.dto.enums.HoldingType;
 import com.thiru.investment_tracker.dto.user.UserMail;
-import com.thiru.investment_tracker.entity.Asset;
-import com.thiru.investment_tracker.entity.Transaction;
+import com.thiru.investment_tracker.entity.AssetEntity;
+import com.thiru.investment_tracker.entity.TransactionEntity;
 import com.thiru.investment_tracker.service.PortfolioService;
 import com.thiru.investment_tracker.service.TemporaryService;
 import com.thiru.investment_tracker.service.TransactionService;
-import com.thiru.investment_tracker.util.collection.TLocaleDate;
 import com.thiru.investment_tracker.util.collection.TObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @AllArgsConstructor
@@ -92,7 +90,7 @@ public class PortfolioController {
     }
 
     @GetMapping("/all/transactions")
-    public ResponseEntity<List<Transaction>> allTransactions(@PathVariable String email) {
+    public ResponseEntity<List<TransactionEntity>> allTransactions(@PathVariable String email) {
 
         UserMail.from(email);
         return ResponseEntity.ok(transactionService.allTransactions());
@@ -143,10 +141,10 @@ public class PortfolioController {
     }
 
     @PostMapping("/request2")
-    public ResponseEntity<List<Asset>> testRequest(@PathVariable String email,
-                                                   @RequestBody BulkGetRequest bulkGetRequest) {
-        List<Asset> assets = portfolioService.searchAssets(UserMail.from(email), bulkGetRequest.getQueryFilters());
-        return ResponseEntity.ok(assets);
+    public ResponseEntity<List<AssetEntity>> testRequest(@PathVariable String email,
+                                                         @RequestBody BulkGetRequest bulkGetRequest) {
+        List<AssetEntity> assetEntities = portfolioService.searchAssets(UserMail.from(email), bulkGetRequest.getQueryFilters());
+        return ResponseEntity.ok(assetEntities);
     }
 
 //    @GetMapping("/assets/purchase/before/{stockCode}/{date}")

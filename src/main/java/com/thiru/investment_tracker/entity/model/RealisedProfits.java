@@ -1,4 +1,4 @@
-package com.thiru.investment_tracker.entity;
+package com.thiru.investment_tracker.entity.model;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;

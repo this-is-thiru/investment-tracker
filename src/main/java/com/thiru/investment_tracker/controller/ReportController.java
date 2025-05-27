@@ -1,7 +1,7 @@
 package com.thiru.investment_tracker.controller;
 
 import com.thiru.investment_tracker.dto.user.UserMail;
-import com.thiru.investment_tracker.entity.Report;
+import com.thiru.investment_tracker.entity.ReportEntity;
 import com.thiru.investment_tracker.service.ReportService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +18,7 @@ public class ReportController {
     private final ReportService reportService;
 
     @GetMapping
-    public List<Report> getReports(@PathVariable String email) {
+    public List<ReportEntity> getReports(@PathVariable String email) {
         return reportService.getStockReport(UserMail.from(email));
     }
 }

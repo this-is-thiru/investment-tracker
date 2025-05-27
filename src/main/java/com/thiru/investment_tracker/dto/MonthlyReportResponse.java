@@ -2,8 +2,7 @@ package com.thiru.investment_tracker.dto;
 
 import java.time.Month;
 
-import com.thiru.investment_tracker.entity.FortnightReport;
-import com.thiru.investment_tracker.entity.ReportModel;
+import com.thiru.investment_tracker.entity.model.FortnightReport;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

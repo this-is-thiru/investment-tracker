@@ -3,7 +3,7 @@ package com.thiru.investment_tracker.service;
 import com.thiru.investment_tracker.dto.ReportContext;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.user.UserMail;
-import com.thiru.investment_tracker.entity.Report;
+import com.thiru.investment_tracker.entity.ReportEntity;
 import com.thiru.investment_tracker.repository.ReportRepository;
 import com.thiru.investment_tracker.util.collection.TObjectMapper;
 import lombok.AllArgsConstructor;
@@ -20,13 +20,13 @@ public class ReportService {
 
     public void stockReport(UserMail userMail, ReportContext reportContext) {
 
-        Report report = TObjectMapper.copy(reportContext, Report.class);
-        report.setEmail(userMail.getEmail());
+        ReportEntity reportEntity = TObjectMapper.copy(reportContext, ReportEntity.class);
+        reportEntity.setEmail(userMail.getEmail());
 
-        reportRepository.save(report);
+        reportRepository.save(reportEntity);
     }
 
-    public List<Report> getStockReport(UserMail userMail) {
+    public List<ReportEntity> getStockReport(UserMail userMail) {
 
         return reportRepository.findByEmail(userMail.getEmail());
     }
@@ -36,13 +36,13 @@ public class ReportService {
     }
 
     public void updateReports() {
-        List<Report> reports = reportRepository.findAll();
+        List<ReportEntity> reportEntities = reportRepository.findAll();
 
-        reports.forEach(report -> {
-                    AssetType assetType = report.getAssetType();
-                    report.setAssetType(assetType == null ? AssetType.MUTUAL_FUND : assetType);
+        reportEntities.forEach(reportEntity -> {
+                    AssetType assetType = reportEntity.getAssetType();
+                    reportEntity.setAssetType(assetType == null ? AssetType.MUTUAL_FUND : assetType);
                 }
         );
-        reportRepository.saveAll(reports);
+        reportRepository.saveAll(reportEntities);
     }
 }

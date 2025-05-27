@@ -1,18 +1,18 @@
 package com.thiru.investment_tracker.repository;
 
-import com.thiru.investment_tracker.entity.Transaction;
+import com.thiru.investment_tracker.entity.TransactionEntity;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.time.LocalDate;
 import java.util.List;
 
-public interface TransactionRepository extends MongoRepository<Transaction, String> {
+public interface TransactionRepository extends MongoRepository<TransactionEntity, String> {
 
-    List<Transaction> findByEmail(String email);
+    List<TransactionEntity> findByEmail(String email);
 
-    List<Transaction> findByEmailAndStockCodeAndTransactionDateBefore(String email, String stockCode, LocalDate transactionDate);
+    List<TransactionEntity> findByEmailAndStockCodeAndTransactionDateBefore(String email, String stockCode, LocalDate transactionDate);
 
-    List<Transaction> findByStockCodeAndTransactionDateBeforeOrderByTransactionDateDesc(String stockCode, LocalDate transactionDate);
+    List<TransactionEntity> findByStockCodeAndTransactionDateBeforeOrderByTransactionDateDesc(String stockCode, LocalDate transactionDate);
 
     void deleteByEmail(String email);
 }

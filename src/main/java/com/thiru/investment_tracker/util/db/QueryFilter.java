@@ -1,7 +1,7 @@
 package com.thiru.investment_tracker.util.db;
 
 import com.thiru.investment_tracker.dto.user.UserMail;
-import com.thiru.investment_tracker.entity.Asset;
+import com.thiru.investment_tracker.entity.AssetEntity;
 import com.thiru.investment_tracker.exception.BadRequestException;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import lombok.Builder;
@@ -39,7 +39,7 @@ public class QueryFilter {
 
     private static void sanitizeAndPopulateEmailFilter(List<QueryFilter> queryFilters, String email) {
 
-        List<QueryFilter> nonEmailFilters = TCollectionUtil.filter(queryFilters, filter -> !Asset.EMAIL.equals(filter.getFilterKey()));
+        List<QueryFilter> nonEmailFilters = TCollectionUtil.filter(queryFilters, filter -> !AssetEntity.EMAIL.equals(filter.getFilterKey()));
         QueryFilter emailFilter = QueryFilter.builder().filterKey("email").operation(QueryFilter.FilterOperation.EQUALS).value(email).build();
         nonEmailFilters.add(emailFilter);
 
@@ -50,7 +50,7 @@ public class QueryFilter {
     private static void validateFilters(List<QueryFilter> queryFilters) {
 
         List<QueryFilter> invalidQueryFilters = TCollectionUtil.filter(queryFilters,
-                filter -> !Asset.ALLOWED_FIELDS.contains(filter.getFilterKey()));
+                filter -> !AssetEntity.ALLOWED_FIELDS.contains(filter.getFilterKey()));
 
         List<String> invalidFieldsForFilter = TCollectionUtil.map(invalidQueryFilters, QueryFilter::getFilterKey);
 

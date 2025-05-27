@@ -1,6 +1,7 @@
 package com.thiru.investment_tracker.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.thiru.investment_tracker.entity.model.RealisedProfits;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

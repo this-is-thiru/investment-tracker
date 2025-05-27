@@ -20,10 +20,10 @@ public class CorporateActionController {
         return ResponseEntity.ok(message);
     }
 
-    @PutMapping("portfolio/user/{email}/perform")
-    public ResponseEntity<String> updateCorporateAction(@PathVariable String email, @RequestBody CorporateActionWrapper corporateActionRequest) {
+    @PutMapping("/perform")
+    public ResponseEntity<String> updateCorporateAction(@RequestBody CorporateActionWrapper corporateActionRequest) {
 
-        String message = corporateActionService.updateCorporateAction(UserMail.from(email), corporateActionRequest);
+        String message = corporateActionService.updateCorporateAction(corporateActionRequest);
         return ResponseEntity.ok(message);
     }
 }

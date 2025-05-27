@@ -3,6 +3,7 @@ package com.thiru.investment_tracker.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thiru.investment_tracker.dto.enums.InsuranceType;
 import com.thiru.investment_tracker.dto.enums.PolicyType;
+import com.thiru.investment_tracker.entity.model.PolicyDetails;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class Insurance {
+public class InsuranceEntity {
 
 	@JsonIgnore
 	@MongoId

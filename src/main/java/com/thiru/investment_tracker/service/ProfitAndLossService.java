@@ -5,6 +5,7 @@ import com.thiru.investment_tracker.dto.ProfitAndLossResponse;
 import com.thiru.investment_tracker.dto.enums.AccountType;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.*;
+import com.thiru.investment_tracker.entity.model.*;
 import com.thiru.investment_tracker.repository.ProfitAndLossRepository;
 import com.thiru.investment_tracker.util.collection.TObjectMapper;
 import com.thiru.investment_tracker.util.collection.TOptional;

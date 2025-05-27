@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 @Data
 @NoArgsConstructor
 @Document(value = "corporate_action")
-public class CorporateAction {
+public class CorporateActionEntity {
     @MongoId
     private String id;
     @Field("stock_code")

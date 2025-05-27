@@ -26,7 +26,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class Transaction {
+public class TransactionEntity {
 
 	@JsonIgnore
 	@MongoId
