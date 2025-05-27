@@ -27,7 +27,6 @@ public class ReportContext {
 	private BrokerName brokerName;
 	private double totalValue;
 	private AssetType assetType;
-	private String actor;
 	private AccountType accountType;
 	private String accountHolder;
 }

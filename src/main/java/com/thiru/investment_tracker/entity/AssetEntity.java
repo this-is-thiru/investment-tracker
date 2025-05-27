@@ -2,20 +2,17 @@ package com.thiru.investment_tracker.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.thiru.investment_tracker.dto.CorporateActionWrapper;
+import com.thiru.investment_tracker.dto.CorporateActionDto;
 import com.thiru.investment_tracker.dto.OrderTimeQuantity;
 import com.thiru.investment_tracker.dto.enums.AccountType;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
+import com.thiru.investment_tracker.entity.helper.AuditMetadata;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
-import org.springframework.data.mongodb.core.mapping.FieldType;
-import org.springframework.data.mongodb.core.mapping.MongoId;
+import lombok.*;
+import org.springframework.data.annotation.*;
+import org.springframework.data.mongodb.core.mapping.*;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -70,9 +67,6 @@ public class AssetEntity {
     @Field("maturity_date")
     private LocalDate maturityDate;
 
-    @Field("actor_name")
-    private String actor;
-
     @JsonFormat(pattern = TCollectionUtil.DATE_FORMAT)
     @Field("transaction_date")
     private LocalDate transactionDate;
@@ -110,11 +104,17 @@ public class AssetEntity {
     private List<String> sellTransactionIds = new ArrayList<>();
 
     @Field("corporate_actions")
-    List<CorporateActionWrapper> corporateActions = new ArrayList<>();
+    private List<CorporateActionDto> corporateActions = new ArrayList<>();
+
+    @Field("audit_metadata")
+    @Setter(value = AccessLevel.NONE)
+    private AuditMetadata auditMetadata = new AuditMetadata();
 
     // this email we can't accept from the request payload, we are formatting this through the code
+    @Transient
     public static final String EMAIL = "email";
 
+    @Transient
     public static Set<String> ALLOWED_FIELDS = Set.of("email", "transaction_date", "transaction_type",
             "account_type", "account_holder", "exchange_name", "stock_code", "broker_name", "asset_type");
 

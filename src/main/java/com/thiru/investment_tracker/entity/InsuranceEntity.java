@@ -3,10 +3,9 @@ package com.thiru.investment_tracker.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thiru.investment_tracker.dto.enums.InsuranceType;
 import com.thiru.investment_tracker.dto.enums.PolicyType;
+import com.thiru.investment_tracker.entity.helper.AuditMetadata;
 import com.thiru.investment_tracker.entity.model.PolicyDetails;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.MongoId;
@@ -63,4 +62,8 @@ public class InsuranceEntity {
 	private String notes;
 
 	private List<PolicyDetails> policyDetails;
+
+	@Field("audit_metadata")
+	@Setter(value = AccessLevel.NONE)
+	private AuditMetadata auditMetadata = new AuditMetadata();
 }

@@ -21,7 +21,6 @@ public class ExcelHeaders {
 	public static final String TOTAL_VALUE = "Total Value";
 	public static final String QUANTITY = "Quantity";
 	public static final String TRANSACTION_TYPE = "Transaction Type";
-	public static final String ACTOR = "Actor";
 	public static final String TRANSACTION_DATE = "Transaction Date";
 	public static final String BROKER_CHARGES = "Broker Charges";
 	public static final String MISC_CHARGES = "Misc. Charges";
@@ -35,7 +34,6 @@ public class ExcelHeaders {
 		dataTypeMap.put(ExcelHeaders.STOCK_NAME, ParserDataType.STRING);
 		dataTypeMap.put(ExcelHeaders.EXCHANGE_NAME, ParserDataType.STRING);
 		dataTypeMap.put(ExcelHeaders.BROKER_NAME, ParserDataType.STRING);
-		dataTypeMap.put(ExcelHeaders.ACTOR, ParserDataType.STRING);
 		dataTypeMap.put(ExcelHeaders.ASSET_TYPE, ParserDataType.STRING);
 		dataTypeMap.put(ExcelHeaders.MATURITY_DATE, ParserDataType.LOCAL_DATE);
 		dataTypeMap.put(ExcelHeaders.PRICE, ParserDataType.DOUBLE);
@@ -54,7 +52,7 @@ public class ExcelHeaders {
 
 	public static String[] getTransactionHeaders() {
 		return new String[]{EMAIL, STOCK_CODE, STOCK_NAME, EXCHANGE_NAME, BROKER_NAME, ASSET_TYPE, MATURITY_DATE, PRICE,
-				QUANTITY, TRANSACTION_TYPE, ACTOR, TRANSACTION_DATE, BROKER_CHARGES, MISC_CHARGES, COMMENT};
+				QUANTITY, TRANSACTION_TYPE, TRANSACTION_DATE, BROKER_CHARGES, MISC_CHARGES, COMMENT};
 	}
 
 	public static String[] getPortfolioHeaders() {

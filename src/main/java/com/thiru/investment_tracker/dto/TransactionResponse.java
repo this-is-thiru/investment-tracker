@@ -33,7 +33,6 @@ public class TransactionResponse {
 	private Double quantity;
 	private double totalValue;
 	private TransactionType transactionType;
-	private String actor;
 	private String orderId;
 	private Instant orderExecutionTime;
 	private String timezoneId = TLocaleDate.TIME_ZONE_IST;
@@ -49,5 +48,5 @@ public class TransactionResponse {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCollectionUtil.DATE_FORMAT)
 	private LocalDate transactionDate;
 
-	List<CorporateActionWrapper> corporateActions = new ArrayList<>();
+	List<CorporateActionDto> corporateActions = new ArrayList<>();
 }

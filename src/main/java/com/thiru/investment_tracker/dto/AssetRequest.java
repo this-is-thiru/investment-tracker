@@ -37,7 +37,6 @@ public class AssetRequest {
     private TransactionType transactionType;
     private AccountType accountType = AccountType.SELF;
     private String accountHolder;
-    private String actor;
     private String orderId;
     private double brokerCharges;
     private double miscCharges;
@@ -80,7 +79,6 @@ public class AssetRequest {
         transactionEntity.setTimezoneId(timezoneId);
         transactionEntity.setAccountType(accountType);
         transactionEntity.setAccountHolder(accountHolder);
-        transactionEntity.setActor(actor);
         transactionEntity.setTransactionType(transactionType);
         transactionEntity.setTransactionDate(transactionDate);
         return transactionEntity;
@@ -101,7 +99,6 @@ public class AssetRequest {
 		assetEntity.setMiscCharges(miscCharges);
 		assetEntity.setAssetType(assetType);
 		assetEntity.setMaturityDate(maturityDate);
-		assetEntity.setActor(actor);
         assetEntity.setOrderId(orderId);
         assetEntity.setTransactionDate(transactionDate);
 		assetEntity.setAccountType(accountType);

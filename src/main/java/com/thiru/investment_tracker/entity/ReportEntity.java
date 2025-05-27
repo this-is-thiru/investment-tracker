@@ -5,10 +5,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thiru.investment_tracker.dto.enums.AccountType;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
+import com.thiru.investment_tracker.entity.helper.AuditMetadata;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
@@ -61,9 +60,6 @@ public class ReportEntity {
 	@Field("account_holder")
 	private String accountHolder;
 
-	@Field("actor_name")
-	private String actor;
-
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCollectionUtil.DATE_FORMAT)
 	@Field("purchase_date")
 	private LocalDate purchaseDate;
@@ -71,5 +67,9 @@ public class ReportEntity {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCollectionUtil.DATE_FORMAT)
 	@Field("sell_date")
 	private LocalDate sellDate;
+
+	@Field("audit_metadata")
+	@Setter(value = AccessLevel.NONE)
+	private AuditMetadata auditMetadata = new AuditMetadata();
 
 }

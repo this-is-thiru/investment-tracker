@@ -1,10 +1,9 @@
 package com.thiru.investment_tracker.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.thiru.investment_tracker.entity.helper.AuditMetadata;
 import com.thiru.investment_tracker.entity.model.RealisedProfits;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.MongoId;
@@ -38,6 +37,10 @@ public class ProfitAndLossEntity {
 
 	@Field("last_updated_time")
 	private LocalDateTime lastUpdatedTime;
+
+	@Field("audit_metadata")
+	@Setter(value = AccessLevel.NONE)
+	private AuditMetadata auditMetadata = new AuditMetadata();
 
 	public ProfitAndLossEntity(String email) {
 		this.email = email;

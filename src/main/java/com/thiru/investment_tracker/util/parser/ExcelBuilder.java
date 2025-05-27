@@ -102,7 +102,6 @@ public class ExcelBuilder {
                 row.createCell(7).setCellValue(getRoundedValue(transaction.getPrice()));
                 row.createCell(8).setCellValue(getRoundedValue(transaction.getQuantity()));
                 row.createCell(9).setCellValue(transaction.getTransactionType().name());
-                row.createCell(10).setCellValue(transaction.getActor());
                 setDateField(row.createCell(11), transaction.getTransactionDate());
                 row.createCell(12).setCellValue(getRoundedValue(transaction.getBrokerCharges()));
                 row.createCell(13).setCellValue(getRoundedValue(transaction.getMiscCharges()));
@@ -135,7 +134,6 @@ public class ExcelBuilder {
             dataRow.createCell(7).setCellValue(0);
             dataRow.createCell(8).setCellValue(0);
             dataRow.createCell(9).setCellValue("BUY");
-            dataRow.createCell(10).setCellValue("actor@gmail.com");
             setDateField(dataRow.createCell(11), LocalDate.now());
             dataRow.createCell(12).setCellValue(0);
             dataRow.createCell(13).setCellValue(0);

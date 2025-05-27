@@ -1,6 +1,6 @@
 package com.thiru.investment_tracker.service;
 
-import com.thiru.investment_tracker.dto.CorporateActionWrapper;
+import com.thiru.investment_tracker.dto.CorporateActionDto;
 import com.thiru.investment_tracker.dto.enums.CorporateActionType;
 import com.thiru.investment_tracker.entity.AssetEntity;
 import com.thiru.investment_tracker.entity.CorporateActionEntity;
@@ -22,7 +22,7 @@ public class CorporateActionService {
     private final PortfolioService portfolioService;
     private final TransactionService transactionService;
 
-    public String addCorporateAction(CorporateActionWrapper actionWrapper) {
+    public String addCorporateAction(CorporateActionDto actionWrapper) {
 
         CorporateActionEntity corporateActionEntity = TObjectMapper.copy(actionWrapper, CorporateActionEntity.class);
         corporateActionRepository.save(corporateActionEntity);
@@ -34,7 +34,7 @@ public class CorporateActionService {
     }
 
     @Transactional
-    public String updateCorporateAction(CorporateActionWrapper actionWrapper) {
+    public String updateCorporateAction(CorporateActionDto actionWrapper) {
 
         CorporateActionType action = actionWrapper.getType();
         switch (action) {
@@ -48,7 +48,7 @@ public class CorporateActionService {
 
     // TODO: Remove - Doesn't work, need to fix
     @Deprecated
-    private void processStockSplit(CorporateActionWrapper actionWrapper) {
+    private void processStockSplit(CorporateActionDto actionWrapper) {
 
         String stockCode = actionWrapper.getStockCode();
         LocalDate recordDate = actionWrapper.getRecordDate();
@@ -68,8 +68,8 @@ public class CorporateActionService {
             assetEntity.setQuantity(previousQuantity * quantityMultiplier);
             assetEntity.setPrice(assetEntity.getPrice() * priceMultiplier);
 
-            CorporateActionWrapper corporateActionWrapper = TObjectMapper.copy(actionWrapper, CorporateActionWrapper.class);
-            assetEntity.getCorporateActions().add(corporateActionWrapper);
+            CorporateActionDto corporateActionDto = TObjectMapper.copy(actionWrapper, CorporateActionDto.class);
+            assetEntity.getCorporateActions().add(corporateActionDto);
             quantity += previousQuantity;
         }
         portfolioService.saveCorporateActionProcessedStocks(stockEntities);
@@ -82,13 +82,13 @@ public class CorporateActionService {
             transactionEntity.setQuantity(previousQuantity * quantityMultiplier);
             transactionEntity.setPrice(transactionEntity.getPrice() * priceMultiplier);
 
-            CorporateActionWrapper corporateActionWrapper = TObjectMapper.copy(actionWrapper, CorporateActionWrapper.class);
-            transactionEntity.getCorporateActions().add(corporateActionWrapper);
+            CorporateActionDto corporateActionDto = TObjectMapper.copy(actionWrapper, CorporateActionDto.class);
+            transactionEntity.getCorporateActions().add(corporateActionDto);
         }
         transactionService.saveCorporateActionProcessedTransactions(transactionEntities);
     }
 
-    private void processNameOrSymbolChange(CorporateActionWrapper actionWrapper) {
+    private void processNameOrSymbolChange(CorporateActionDto actionWrapper) {
 
         String stockCode = actionWrapper.getStockCode();
         LocalDate recordDate = actionWrapper.getRecordDate();
@@ -99,8 +99,8 @@ public class CorporateActionService {
 
             assetEntity.setStockCode(actionWrapper.getToStockCode());
             assetEntity.setStockName(actionWrapper.getToStockName());
-            CorporateActionWrapper corporateActionWrapper = TObjectMapper.copy(actionWrapper, CorporateActionWrapper.class);
-            assetEntity.getCorporateActions().add(corporateActionWrapper);
+            CorporateActionDto corporateActionDto = TObjectMapper.copy(actionWrapper, CorporateActionDto.class);
+            assetEntity.getCorporateActions().add(corporateActionDto);
         }
         portfolioService.saveCorporateActionProcessedStocks(stockEntities);
 
@@ -110,8 +110,8 @@ public class CorporateActionService {
 
             transactionEntity.setStockCode(actionWrapper.getToStockCode());
             transactionEntity.setStockName(actionWrapper.getToStockName());
-            CorporateActionWrapper corporateActionWrapper = TObjectMapper.copy(actionWrapper, CorporateActionWrapper.class);
-            transactionEntity.getCorporateActions().add(corporateActionWrapper);
+            CorporateActionDto corporateActionDto = TObjectMapper.copy(actionWrapper, CorporateActionDto.class);
+            transactionEntity.getCorporateActions().add(corporateActionDto);
         }
         transactionService.saveCorporateActionProcessedTransactions(transactionEntities);
     }

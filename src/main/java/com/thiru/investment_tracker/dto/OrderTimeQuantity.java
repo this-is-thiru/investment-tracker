@@ -16,5 +16,4 @@ public class OrderTimeQuantity {
 	private Double quantity;
 	private Instant orderExecutionTime;
 	private String timezoneId = TLocaleDate.TIME_ZONE_IST;
-
 }

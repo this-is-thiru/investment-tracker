@@ -37,7 +37,6 @@ public class TransactionParser {
         setStockName(assetRequest, record);
         setExchangeName(assetRequest, record);
         setBrokerName(assetRequest, record);
-        setActor(assetRequest, record);
         setAssetType(assetRequest, record);
         setPrice(assetRequest, record);
         setQuantity(assetRequest, record);
@@ -90,12 +89,6 @@ public class TransactionParser {
             default:
                 throw new IllegalArgumentException("Invalid broker name" + brokerName);
         }
-    }
-
-    private static void setActor(AssetRequest assetRequest, Map<String, CellDetail> record) {
-
-        CellDetail cellDetail = record.get(ExcelHeaders.ACTOR);
-        assetRequest.setActor((String) cellDetail.getCellValue());
     }
 
     private static void setAssetType(AssetRequest assetRequest, Map<String, CellDetail> record) {

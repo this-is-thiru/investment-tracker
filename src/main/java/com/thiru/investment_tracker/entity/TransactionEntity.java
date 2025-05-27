@@ -2,16 +2,15 @@ package com.thiru.investment_tracker.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.thiru.investment_tracker.dto.CorporateActionWrapper;
+import com.thiru.investment_tracker.dto.CorporateActionDto;
 import com.thiru.investment_tracker.dto.enums.AccountType;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
+import com.thiru.investment_tracker.entity.helper.AuditMetadata;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.collection.TLocaleDate;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
@@ -87,9 +86,6 @@ public class TransactionEntity {
 	@Field("account_holder")
 	private String accountHolder;
 
-	@Field("actor_name")
-	private String actor;
-
 	@Field(name = "transaction_type", targetType = FieldType.STRING)
 	private TransactionType transactionType;
 
@@ -98,6 +94,10 @@ public class TransactionEntity {
 	private LocalDate transactionDate;
 
 	@Field("corporate_actions")
-	List<CorporateActionWrapper> corporateActions = new ArrayList<>();
+	List<CorporateActionDto> corporateActions = new ArrayList<>();
+
+	@Field("audit_metadata")
+	@Setter(value = AccessLevel.NONE)
+	private AuditMetadata auditMetadata = new AuditMetadata();
 
 }

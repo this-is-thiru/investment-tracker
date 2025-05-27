@@ -34,7 +34,6 @@ public class AssetResponse {
 	private Double totalQuantity;
 	private double totalValue;
 	private TransactionType transactionType;
-	private String actor;
 	private String orderId;
 	// remove this as we use orderTimeQuantity
 	private Instant orderExecutionTime;
@@ -48,7 +47,7 @@ public class AssetResponse {
 	private String comment;
 	private List<String> buyTransactionIds = new ArrayList<>();
 	private List<String> sellTransactionIds = new ArrayList<>();
-	List<CorporateActionWrapper> corporateActions = new ArrayList<>();
+	List<CorporateActionDto> corporateActions = new ArrayList<>();
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCollectionUtil.DATE_FORMAT)
 	private LocalDate transactionDate;
