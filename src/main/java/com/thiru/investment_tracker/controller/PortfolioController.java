@@ -160,4 +160,5 @@ public class PortfolioController {
 //        List<Transaction> assets = transactionService.testMethod(UserMail.from(email), stockCode, TLocaleDate.convertToDate(date));
 //        return ResponseEntity.ok(assets);
 //    }
+
 }
