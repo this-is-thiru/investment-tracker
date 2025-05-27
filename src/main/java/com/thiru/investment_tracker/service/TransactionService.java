@@ -93,11 +93,11 @@ public class TransactionService {
     }
 
 
-    public List<Transaction> testMethod(UserMail userMail, String stockCode, LocalDate recordDate) {
-
-        String email = userMail.getEmail();
-        return transactionRepository.findByEmailAndStockCodeAndTransactionDateBeforeOrderByTransactionDateDesc(email, stockCode, recordDate);
-    }
+//    public List<Transaction> testMethod(UserMail userMail, String stockCode, LocalDate recordDate) {
+//
+//        String email = userMail.getEmail();
+//        return transactionRepository.findByEmailAndStockCodeAndTransactionDateBeforeOrderByTransactionDateDesc(email, stockCode, recordDate);
+//    }
 
     public void updateTransactions() {
         List<Transaction> transactions = transactionRepository.findAll();

@@ -155,9 +155,9 @@ public class PortfolioController {
 //        return ResponseEntity.ok(assets);
 //    }
 
-    @GetMapping("/assets/purchase/before/{stockCode}/{date}")
-    public ResponseEntity<List<Transaction>> testRequest1(@PathVariable String email, @PathVariable String stockCode, @PathVariable String date) {
-        List<Transaction> assets = transactionService.testMethod(UserMail.from(email), stockCode, TLocaleDate.convertToDate(date));
-        return ResponseEntity.ok(assets);
-    }
+//    @GetMapping("/assets/purchase/before/{stockCode}/{date}")
+//    public ResponseEntity<List<Transaction>> testRequest1(@PathVariable String email, @PathVariable String stockCode, @PathVariable String date) {
+//        List<Transaction> assets = transactionService.testMethod(UserMail.from(email), stockCode, TLocaleDate.convertToDate(date));
+//        return ResponseEntity.ok(assets);
+//    }
 }
