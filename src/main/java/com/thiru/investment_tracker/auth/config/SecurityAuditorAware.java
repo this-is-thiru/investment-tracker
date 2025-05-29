@@ -17,7 +17,6 @@ public class SecurityAuditorAware implements AuditorAware<String> {
     @Override
     @NonNull
     public Optional<String> getCurrentAuditor() {
-        System.out.println("Getting current auditor...");
 
         // Priority 1: Check if system/batch auditor is set programmatically
         String systemAuditor = SYSTEM_AUDITOR.get();
@@ -35,7 +34,7 @@ public class SecurityAuditorAware implements AuditorAware<String> {
     }
 
     public String getAuditor() {
-        return SYSTEM_AUDITOR.get();
+        return getCurrentAuditor().orElse(null);
     }
 
     // Helper method to set auditor for system/batch processes
