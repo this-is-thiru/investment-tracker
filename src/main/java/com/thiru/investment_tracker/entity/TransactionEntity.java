@@ -18,6 +18,7 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,7 +76,7 @@ public class TransactionEntity {
 	private String orderId;
 
 	@Field("order_execution_time")
-	private Instant orderExecutionTime;
+	private LocalDateTime orderExecutionTime;
 
 	@Field("timezone_id")
 	private String timezoneId = TLocaleDate.TIME_ZONE_IST;

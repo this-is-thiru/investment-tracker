@@ -183,7 +183,7 @@ public class TransactionParser {
     private static void setBrokerOrderTime(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
         CellDetail cellDetail = record.getOrDefault(ExcelHeaders.ORDER_EXECUTION_TIME, CellDetail.def());
-        assetRequest.setOrderDateTime((LocalDateTime) cellDetail.getCellValue());
+        assetRequest.setOrderExecutionDateTime((LocalDateTime) cellDetail.getCellValue());
     }
 
     private static void setTimezoneId(AssetRequest assetRequest, Map<String, CellDetail> record) {

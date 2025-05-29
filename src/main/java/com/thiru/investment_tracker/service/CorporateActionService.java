@@ -1,5 +1,6 @@
 package com.thiru.investment_tracker.service;
 
+import com.thiru.investment_tracker.auth.config.SecurityAuditorAware;
 import com.thiru.investment_tracker.dto.CorporateActionDto;
 import com.thiru.investment_tracker.dto.enums.CorporateActionType;
 import com.thiru.investment_tracker.entity.AssetEntity;
@@ -7,13 +8,16 @@ import com.thiru.investment_tracker.entity.CorporateActionEntity;
 import com.thiru.investment_tracker.entity.TransactionEntity;
 import com.thiru.investment_tracker.repository.CorporateActionRepository;
 import com.thiru.investment_tracker.util.collection.TObjectMapper;
+import com.thiru.investment_tracker.util.time.TLocalDateTime;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
 
+@Slf4j
 @AllArgsConstructor
 @Service
 @Transactional
@@ -21,6 +25,7 @@ public class CorporateActionService {
     private final CorporateActionRepository corporateActionRepository;
     private final PortfolioService portfolioService;
     private final TransactionService transactionService;
+    private final SecurityAuditorAware securityAuditorAware;
 
     public String addCorporateAction(CorporateActionDto actionWrapper) {
 
@@ -100,6 +105,8 @@ public class CorporateActionService {
             assetEntity.setStockCode(actionWrapper.getToStockCode());
             assetEntity.setStockName(actionWrapper.getToStockName());
             CorporateActionDto corporateActionDto = TObjectMapper.copy(actionWrapper, CorporateActionDto.class);
+            corporateActionDto.setCreatedBy(getAuditor());
+            corporateActionDto.setCreatedAt(TLocalDateTime.now());
             assetEntity.getCorporateActions().add(corporateActionDto);
         }
         portfolioService.saveCorporateActionProcessedStocks(stockEntities);
@@ -111,8 +118,15 @@ public class CorporateActionService {
             transactionEntity.setStockCode(actionWrapper.getToStockCode());
             transactionEntity.setStockName(actionWrapper.getToStockName());
             CorporateActionDto corporateActionDto = TObjectMapper.copy(actionWrapper, CorporateActionDto.class);
+            corporateActionDto.setCreatedBy(getAuditor());
+            corporateActionDto.setCreatedAt(TLocalDateTime.now());
             transactionEntity.getCorporateActions().add(corporateActionDto);
         }
         transactionService.saveCorporateActionProcessedTransactions(transactionEntities);
+        log.info("Processed name or symbol change for stock: {} to: {}", stockCode, actionWrapper.getToStockCode());
+    }
+
+    private String getAuditor() {
+        return securityAuditorAware.getAuditor();
     }
 }

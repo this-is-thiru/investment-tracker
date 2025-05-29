@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -14,6 +14,6 @@ import java.time.Instant;
 @ToString
 public class OrderTimeQuantity {
 	private Double quantity;
-	private Instant orderExecutionTime;
+	private LocalDateTime orderExecutionTime;
 	private String timezoneId = TLocaleDate.TIME_ZONE_IST;
 }

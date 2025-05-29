@@ -10,12 +10,12 @@ import com.thiru.investment_tracker.entity.AssetEntity;
 import com.thiru.investment_tracker.entity.TransactionEntity;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.collection.TLocaleDate;
+import com.thiru.investment_tracker.util.time.TLocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -50,14 +50,14 @@ public class AssetRequest {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCollectionUtil.DATE_TIME_FORMAT)
     @JsonIgnore
-    private LocalDateTime orderDateTime;
+    private LocalDateTime orderExecutionDateTime;
 
     // remove this as we use orderTimeQuantity
-    private Instant orderExecutionTime;
+    private Long orderExecutionTimestamp;
     private List<OrderTimeQuantity> orderTimeQuantities = new ArrayList<>();
     private String timezoneId = TLocaleDate.TIME_ZONE_IST;
 
-
+    @JsonIgnore
     public TransactionEntity getTransaction() {
 
         TransactionEntity transactionEntity = new TransactionEntity();
@@ -75,7 +75,7 @@ public class AssetRequest {
         transactionEntity.setAssetType(assetType);
         transactionEntity.setMaturityDate(maturityDate);
         transactionEntity.setOrderId(orderId);
-        transactionEntity.setOrderExecutionTime(orderExecutionTime);
+        transactionEntity.setOrderExecutionTime(orderExecutionDateTime());
         transactionEntity.setTimezoneId(timezoneId);
         transactionEntity.setAccountType(accountType);
         transactionEntity.setAccountHolder(accountHolder);
@@ -84,32 +84,49 @@ public class AssetRequest {
         return transactionEntity;
     }
 
+    @JsonIgnore
     public AssetEntity getAsset() {
-		AssetEntity assetEntity = new AssetEntity();
+        AssetEntity assetEntity = new AssetEntity();
 
         assetEntity.setStockCode(stockCode);
         assetEntity.setEmail(email);
         assetEntity.setExchangeName(exchangeName);
         assetEntity.setStockName(stockName);
-		assetEntity.setBrokerName(brokerName);
-		assetEntity.setPrice(price);
-		assetEntity.setQuantity(quantity);
-		assetEntity.setTotalValue(price * quantity);
-		assetEntity.setBrokerCharges(brokerCharges);
-		assetEntity.setMiscCharges(miscCharges);
-		assetEntity.setAssetType(assetType);
-		assetEntity.setMaturityDate(maturityDate);
+        assetEntity.setBrokerName(brokerName);
+        assetEntity.setPrice(price);
+        assetEntity.setQuantity(quantity);
+        assetEntity.setTotalValue(price * quantity);
+        assetEntity.setBrokerCharges(brokerCharges);
+        assetEntity.setMiscCharges(miscCharges);
+        assetEntity.setAssetType(assetType);
+        assetEntity.setMaturityDate(maturityDate);
         assetEntity.setOrderId(orderId);
         assetEntity.setTransactionDate(transactionDate);
-		assetEntity.setAccountType(accountType);
-		assetEntity.setAccountHolder(accountHolder);
-		assetEntity.setOrderExecutionTime(orderExecutionTime);
+        assetEntity.setAccountType(accountType);
+        assetEntity.setAccountHolder(accountHolder);
         assetEntity.setOrderTimeQuantities(orderTimeQuantities);
         assetEntity.setTransactionType(transactionType);
-		assetEntity.setTimezoneId(timezoneId);
+        assetEntity.setTimezoneId(timezoneId);
         assetEntity.setComment(comment);
 
         return assetEntity;
-	}
+    }
+
+    public LocalDateTime orderExecutionDateTime() {
+        validateOrderExecutionDateTime();
+
+        if (orderExecutionDateTime != null) {
+            return TLocalDateTime.atUtc(orderExecutionDateTime, timezoneId);
+        }
+        return TLocalDateTime.atUtc(orderExecutionTimestamp, timezoneId);
+    }
+
+    private void validateOrderExecutionDateTime() {
+        if (orderExecutionDateTime != null || orderExecutionTimestamp == null) {
+            if (timezoneId == null) {
+                throw new IllegalArgumentException("Timezone is required if orderExecutionDateTime is provided");
+            }
+        }
+    }
 
 }

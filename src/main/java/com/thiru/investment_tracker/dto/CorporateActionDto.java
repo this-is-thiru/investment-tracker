@@ -3,9 +3,8 @@ package com.thiru.investment_tracker.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.thiru.investment_tracker.dto.enums.CorporateActionType;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
-import lombok.AccessLevel;
+import com.thiru.investment_tracker.util.time.TLocalDateTime;
 import lombok.Data;
-import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 
@@ -29,10 +28,10 @@ public class CorporateActionDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCollectionUtil.DATE_FORMAT)
     private LocalDate recordDate;
 
+
     @CreatedBy
-    @Setter(value = AccessLevel.NONE)
     private String createdBy;
     @CreatedDate
-    @Setter(value = AccessLevel.NONE)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TLocalDateTime.COMPLETE_DATE_TIME_FORMAT)
     private LocalDateTime createdAt;
 }

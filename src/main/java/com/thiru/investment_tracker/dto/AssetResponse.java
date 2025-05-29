@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
+import com.thiru.investment_tracker.entity.helper.AuditMetadata;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.collection.TLocaleDate;
 import lombok.Getter;
@@ -53,4 +54,6 @@ public class AssetResponse {
 	private LocalDate transactionDate;
 
 	private Map<String, Double> transactionQuantities;
+
+	private AuditMetadataDto auditMetadata;
 }
