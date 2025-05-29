@@ -1,8 +1,8 @@
 package com.thiru.investment_tracker.service;
 
 import com.thiru.investment_tracker.dto.user.UserMail;
-import com.thiru.investment_tracker.util.db.QueryBuilder;
-import com.thiru.investment_tracker.util.db.QueryFilter;
+import com.thiru.investment_tracker.entity.query.QueryBuilder;
+import com.thiru.investment_tracker.entity.query.QueryFilter;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;

@@ -1,4 +1,4 @@
-package com.thiru.investment_tracker.util.db;
+package com.thiru.investment_tracker.entity.query;
 
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.AssetEntity;

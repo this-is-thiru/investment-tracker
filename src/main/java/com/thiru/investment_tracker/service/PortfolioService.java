@@ -9,7 +9,7 @@ import com.thiru.investment_tracker.repository.PortfolioRepository;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.collection.TLocaleDate;
 import com.thiru.investment_tracker.util.collection.TObjectMapper;
-import com.thiru.investment_tracker.util.db.QueryFilter;
+import com.thiru.investment_tracker.entity.query.QueryFilter;
 import com.thiru.investment_tracker.util.parser.ExcelBuilder;
 import com.thiru.investment_tracker.util.parser.ExcelParser;
 import com.thiru.investment_tracker.util.transaction.ExcelHeaders;

@@ -2,7 +2,7 @@ package com.thiru.investment_tracker.dto;
 
 import java.util.List;
 
-import com.thiru.investment_tracker.util.db.QueryFilter;
+import com.thiru.investment_tracker.entity.query.QueryFilter;
 
 import lombok.Data;
 
