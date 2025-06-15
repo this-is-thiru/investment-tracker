@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shipping Label</title>
+    <style type="text/css">
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Barcode+39+Text&amp;display=swap');
+        @page {
+            size: 4in 6in;
+            margin: 0;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+        
+        .label-container {
+            width: 100%;
+            max-width: 4in;
+            min-height: 6in;
+            padding: 1em;
+            box-sizing: border-box;
+            border: 0.0625rem solid #ddd;
+            position: relative;
+            page-break-after: always;
+            background: white;
+            margin: 0 auto;
+        }
+        
+        .label-header {
+            text-align: center;
+            margin: 0 0 0.75rem 0;
+            padding-bottom: 0.5em;
+            font-weight: bold;
+            font-size: 1rem;
+            border-bottom: 0.125rem solid #333;
+        }
+        
+        .from-section, .to-section {
+            margin-bottom: 1em;
+            padding: 0.75em;
+            border: 0.0625rem solid #e0e0e0;
+            border-radius: 0.25em;
+            background-color: #f9f9f9;
+        }
+        
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 0.5em;
+            font-size: 0.75rem;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.03125em;
+        }
+        
+        .address {
+            font-size: 0.75rem;
+            line-height: 1.5;
+            margin: 0.25em 0;
+        }
+        
+        .package-info {
+            margin: 1em 0;
+            font-size: 0.75rem;
+            border-top: 0.0625rem dashed #ddd;
+            padding-top: 0.75em;
+        }
+        
+        .barcode {
+            text-align: center;
+            margin: 1em 0;
+            font-family: 'Libre Barcode 39 Text', cursive;
+            font-size: 2rem;
+            letter-spacing: 0.125em;
+            padding: 0.5em 0;
+            background: white;
+        }
+        
+        .tracking-number {
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.875rem;
+            margin: 0.75em 0;
+            padding: 0.5em;
+            background: #f0f0f0;
+            border-radius: 0.1875em;
+            word-break: break-all;
+        }
+        
+        .shipping-method {
+            text-align: center;
+            font-size: 0.8125rem;
+            margin: 0.75em 0;
+            padding: 0.75em;
+            background: #e9f7ff;
+            border-radius: 0.25em;
+            font-weight: 500;
+        }
+        
+        .notes {
+            font-size: 0.6875rem;
+            margin-top: 0.75em;
+            padding: 0.75em;
+            color: #d32f2f;
+            background: #ffebee;
+            border-radius: 0.1875em;
+            border-left: 0.1875em solid #d32f2f;
+        }
+        
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            .label-container {
+                border: none;
+                page-break-after: always;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="label-container">
+    <div class="label-header">SHIPPING LABEL</div>
+
+    <div class="from-section">
+        <div class="section-title">FROM:</div>
+        <div class="address" th:text="${shippingLabel.senderName}">Sender Name</div>
+        <div class="address" th:text="${shippingLabel.senderCompany}">Sender Company</div>
+        <div class="address" th:text="${shippingLabel.senderAddress1}">123 Sender St</div>
+<!--        <div class="address" th:text="${shippingLabel.senderAddress2}">Suite 100</div>-->
+        <div class="address">
+            <span th:text="${shippingLabel.senderCity}">Sender City</span>,
+            <span th:text="${shippingLabel.senderState}">ST</span>
+            <span th:text="${shippingLabel.senderZip}">12345</span>
+        </div>
+        <div class="address" th:text="${shippingLabel.senderCountry}">Country</div>
+    </div>
+
+    <div class="to-section">
+        <div class="section-title">TO:</div>
+        <div class="address" th:text="${shippingLabel.recipientName}">Recipient Name</div>
+        <div class="address" th:text="${shippingLabel.recipientCompany}">Recipient Company</div>
+        <div class="address" th:text="${shippingLabel.recipientAddress1}">456 Recipient Ave</div>
+<!--        <div class="address" th:text="${shippingLabel.recipientAddress2}">Apt 2B</div>-->
+        <div class="address">
+            <span th:text="${shippingLabel.recipientCity}">Recipient City</span>,
+            <span th:text="${shippingLabel.recipientState}">ST</span>
+            <span th:text="${shippingLabel.recipientZip}">67890</span>
+        </div>
+        <div class="address" th:text="${shippingLabel.recipientCountry}">Country</div>
+    </div>
+
+    <div class="tracking-number" th:text="${shippingLabel.trackingNumber}">TRACKING #: 123456789012</div>
+
+    <div class="barcode">*<span th:text="${shippingLabel.trackingNumber}">1234567890</span>*</div>
+
+    <div class="shipping-method">
+        <span th:text="${shippingLabel.serviceType}">Priority Mail</span> •
+        <span th:text="'Weight: ' + ${shippingLabel.weight} + ' lbs'">Weight: 1.5 lbs</span>
+    </div>
+
+    <div class="package-info">
+        <div style="margin-bottom: 0.25em;">
+            <strong>Package ID:</strong> <span th:text="${shippingLabel.packageId}">PKG001</span>
+        </div>
+        <div style="margin-bottom: 0.25em;">
+            <strong>Dimensions:</strong> <span th:text="${shippingLabel.dimensions}">12x8x4 in</span>
+        </div>
+        <div>
+            <strong>Contents:</strong> <span th:text="${shippingLabel.contents}">Documents</span>
+        </div>
+    </div>
+
+    <div class="notes" th:if="${shippingLabel.notes != null}" th:text="${shippingLabel.notes}">Fragile - Handle with care</div>
+</div>
+</body>
+</html>

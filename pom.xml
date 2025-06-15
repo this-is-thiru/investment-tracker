@@ -113,6 +113,28 @@
         </dependency>
         <!-- apache poi excel dependency end -->
 
+        <!-- PDF generation dependencies start -->
+        <!-- Thymeleaf -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+
+        <!-- Flying Saucer for PDF generation -->
+        <dependency>
+            <groupId>org.xhtmlrenderer</groupId>
+            <artifactId>flying-saucer-pdf</artifactId>
+            <version>9.12.0</version>
+        </dependency>
+
+        <!-- iText for PDF (required by Flying Saucer) -->
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itextpdf</artifactId>
+            <version>5.5.13.3</version>
+        </dependency>
+        <!--     PDF generation dependencies end   -->
+
     </dependencies>
 
     <build>
