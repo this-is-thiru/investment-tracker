@@ -43,8 +43,7 @@ components:
           format: double
         timePeriod:
           description: Time period in months
-          type: number
-          format: integer
+          type: integer
         finalAmount:
           type: number
           format: double
