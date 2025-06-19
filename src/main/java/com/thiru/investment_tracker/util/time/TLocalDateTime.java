@@ -1,11 +1,16 @@
 package com.thiru.investment_tracker.util.time;
 
+import io.micrometer.common.lang.NonNull;
+
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 public class TLocalDateTime {
+
     public static final String COMPLETE_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss:SSS'Z'";
 
     public static LocalDateTime now() {
@@ -44,5 +49,11 @@ public class TLocalDateTime {
         ZonedDateTime fromZonedDateTime = dateTime.atZone(ZoneId.of(fromZoneId));
         ZonedDateTime toZonedDateTime = fromZonedDateTime.withZoneSameInstant(ZoneId.of(toZoneId));
         return toZonedDateTime.toLocalDateTime();
+    }
+
+    public static String format(@NonNull LocalDateTime localDateTime, @NonNull String pattern) {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern, Locale.US);
+        return localDateTime.format(formatter);
     }
 }

@@ -111,16 +111,13 @@ public class PortfolioController {
                 .contentType(MediaType.parseMediaType(mediaType)).body(resourcePair.getFirst());
     }
 
-    @PutMapping("/stocks/download")
-    public ResponseEntity<InputStreamResource> downloadPortfolioStocks(@PathVariable String email) {
-
-        Pair<InputStreamResource, String> resourcePair = portfolioService.downloadPortfolioStocks(UserMail.from(email));
-
-        String mediaType = "application/vnd.ms-excel";
-        String headerValue = "attachment; filename=" + resourcePair.getSecond();
-        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, headerValue)
-                .contentType(MediaType.parseMediaType(mediaType)).body(resourcePair.getFirst());
-    }
+//    @GetMapping("/stocks/download")
+//    public ResponseEntity<InputStreamResource> downloadPortfolioStocks1(@PathVariable String email) {
+//
+//        Pair<InputStreamResource, String> resourcePair = portfolioService.downloadPortfolioStocks(UserMail.from(email));
+//        FileStream fileStream = FileStream.from(resourcePair.getSecond(), resourcePair.getFirst(), FileType.XLSX);
+//        return FileHelper.sendFileAsAttachment(fileStream);
+//    }
 
     // Note: Below this comment is for testing purpose only
 
