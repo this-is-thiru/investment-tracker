@@ -4,13 +4,12 @@ import com.thiru.investment_tracker.dto.*;
 import com.thiru.investment_tracker.dto.enums.*;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.AssetEntity;
+import com.thiru.investment_tracker.entity.query.QueryFilter;
 import com.thiru.investment_tracker.exception.BadRequestException;
-import com.thiru.investment_tracker.helper.file.FileStream;
 import com.thiru.investment_tracker.repository.PortfolioRepository;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.collection.TLocaleDate;
 import com.thiru.investment_tracker.util.collection.TObjectMapper;
-import com.thiru.investment_tracker.entity.query.QueryFilter;
 import com.thiru.investment_tracker.util.parser.ExcelBuilder;
 import com.thiru.investment_tracker.util.parser.ExcelParser;
 import com.thiru.investment_tracker.util.transaction.ExcelHeaders;
@@ -38,8 +37,8 @@ public class PortfolioService {
     private final PortfolioRepository portfolioRepository;
     private final TransactionService transactionService;
     private final ProfitAndLossService profitAndLossService;
-    private final ReportService reportService;
     private final MongoTemplateService mongoTemplateService;
+    private final ReportService reportService;
 
     @Transactional
     public String addTransaction(UserMail userMail, AssetRequest assetRequest) {
@@ -196,12 +195,8 @@ public class PortfolioService {
     public List<AssetResponse> getAllStocks(UserMail userMail) {
 
         List<AssetEntity> stockEntities = portfolioRepository.findByEmail(userMail.getEmail());
-
-        Map<String, List<AssetEntity>> stockEntityMap = stockEntities.stream()
-                .collect(Collectors.groupingBy(stockWithCodeAndBroker()));
-
-        List<AssetResponse> responseEntities = TCollectionUtil.map(stockEntityMap.values(),
-                PortfolioService::combineAllDetailsOfEntities);
+        Map<String, List<AssetEntity>> stockEntityMap = TCollectionUtil.groupingBy(stockEntities, stockWithCodeAndBroker());
+        List<AssetResponse> responseEntities = TCollectionUtil.map(stockEntityMap.values(), PortfolioService::combineAllDetailsOfEntities);
 
         log.info("Fetching portfolio stocks of {}", userMail.getEmail());
         return responseEntities;
@@ -210,13 +205,10 @@ public class PortfolioService {
     public List<AssetResponse> getStocksWithDateRange(UserMail userMail, LocalDate startDate, LocalDate endDate) {
 
         String email = userMail.getEmail();
-
         List<AssetEntity> stockEntities = portfolioRepository.findByEmailAndTransactionDateBetween(email, startDate, endDate);
 
-        Map<String, List<AssetEntity>> stockEntityMap = stockEntities.stream()
-                .collect(Collectors.groupingBy(stockWithCodeAndBroker()));
-        List<AssetResponse> responseEntities = TCollectionUtil.map(stockEntityMap.values(),
-                PortfolioService::combineAllDetailsOfEntities);
+        Map<String, List<AssetEntity>> stockEntityMap = TCollectionUtil.groupingBy(stockEntities, stockWithCodeAndBroker());
+        List<AssetResponse> responseEntities = TCollectionUtil.map(stockEntityMap.values(), PortfolioService::combineAllDetailsOfEntities);
 
         log.info("Fetching stocks from portfolio between {} and {}", startDate, endDate);
         return responseEntities;
@@ -273,7 +265,6 @@ public class PortfolioService {
     private void updateQuantity(UserMail userMail, String transactionId, List<AssetEntity> stockEntities, AssetRequest assetRequest) {
 
         double sellQuantity = assetRequest.getQuantity();
-
         Iterator<AssetEntity> stockEntitiesIterator = stockEntities.iterator();
         while (sellQuantity > 0) {
 
@@ -283,7 +274,6 @@ public class PortfolioService {
 
             ReportContext reportContext;
             ProfitAndLossContext profitAndLossContext;
-
             if (sellQuantity >= assetQuantity) {
                 reportContext = toReportContext(assetEntity, assetRequest, assetQuantity);
                 profitAndLossContext = ProfitAndLossContext.from(assetEntity, assetRequest, assetQuantity);
@@ -338,10 +328,6 @@ public class PortfolioService {
         return profitAndLossService.getProfitAndLoss(userMail, financialYear);
     }
 
-//    public FileStream downloadAssets(UserMail userMail, EntityExportRequest entityExportRequest) {
-//        List<AssetEntity> assetEntities = mongoTemplateService.getDocuments(userMail, entityExportRequest.getQueryFilters(), AssetEntity.class);
-//    }
-
     public List<AssetEntity> searchAssets(UserMail userMail, List<QueryFilter> queryFilters) {
         return mongoTemplateService.getDocuments(userMail, queryFilters, AssetEntity.class);
     }
@@ -384,10 +370,8 @@ public class PortfolioService {
             case SHORT_TERM -> getShortTermHeldAssets(userMail, oneYearBeforeDate);
         };
 
-        Map<String, List<AssetEntity>> resultedAssetsMap = assetEntities.stream()
-                .collect(Collectors.groupingBy(stockWithCodeAndBroker()));
-        List<AssetResponse> resultedAssets = TCollectionUtil.map(resultedAssetsMap.values(),
-                PortfolioService::combineAllDetailsOfEntities);
+        Map<String, List<AssetEntity>> resultedAssetsMap = TCollectionUtil.groupingBy(assetEntities, stockWithCodeAndBroker());
+        List<AssetResponse> resultedAssets = TCollectionUtil.map(resultedAssetsMap.values(), PortfolioService::combineAllDetailsOfEntities);
 
         List<String> stockCodes = TCollectionUtil.map(resultedAssets, AssetResponse::getStockCode);
         Map<String, Double> assetQuantityMap = TCollectionUtil.toMap(resultedAssets, stockCodeWithBroker(),
@@ -417,10 +401,7 @@ public class PortfolioService {
     private List<AssetResponse> getStockEntities(UserMail userMail, Collection<String> stockCodes) {
 
         List<AssetEntity> stockEntities = portfolioRepository.findByEmailAndStockCodeIn(userMail.getEmail(), stockCodes);
-
-        Map<String, List<AssetEntity>> stockEntityMap = stockEntities.stream()
-                .collect(Collectors.groupingBy(stockWithCodeAndBroker()));
-
+        Map<String, List<AssetEntity>> stockEntityMap = TCollectionUtil.groupingBy(stockEntities, stockWithCodeAndBroker());
         return TCollectionUtil.map(stockEntityMap.values(), PortfolioService::combineAllDetailsOfEntities);
     }
 
@@ -455,12 +436,8 @@ public class PortfolioService {
     public List<AssetResponse> getMutualFunds(UserMail userMail) {
 
         List<AssetEntity> mutualFunds = portfolioRepository.findByEmailAndAssetType(userMail.getEmail(), AssetType.MUTUAL_FUND);
-
-        Map<String, List<AssetEntity>> fundsMap = mutualFunds.stream()
-                .collect(Collectors.groupingBy(stockWithCodeAndBroker()));
-
-        List<AssetResponse> responseEntities = TCollectionUtil.map(fundsMap.values(),
-                PortfolioService::combineAllDetailsOfEntities);
+        Map<String, List<AssetEntity>> fundsMap = TCollectionUtil.groupingBy(mutualFunds, stockWithCodeAndBroker());
+        List<AssetResponse> responseEntities = TCollectionUtil.map(fundsMap.values(), PortfolioService::combineAllDetailsOfEntities);
 
         log.info("Fetch holding Mutual Funds of {}", userMail.getEmail());
         return responseEntities;
@@ -492,9 +469,5 @@ public class PortfolioService {
         InputStreamResource resource = new InputStreamResource(inputStream);
 
         return Pair.of(resource, fileName);
-    }
-
-    public ByteArrayInputStream downloadTemplate() {
-        return ExcelBuilder.downloadTemplate();
     }
 }

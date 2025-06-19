@@ -18,8 +18,7 @@ public class TCollectionUtil {
     public static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 
 
-    public static <T, R, U> Map<R, U> toMap(Collection<T> source, Function<T, R> keyMapper,
-                                            Function<T, U> valueMapper) {
+    public static <T, R, U> Map<R, U> toMap(Collection<T> source, Function<T, R> keyMapper, Function<T, U> valueMapper) {
         return stream(source).collect(Collectors.toMap(keyMapper, valueMapper));
     }
 
@@ -69,6 +68,10 @@ public class TCollectionUtil {
 
     public static <T> DoubleStream mapToDouble(List<T> list, ToDoubleFunction<T> mapper) {
         return stream(list).mapToDouble(mapper);
+    }
+
+    public static <T, U> Map<U, List<T>> groupingBy(List<T> list, Function<T, U> mapper) {
+        return stream(list).collect(Collectors.groupingBy(mapper));
     }
 
     private static <T> Stream<T> stream(Collection<T> list) {
