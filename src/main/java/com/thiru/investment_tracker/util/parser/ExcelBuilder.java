@@ -51,7 +51,6 @@ public class ExcelBuilder {
                 row.createCell(12).setCellValue(getRoundedValue(assetResponse.getMiscCharges()));
                 row.createCell(13);
 
-
                 if (isTermSpecific) {
                     transactionRowCount = updateTransactionSheet(sheet1, transactionRowCount, assetResponse);
                 }
@@ -78,36 +77,6 @@ public class ExcelBuilder {
             rowCount++;
         }
         return rowCount;
-    }
-
-    public static ByteArrayInputStream downloadTemplate() {
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try (XSSFWorkbook workbook = new XSSFWorkbook()) {
-            ExcelParser.initialiseExcelSheet(workbook, ExcelHeaders.getTransactionHeaders(), ExcelParser.TRANSACTIONS);
-            Sheet sheet = workbook.getSheetAt(0);
-
-            Row dataRow = sheet.createRow(1);
-            dataRow.createCell(0).setCellValue("email@gmail.com");
-            dataRow.createCell(1).setCellValue("STOCK");
-            dataRow.createCell(2).setCellValue("Stock Name");
-            dataRow.createCell(3).setCellValue("NSE");
-            dataRow.createCell(4).setCellValue("ZERODHA");
-            dataRow.createCell(5).setCellValue("EQUITY");
-            setDateField(dataRow.createCell(6), LocalDate.now());
-            dataRow.createCell(7).setCellValue(0);
-            dataRow.createCell(8).setCellValue(0);
-            dataRow.createCell(9).setCellValue("BUY");
-            setDateField(dataRow.createCell(11), LocalDate.now());
-            dataRow.createCell(12).setCellValue(0);
-            dataRow.createCell(13).setCellValue(0);
-            dataRow.createCell(14).setCellValue("comment");
-
-            workbook.write(outputStream);
-            return new ByteArrayInputStream(outputStream.toByteArray());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private static void setDateField(Cell cell, LocalDate date) {

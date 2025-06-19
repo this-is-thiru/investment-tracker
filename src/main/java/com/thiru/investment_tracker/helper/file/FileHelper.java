@@ -11,4 +11,11 @@ public class FileHelper {
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, headerValue)
                 .contentType(fileStream.getFileType().getMediaType()).body(fileStream.getInputStreamResource());
     }
+
+    public static ResponseEntity<InputStreamResource> sendFileAsAttachment(FileStream fileStream, String fileName) {
+
+        String headerValue = "attachment; filename=" + fileName;
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, headerValue)
+                .contentType(fileStream.getFileType().getMediaType()).body(fileStream.getInputStreamResource());
+    }
 }
