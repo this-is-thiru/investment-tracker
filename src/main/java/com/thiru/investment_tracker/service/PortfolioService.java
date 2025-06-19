@@ -5,6 +5,7 @@ import com.thiru.investment_tracker.dto.enums.*;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.AssetEntity;
 import com.thiru.investment_tracker.exception.BadRequestException;
+import com.thiru.investment_tracker.helper.file.FileStream;
 import com.thiru.investment_tracker.repository.PortfolioRepository;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.collection.TLocaleDate;
@@ -75,7 +76,7 @@ public class PortfolioService {
                 throw new BadRequestException("Invalid data format");
             }
 
-            Map<String, ParserDataType> dataTypeMap = ExcelHeaders.getDataTypeMap();
+            Map<String, ExcelDataType> dataTypeMap = ExcelHeaders.getDataTypeMap();
 
             InputRecords inputRecords = ExcelParser.getRecordsFromExcel(file.getInputStream(), dataTypeMap);
             List<AssetRequest> assetRequests = TransactionParser.getTransactionRecords(inputRecords);
@@ -337,12 +338,16 @@ public class PortfolioService {
         return profitAndLossService.getProfitAndLoss(userMail, financialYear);
     }
 
+//    public FileStream downloadAssets(UserMail userMail, EntityExportRequest entityExportRequest) {
+//        List<AssetEntity> assetEntities = mongoTemplateService.getDocuments(userMail, entityExportRequest.getQueryFilters(), AssetEntity.class);
+//    }
+
     public List<AssetEntity> searchAssets(UserMail userMail, List<QueryFilter> queryFilters) {
         return mongoTemplateService.getDocuments(userMail, queryFilters, AssetEntity.class);
     }
 
     public List<AssetEntity> stocksForCorporateActions(String stockCode, LocalDate recordDate) {
-        return portfolioRepository.findByStockCodeAndTransactionDateBefore( stockCode, recordDate);
+        return portfolioRepository.findByStockCodeAndTransactionDateBefore(stockCode, recordDate);
     }
 
     public void saveCorporateActionProcessedStocks(List<AssetEntity> stocks) {
@@ -477,16 +482,6 @@ public class PortfolioService {
         log.info("Updated all reports");
         transactionService.updateTransactions();
         log.info("Updated all transactions");
-    }
-
-    public Pair<InputStreamResource, String> downloadPortfolioStocks(UserMail userMail) {
-        List<AssetResponse> userStocks = getAllStocks(userMail);
-
-        String fileName = ExcelParser.PORTFOLIO_FILE_NAME;
-        ByteArrayInputStream inputStream = ExcelBuilder.downloadAssets(userStocks, false);
-        InputStreamResource resource = new InputStreamResource(inputStream);
-
-        return Pair.of(resource, fileName);
     }
 
     public Pair<InputStreamResource, String> downloadTermAssets(UserMail userMail, HoldingType holdingType) {

@@ -1,7 +1,6 @@
 package com.thiru.investment_tracker.util.parser;
 
 import com.thiru.investment_tracker.dto.AssetResponse;
-import com.thiru.investment_tracker.dto.TransactionResponse;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.transaction.ExcelHeaders;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +49,7 @@ public class ExcelBuilder {
                 setDateField(row.createCell(10), assetResponse.getMaturityDate());
                 row.createCell(11).setCellValue(getRoundedValue(assetResponse.getBrokerCharges()));
                 row.createCell(12).setCellValue(getRoundedValue(assetResponse.getMiscCharges()));
+                row.createCell(13);
 
 
                 if (isTermSpecific) {
@@ -78,42 +78,6 @@ public class ExcelBuilder {
             rowCount++;
         }
         return rowCount;
-    }
-
-
-    public static ByteArrayInputStream downloadTransactions(List<TransactionResponse> userTransactions) {
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try (XSSFWorkbook workbook = new XSSFWorkbook()) {
-            ExcelParser.initialiseExcelSheet(workbook, ExcelHeaders.getTransactionHeaders(), ExcelParser.TRANSACTIONS);
-            Sheet sheet = workbook.getSheetAt(0);
-
-            int rowCount = 1;
-            for (TransactionResponse transaction : userTransactions) {
-
-                Row row = sheet.createRow(rowCount);
-                row.createCell(0).setCellValue(transaction.getEmail());
-                row.createCell(1).setCellValue(transaction.getStockCode());
-                row.createCell(2).setCellValue(transaction.getStockName());
-                row.createCell(3).setCellValue(transaction.getExchangeName());
-                row.createCell(4).setCellValue(transaction.getBrokerName().name());
-                row.createCell(5).setCellValue(transaction.getAssetType().name());
-                setDateField(row.createCell(6), transaction.getMaturityDate());
-                row.createCell(7).setCellValue(getRoundedValue(transaction.getPrice()));
-                row.createCell(8).setCellValue(getRoundedValue(transaction.getQuantity()));
-                row.createCell(9).setCellValue(transaction.getTransactionType().name());
-                setDateField(row.createCell(11), transaction.getTransactionDate());
-                row.createCell(12).setCellValue(getRoundedValue(transaction.getBrokerCharges()));
-                row.createCell(13).setCellValue(getRoundedValue(transaction.getMiscCharges()));
-                row.createCell(14).setCellValue(transaction.getComment());
-                rowCount++;
-            }
-
-            workbook.write(outputStream);
-            return new ByteArrayInputStream(outputStream.toByteArray());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public static ByteArrayInputStream downloadTemplate() {

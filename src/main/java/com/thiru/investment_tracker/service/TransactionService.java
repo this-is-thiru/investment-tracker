@@ -5,19 +5,14 @@ import com.thiru.investment_tracker.dto.TransactionResponse;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.TransactionEntity;
+import com.thiru.investment_tracker.entity.query.QueryFilter;
 import com.thiru.investment_tracker.repository.TransactionRepository;
 import com.thiru.investment_tracker.util.collection.TObjectMapper;
-import com.thiru.investment_tracker.entity.query.QueryFilter;
-import com.thiru.investment_tracker.util.parser.ExcelBuilder;
-import com.thiru.investment_tracker.util.parser.ExcelParser;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,14 +71,8 @@ public class TransactionService {
         return mongoTemplateService.getDocuments(userMail, queryFilters, TransactionEntity.class);
     }
 
-    public Pair<InputStreamResource, String> downloadAllTransactions(UserMail userMail) {
-        List<TransactionResponse> userTransactions = getAllTransactions(userMail);
-
-        String fileName = ExcelParser.TRANSACTION_FILE_NAME;
-        ByteArrayInputStream inputStream = ExcelBuilder.downloadTransactions(userTransactions);
-        InputStreamResource resource = new InputStreamResource(inputStream);
-
-        return Pair.of(resource, fileName);
+    public List<TransactionEntity> getUserTransactions(UserMail userMail) {
+        return transactionRepository.findByEmail(userMail.getEmail());
     }
 
     private List<TransactionResponse> getAllTransactions(UserMail userMail) {
