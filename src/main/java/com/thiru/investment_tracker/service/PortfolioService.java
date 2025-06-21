@@ -1,19 +1,20 @@
 package com.thiru.investment_tracker.service;
 
 import com.thiru.investment_tracker.dto.*;
-import com.thiru.investment_tracker.dto.enums.*;
+import com.thiru.investment_tracker.dto.enums.AssetType;
+import com.thiru.investment_tracker.dto.enums.BrokerName;
+import com.thiru.investment_tracker.dto.enums.HoldingType;
+import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.AssetEntity;
 import com.thiru.investment_tracker.entity.query.QueryFilter;
-import com.thiru.investment_tracker.exception.BadRequestException;
 import com.thiru.investment_tracker.repository.PortfolioRepository;
+import com.thiru.investment_tracker.service.parser.AssetRequestParser;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.collection.TLocaleDate;
 import com.thiru.investment_tracker.util.collection.TObjectMapper;
 import com.thiru.investment_tracker.util.parser.ExcelBuilder;
 import com.thiru.investment_tracker.util.parser.ExcelParser;
-import com.thiru.investment_tracker.util.transaction.ExcelHeaders;
-import com.thiru.investment_tracker.util.transaction.TransactionParser;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
@@ -23,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
@@ -42,12 +42,11 @@ public class PortfolioService {
 
     @Transactional
     public String addTransaction(UserMail userMail, AssetRequest assetRequest) {
-
         sanitizeAssetRequest(assetRequest);
 
         TransactionType transactionType = assetRequest.getTransactionType();
         // Add transaction
-        String transactionId = addTransactionInternal(userMail,assetRequest);
+        String transactionId = addTransactionInternal(userMail, assetRequest);
 
         return switch (transactionType) {
             case BUY -> {
@@ -70,21 +69,10 @@ public class PortfolioService {
     @Transactional
     public String uploadTransactions(UserMail userMail, MultipartFile file) {
 
-        try {
-            if (ExcelParser.isValidExcelFile(file)) {
-                throw new BadRequestException("Invalid data format");
-            }
-
-            Map<String, ExcelDataType> dataTypeMap = ExcelHeaders.getDataTypeMap();
-
-            InputRecords inputRecords = ExcelParser.getRecordsFromExcel(file.getInputStream(), dataTypeMap);
-            List<AssetRequest> assetRequests = TransactionParser.getTransactionRecords(inputRecords);
-            TCollectionUtil.map(assetRequests, assetRequest -> addTransaction(userMail, assetRequest));
-
-            return "Transactions uploaded successfully";
-        } catch (IOException e) {
-            throw new BadRequestException("Invalid data format");
-        }
+        AssetRequestParser assetRequestParser = new AssetRequestParser();
+        List<AssetRequest> assetRequests = assetRequestParser.parse(file);
+        TCollectionUtil.map(assetRequests, assetRequest -> addTransaction(userMail, assetRequest));
+        return "Transactions uploaded successfully";
     }
 
     public void buyStock(UserMail userMail, String transactionId, AssetRequest assetRequest) {

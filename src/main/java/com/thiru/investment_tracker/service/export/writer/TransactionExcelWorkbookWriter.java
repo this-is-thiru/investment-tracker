@@ -6,6 +6,7 @@ import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.entity.TransactionEntity;
 import com.thiru.investment_tracker.service.export.writer.model.AbstractExcelWorkbookWriter;
 import com.thiru.investment_tracker.util.collection.TOptional;
+import com.thiru.investment_tracker.util.transaction.ExcelHeaders;
 
 import java.util.HashMap;
 import java.util.List;
@@ -43,20 +44,20 @@ public class TransactionExcelWorkbookWriter extends AbstractExcelWorkbookWriter<
     protected Map<String, String> simpleColumnHeaders() {
 
         Map<String, String> simpleColumnHeaders = new HashMap<>();
-        simpleColumnHeaders.put(EMAIL, "Email");
-        simpleColumnHeaders.put(STOCK_CODE, "Stock Code");
-        simpleColumnHeaders.put(STOCK_NAME, "Stock Name");
-        simpleColumnHeaders.put(ASSET_TYPE, "Asset Type");
-        simpleColumnHeaders.put(EXCHANGE_NAME, "Exchange Name");
-        simpleColumnHeaders.put(BROKER_NAME, "Broker Name");
-        simpleColumnHeaders.put(TRANSACTION_TYPE, "Transaction Type");
-        simpleColumnHeaders.put(STOCK_QUANTITY, "Quantity");
-        simpleColumnHeaders.put(STOCK_PRICE, "Price");
-        simpleColumnHeaders.put(STOCK_TOTAL_VALUE, "Total Value");
-        simpleColumnHeaders.put(MATURITY_DATE, "Maturity Date");
-        simpleColumnHeaders.put(BROKER_CHARGES, "Broker Charges");
-        simpleColumnHeaders.put(MISC_CHARGES, "Misc Charges");
-        simpleColumnHeaders.put(TRANSACTION_DATE, "Transaction Date");
+        simpleColumnHeaders.put(EMAIL, ExcelHeaders.EMAIL);
+        simpleColumnHeaders.put(STOCK_CODE, ExcelHeaders.STOCK_CODE);
+        simpleColumnHeaders.put(STOCK_NAME, ExcelHeaders.STOCK_NAME);
+        simpleColumnHeaders.put(ASSET_TYPE, ExcelHeaders.ASSET_TYPE);
+        simpleColumnHeaders.put(EXCHANGE_NAME, ExcelHeaders.EXCHANGE_NAME);
+        simpleColumnHeaders.put(BROKER_NAME, ExcelHeaders.BROKER_NAME);
+        simpleColumnHeaders.put(TRANSACTION_TYPE, ExcelHeaders.TRANSACTION_TYPE);
+        simpleColumnHeaders.put(STOCK_QUANTITY, ExcelHeaders.QUANTITY);
+        simpleColumnHeaders.put(STOCK_PRICE, ExcelHeaders.PRICE);
+        simpleColumnHeaders.put(STOCK_TOTAL_VALUE, ExcelHeaders.TOTAL_VALUE);
+        simpleColumnHeaders.put(MATURITY_DATE, ExcelHeaders.MATURITY_DATE);
+        simpleColumnHeaders.put(BROKER_CHARGES, ExcelHeaders.BROKER_CHARGES);
+        simpleColumnHeaders.put(MISC_CHARGES, ExcelHeaders.MISC_CHARGES);
+        simpleColumnHeaders.put(TRANSACTION_DATE, ExcelHeaders.TRANSACTION_DATE);
         return simpleColumnHeaders;
     }
 

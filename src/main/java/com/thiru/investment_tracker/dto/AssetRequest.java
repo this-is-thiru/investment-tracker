@@ -118,11 +118,14 @@ public class AssetRequest {
         if (orderExecutionDateTime != null) {
             return TLocalDateTime.atUtc(orderExecutionDateTime, timezoneId);
         }
-        return TLocalDateTime.atUtc(orderExecutionTimestamp, timezoneId);
+        if (orderExecutionTimestamp != null) {
+            return TLocalDateTime.atUtc(orderExecutionTimestamp, timezoneId);
+        }
+        return null;
     }
 
     private void validateOrderExecutionDateTime() {
-        if (orderExecutionDateTime != null || orderExecutionTimestamp == null) {
+        if (orderExecutionDateTime != null || orderExecutionTimestamp != null) {
             if (timezoneId == null) {
                 throw new IllegalArgumentException("Timezone is required if orderExecutionDateTime is provided");
             }

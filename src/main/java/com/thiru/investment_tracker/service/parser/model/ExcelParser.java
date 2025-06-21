@@ -1,4 +1,4 @@
-package com.thiru.investment_tracker.service.parser;
+package com.thiru.investment_tracker.service.parser.model;
 
 import com.thiru.investment_tracker.dto.InputRecords;
 import com.thiru.investment_tracker.dto.enums.ExcelDataType;
