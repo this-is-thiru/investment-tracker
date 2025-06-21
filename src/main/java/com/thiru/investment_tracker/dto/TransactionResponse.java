@@ -24,31 +24,31 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class TransactionResponse {
-	private String email;
-	private String stockCode;
-	private String stockName;
-	private String exchangeName;
-	private BrokerName brokerName;
-	private AssetType assetType;
-	private double price;
-	private Double quantity;
-	private double totalValue;
-	private TransactionType transactionType;
-	private String orderId;
-	private LocalDateTime orderExecutionTime;
-	private String timezoneId = TLocaleDate.TIME_ZONE_IST;
-	private String accountType;
-	private String accountHolder;
-	private double brokerCharges;
-	private double miscCharges;
-	private String comment;
+    private String email;
+    private String stockCode;
+    private String stockName;
+    private String exchangeName;
+    private BrokerName brokerName;
+    private AssetType assetType;
+    private double price;
+    private Double quantity;
+    private double totalValue;
+    private TransactionType transactionType;
+    private String orderId;
+    private LocalDateTime orderExecutionTime;
+    private String timezoneId = TLocaleDate.TIME_ZONE_IST;
+    private String accountType;
+    private String accountHolder;
+    private double brokerCharges;
+    private double miscCharges;
+    private String comment;
 
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCollectionUtil.DATE_FORMAT)
-	private LocalDate maturityDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCollectionUtil.DATE_FORMAT)
+    private LocalDate maturityDate;
 
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCollectionUtil.DATE_FORMAT)
-	private LocalDate transactionDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCollectionUtil.DATE_FORMAT)
+    private LocalDate transactionDate;
 
-	List<CorporateActionDto> corporateActions = new ArrayList<>();
-	private AuditMetadataDto auditMetadata;
+    List<CorporateActionDto> corporateActions = new ArrayList<>();
+    private AuditMetadataDto auditMetadata;
 }
