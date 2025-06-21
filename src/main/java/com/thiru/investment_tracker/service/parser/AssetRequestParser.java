@@ -1,38 +1,50 @@
-package com.thiru.investment_tracker.util.transaction;
+package com.thiru.investment_tracker.service.parser;
 
 import com.thiru.investment_tracker.dto.AssetRequest;
 import com.thiru.investment_tracker.dto.InputRecord;
-import com.thiru.investment_tracker.dto.InputRecords;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
+import com.thiru.investment_tracker.dto.enums.ExcelDataType;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
-import com.thiru.investment_tracker.util.collection.TCollectionUtil;
+import com.thiru.investment_tracker.service.parser.model.AbstractRequestParser;
 import com.thiru.investment_tracker.util.parser.CellDetail;
+import com.thiru.investment_tracker.util.transaction.ExcelHeaders;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
-public class TransactionParser {
+public class AssetRequestParser extends AbstractRequestParser<AssetRequest> {
 
-    public static List<AssetRequest> getTransactionRecords(InputRecords records) {
-        return TCollectionUtil.map(sanitizeRecords(records), TransactionParser::toAssetRequest);
+    @Override
+    protected Map<String, ExcelDataType> simpleDataTypeMap() {
+        Map<String, ExcelDataType> dataTypeMap = new HashMap<>();
+        dataTypeMap.put(ExcelHeaders.STOCK_CODE, ExcelDataType.STRING);
+        dataTypeMap.put(ExcelHeaders.STOCK_NAME, ExcelDataType.STRING);
+        dataTypeMap.put(ExcelHeaders.EXCHANGE_NAME, ExcelDataType.STRING);
+        dataTypeMap.put(ExcelHeaders.BROKER_NAME, ExcelDataType.STRING);
+        dataTypeMap.put(ExcelHeaders.ASSET_TYPE, ExcelDataType.STRING);
+        dataTypeMap.put(ExcelHeaders.MATURITY_DATE, ExcelDataType.LOCAL_DATE);
+        dataTypeMap.put(ExcelHeaders.PRICE, ExcelDataType.DOUBLE);
+        dataTypeMap.put(ExcelHeaders.QUANTITY, ExcelDataType.DOUBLE);
+        dataTypeMap.put(ExcelHeaders.TRANSACTION_TYPE, ExcelDataType.STRING);
+        dataTypeMap.put(ExcelHeaders.TRANSACTION_DATE, ExcelDataType.LOCAL_DATE);
+        dataTypeMap.put(ExcelHeaders.BROKER_CHARGES, ExcelDataType.DOUBLE);
+        dataTypeMap.put(ExcelHeaders.MISC_CHARGES, ExcelDataType.DOUBLE);
+        dataTypeMap.put(ExcelHeaders.ORDER_ID, ExcelDataType.STRING);
+        dataTypeMap.put(ExcelHeaders.ORDER_EXECUTION_TIME, ExcelDataType.LOCAL_DATE_TIME);
+        dataTypeMap.put(ExcelHeaders.TIME_ZONE, ExcelDataType.STRING);
+        dataTypeMap.put(ExcelHeaders.COMMENTS, ExcelDataType.STRING);
+        return dataTypeMap;
     }
 
-    public static List<InputRecord> sanitizeRecords(InputRecords records) {
-        return records.getRecords().stream().filter(Objects::nonNull)
-                .filter(inputRecord -> inputRecord.getRecord() != null).collect(Collectors.toList());
-    }
-
-    private static AssetRequest toAssetRequest(InputRecord inputRecord) {
+    @Override
+    protected AssetRequest toRequest(InputRecord inputRecord) {
 
         Map<String, CellDetail> record = inputRecord.getRecord();
 
         AssetRequest assetRequest = new AssetRequest();
-
         setStockCode(assetRequest, record);
         setStockName(assetRequest, record);
         setExchangeName(assetRequest, record);
@@ -75,49 +87,14 @@ public class TransactionParser {
 
         CellDetail cellDetail = record.get(ExcelHeaders.BROKER_NAME);
         String brokerName = (String) cellDetail.getCellValue();
-
-        switch (brokerName) {
-            case "UPSTOX":
-                assetRequest.setBrokerName(BrokerName.UPSTOX);
-                break;
-            case "FYERS":
-                assetRequest.setBrokerName(BrokerName.FYERS);
-                break;
-            case "ZERODHA":
-                assetRequest.setBrokerName(BrokerName.ZERODHA);
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid broker name" + brokerName);
-        }
+        assetRequest.setBrokerName(BrokerName.valueOf(brokerName));
     }
 
     private static void setAssetType(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
         CellDetail cellDetail = record.get(ExcelHeaders.ASSET_TYPE);
         String assetType = (String) cellDetail.getCellValue();
-
-        switch (assetType) {
-            case "EQUITY":
-                assetRequest.setAssetType(AssetType.EQUITY);
-                break;
-            case "MUTUAL_FUND":
-                assetRequest.setAssetType(AssetType.MUTUAL_FUND);
-                break;
-            case "BOND":
-                assetRequest.setAssetType(AssetType.BOND);
-                break;
-            case "GOLD_BOND":
-                assetRequest.setAssetType(AssetType.GOLD_BOND);
-                break;
-            case "FD":
-                assetRequest.setAssetType(AssetType.FD);
-                break;
-            case "INSURANCE":
-                assetRequest.setAssetType(AssetType.INSURANCE);
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid asset type" + assetType);
-        }
+        assetRequest.setAssetType(AssetType.valueOf(assetType));
     }
 
     private static void setMaturityDate(AssetRequest assetRequest, Map<String, CellDetail> record) {
@@ -149,17 +126,7 @@ public class TransactionParser {
 
         CellDetail cellDetail = record.get(ExcelHeaders.TRANSACTION_TYPE);
         String transactionType = (String) cellDetail.getCellValue();
-
-        switch (transactionType) {
-            case "BUY":
-                assetRequest.setTransactionType(TransactionType.BUY);
-                break;
-            case "SELL":
-                assetRequest.setTransactionType(TransactionType.SELL);
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid transaction type" + transactionType);
-        }
+assetRequest.setTransactionType(TransactionType.valueOf(transactionType));
     }
 
     private static void setBrokerCharges(AssetRequest assetRequest, Map<String, CellDetail> record) {
@@ -194,7 +161,7 @@ public class TransactionParser {
 
     private static void setComment(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
-        CellDetail cellDetail = record.get(ExcelHeaders.COMMENT);
+        CellDetail cellDetail = record.get(ExcelHeaders.COMMENTS);
         assetRequest.setComment((String) cellDetail.getCellValue());
     }
 
