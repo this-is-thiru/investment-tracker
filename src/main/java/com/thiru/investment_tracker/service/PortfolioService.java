@@ -47,7 +47,7 @@ public class PortfolioService {
 
         TransactionType transactionType = assetRequest.getTransactionType();
         // Add transaction
-        String transactionId = addTransactionInternal(assetRequest);
+        String transactionId = addTransactionInternal(userMail,assetRequest);
 
         return switch (transactionType) {
             case BUY -> {
@@ -175,8 +175,8 @@ public class PortfolioService {
         }
     }
 
-    private String addTransactionInternal(AssetRequest assetRequest) {
-        return transactionService.addTransaction(assetRequest);
+    private String addTransactionInternal(UserMail userMail, AssetRequest assetRequest) {
+        return transactionService.addTransaction(userMail, assetRequest);
     }
 
     public List<AssetResponse> getStockQuantity(UserMail userMail, String stockCode) {

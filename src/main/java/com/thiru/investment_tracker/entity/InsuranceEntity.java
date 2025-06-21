@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thiru.investment_tracker.dto.enums.InsuranceType;
 import com.thiru.investment_tracker.dto.enums.PolicyType;
 import com.thiru.investment_tracker.entity.helper.AuditMetadata;
+import com.thiru.investment_tracker.entity.model.AuditableEntity;
 import com.thiru.investment_tracker.entity.model.PolicyDetails;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -16,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class InsuranceEntity {
+public class InsuranceEntity implements AuditableEntity {
 
 	@JsonIgnore
 	@MongoId

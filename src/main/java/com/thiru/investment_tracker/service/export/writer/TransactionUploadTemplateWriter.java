@@ -1,9 +1,7 @@
 package com.thiru.investment_tracker.service.export.writer;
 
-import com.thiru.investment_tracker.dto.enums.ExcelDataType;
 import com.thiru.investment_tracker.entity.TransactionEntity;
 import com.thiru.investment_tracker.service.export.writer.model.AbstractExcelWorkbookWriter;
-import com.thiru.investment_tracker.service.export.writer.model.ExcelDataTypePair;
 
 import java.util.HashMap;
 import java.util.List;
@@ -59,23 +57,23 @@ public class TransactionUploadTemplateWriter extends AbstractExcelWorkbookWriter
     }
 
     @Override
-    protected Map<String, Function<TransactionEntity, ExcelDataTypePair>> simpleColumnValueMap() {
+    protected Map<String, Function<TransactionEntity, Object>> simpleColumnValueMap() {
 
-        Map<String, Function<TransactionEntity, ExcelDataTypePair>> simpleColumnValueMap = new HashMap<>();
-        simpleColumnValueMap.put(EMAIL, (transaction) -> dataTypePair(transaction.getEmail(), ExcelDataType.STRING));
-        simpleColumnValueMap.put(STOCK_CODE, (transaction) -> dataTypePair(transaction.getStockCode(), ExcelDataType.STRING));
-        simpleColumnValueMap.put(STOCK_NAME, (transaction) -> dataTypePair(transaction.getStockName(), ExcelDataType.STRING));
-        simpleColumnValueMap.put(ASSET_TYPE, (transaction) -> dataTypePair(transaction.getAssetType().name(), ExcelDataType.STRING));
-        simpleColumnValueMap.put(EXCHANGE_NAME, (transaction) -> dataTypePair(transaction.getExchangeName(), ExcelDataType.STRING));
-        simpleColumnValueMap.put(BROKER_NAME, (transaction) -> dataTypePair(transaction.getBrokerName().name(), ExcelDataType.STRING));
-        simpleColumnValueMap.put(TRANSACTION_TYPE, (transaction) -> dataTypePair(transaction.getTransactionType().name(), ExcelDataType.STRING));
-        simpleColumnValueMap.put(STOCK_QUANTITY, (transaction) -> dataTypePair(transaction.getQuantity(), ExcelDataType.DOUBLE));
-        simpleColumnValueMap.put(STOCK_PRICE, (transaction) -> dataTypePair(transaction.getPrice(), ExcelDataType.DOUBLE));
-        simpleColumnValueMap.put(MATURITY_DATE, (transaction) -> dataTypePair(transaction.getMaturityDate(), ExcelDataType.LOCAL_DATE));
-        simpleColumnValueMap.put(BROKER_CHARGES, (transaction) -> dataTypePair(transaction.getBrokerCharges(), ExcelDataType.DOUBLE));
-        simpleColumnValueMap.put(MISC_CHARGES, (transaction) -> dataTypePair(transaction.getMiscCharges(), ExcelDataType.DOUBLE));
-        simpleColumnValueMap.put(TRANSACTION_DATE, (transaction) -> dataTypePair(transaction.getTransactionDate(), ExcelDataType.LOCAL_DATE));
-        simpleColumnValueMap.put(COMMENTS, (transaction) -> dataTypePair("comments", ExcelDataType.STRING));
+        Map<String, Function<TransactionEntity, Object>> simpleColumnValueMap = new HashMap<>();
+        simpleColumnValueMap.put(EMAIL, TransactionEntity::getEmail);
+        simpleColumnValueMap.put(STOCK_CODE, TransactionEntity::getStockCode);
+        simpleColumnValueMap.put(STOCK_NAME, TransactionEntity::getStockName);
+        simpleColumnValueMap.put(ASSET_TYPE, (transaction) -> transaction.getAssetType().name());
+        simpleColumnValueMap.put(EXCHANGE_NAME, TransactionEntity::getExchangeName);
+        simpleColumnValueMap.put(BROKER_NAME, (transaction) -> transaction.getBrokerName().name());
+        simpleColumnValueMap.put(TRANSACTION_TYPE, (transaction) -> transaction.getTransactionType().name());
+        simpleColumnValueMap.put(STOCK_QUANTITY, TransactionEntity::getQuantity);
+        simpleColumnValueMap.put(STOCK_PRICE, TransactionEntity::getPrice);
+        simpleColumnValueMap.put(MATURITY_DATE, TransactionEntity::getMaturityDate);
+        simpleColumnValueMap.put(BROKER_CHARGES, TransactionEntity::getBrokerCharges);
+        simpleColumnValueMap.put(MISC_CHARGES, TransactionEntity::getMiscCharges);
+        simpleColumnValueMap.put(TRANSACTION_DATE, TransactionEntity::getTransactionDate);
+        simpleColumnValueMap.put(COMMENTS, (transaction) -> "comments");
         return simpleColumnValueMap;
     }
 }

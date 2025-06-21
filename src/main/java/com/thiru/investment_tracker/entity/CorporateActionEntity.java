@@ -2,6 +2,7 @@ package com.thiru.investment_tracker.entity;
 
 import com.thiru.investment_tracker.dto.enums.CorporateActionType;
 import com.thiru.investment_tracker.entity.helper.AuditMetadata;
+import com.thiru.investment_tracker.entity.model.AuditableEntity;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,7 +15,7 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 @Data
 @NoArgsConstructor
 @Document(value = "corporate_action")
-public class CorporateActionEntity {
+public class CorporateActionEntity implements AuditableEntity {
     @MongoId
     private String id;
     @Field("stock_code")

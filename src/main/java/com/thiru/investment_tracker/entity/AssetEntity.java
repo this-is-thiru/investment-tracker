@@ -9,6 +9,7 @@ import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.entity.helper.AuditMetadata;
+import com.thiru.investment_tracker.entity.model.AuditableEntity;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import lombok.*;
 import org.springframework.data.annotation.*;
@@ -24,7 +25,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class AssetEntity {
+public class AssetEntity implements AuditableEntity {
 
     @JsonIgnore
     @MongoId

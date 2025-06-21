@@ -26,12 +26,13 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final MongoTemplateService mongoTemplateService;
 
-    public String addTransaction(AssetRequest assetRequest) {
+    public String addTransaction(UserMail userMail, AssetRequest assetRequest) {
 
         if (assetRequest.getTransactionDate() == null) {
             assetRequest.setTransactionDate(LocalDate.now());
         }
         TransactionEntity transactionEntity = assetRequest.getTransaction();
+        transactionEntity.setEmail(userMail.getEmail());
 
         log.info("Transaction: {}, Stock: '{}' on '{}' noted successfully", transactionEntity.getTransactionType(),
                 transactionEntity.getStockName(), transactionEntity.getTransactionDate());
@@ -75,7 +76,7 @@ public class TransactionService {
         return transactionRepository.findByEmail(userMail.getEmail());
     }
 
-    private List<TransactionResponse> getAllTransactions(UserMail userMail) {
+    public List<TransactionResponse> getAllUserTransactions(UserMail userMail) {
         List<TransactionEntity> transactionEntities = transactionRepository.findByEmail(userMail.getEmail());
         return transactionEntities.stream().map(transaction -> TObjectMapper.copy(transaction, TransactionResponse.class)).toList();
     }
