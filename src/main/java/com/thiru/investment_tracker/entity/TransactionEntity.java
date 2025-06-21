@@ -8,6 +8,7 @@ import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.entity.helper.AuditMetadata;
+import com.thiru.investment_tracker.entity.model.AuditableEntity;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.collection.TLocaleDate;
 import lombok.*;
@@ -16,7 +17,6 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class TransactionEntity {
+public class TransactionEntity implements AuditableEntity {
 
 	@JsonIgnore
 	@MongoId

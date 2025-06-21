@@ -1,6 +1,7 @@
 package com.thiru.investment_tracker.service.export.processor.model;
 
 import com.thiru.investment_tracker.dto.user.UserMail;
+import com.thiru.investment_tracker.entity.model.AuditableEntity;
 import com.thiru.investment_tracker.service.export.writer.model.ExcelWorkbookWriter;
 import com.thiru.investment_tracker.helper.file.FileStream;
 import com.thiru.investment_tracker.helper.file.FileType;
@@ -12,7 +13,7 @@ import org.springframework.core.io.InputStreamResource;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public abstract class AbstractExcelWorkbookProcessor<Entity> implements ExcelWorkbookProcessor {
+public abstract class AbstractExcelWorkbookProcessor<EntityType extends AuditableEntity> implements ExcelWorkbookProcessor {
 
     private static final String FILE_NAME_DATE_FORMAT = "dd-MMMM-yyyy--hh-mm-ss-a";
     private final String fileName;
@@ -26,9 +27,9 @@ public abstract class AbstractExcelWorkbookProcessor<Entity> implements ExcelWor
         this.fileType = fileType;
     }
 
-    protected abstract ExcelWorkbookWriter<Entity> workbookWriter();
+    protected abstract ExcelWorkbookWriter<EntityType> workbookWriter();
 
-    protected abstract List<Entity> entities();
+    protected abstract List<EntityType> entities();
 
     @Override
     public FileStream fileStream() {

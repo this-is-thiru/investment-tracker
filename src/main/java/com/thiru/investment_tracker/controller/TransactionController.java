@@ -1,6 +1,7 @@
 package com.thiru.investment_tracker.controller;
 
 import com.thiru.investment_tracker.dto.BulkGetRequest;
+import com.thiru.investment_tracker.dto.TransactionResponse;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.TransactionEntity;
 import com.thiru.investment_tracker.service.TransactionService;
@@ -18,5 +19,10 @@ public class TransactionController {
     @PostMapping
     public List<TransactionEntity> getUserTransaction(@PathVariable String email, @RequestBody BulkGetRequest bulkGetRequest) {
         return transactionService.getUserTransactions(UserMail.from(email), bulkGetRequest.getQueryFilters());
+    }
+
+    @GetMapping
+    public List<TransactionResponse> getUserTransaction(@PathVariable String email) {
+        return transactionService.getAllUserTransactions(UserMail.from(email));
     }
 }

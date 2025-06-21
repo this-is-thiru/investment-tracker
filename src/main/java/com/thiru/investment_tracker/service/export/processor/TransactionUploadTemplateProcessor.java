@@ -15,7 +15,7 @@ import java.util.List;
 
 public class TransactionUploadTemplateProcessor extends AbstractExcelWorkbookProcessor<TransactionEntity> {
 
-    private static final String ASSET_EXCEL_FILE_NAME = "transaction-";
+    private static final String ASSET_EXCEL_FILE_NAME = "transactions-template";
     private static final FileType FILE_TYPE = FileType.XLSX;
 
     private final List<String> columnFields;
@@ -48,5 +48,10 @@ public class TransactionUploadTemplateProcessor extends AbstractExcelWorkbookPro
         transactionEntity.setTransactionDate(LocalDate.now());
         transactionEntity.setComment("comments");
         return List.of(transactionEntity);
+    }
+
+    @Override
+    protected String fileName() {
+        return ASSET_EXCEL_FILE_NAME + FILE_TYPE.getExtension();
     }
 }

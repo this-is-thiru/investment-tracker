@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
-import com.thiru.investment_tracker.entity.helper.AuditMetadata;
+import com.thiru.investment_tracker.dto.model.AuditMetadataDto;
+import com.thiru.investment_tracker.dto.model.AuditableResponse;
+import com.thiru.investment_tracker.entity.model.AuditableEntity;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.collection.TLocaleDate;
 import lombok.Getter;
@@ -22,7 +24,7 @@ import java.util.Map;
 @Setter
 @NoArgsConstructor
 @ToString
-public class AssetResponse {
+public class AssetResponse implements AuditableResponse {
 	private String email;
 	private String stockCode;
 	private String stockName;

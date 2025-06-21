@@ -6,6 +6,7 @@ import com.thiru.investment_tracker.dto.enums.AccountType;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.entity.helper.AuditMetadata;
+import com.thiru.investment_tracker.entity.model.AuditableEntity;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -19,7 +20,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class ReportEntity {
+public class ReportEntity implements AuditableEntity {
 	@JsonIgnore
 	@MongoId
 	private String id;

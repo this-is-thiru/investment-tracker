@@ -5,6 +5,7 @@ import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.helper.file.FileHelper;
 import com.thiru.investment_tracker.helper.file.FileStream;
 import com.thiru.investment_tracker.service.EntityExportService;
+import com.thiru.investment_tracker.service.TransactionService;
 import com.thiru.investment_tracker.util.transaction.ExcelHeaders;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class HelperController {
 
     private final EntityExportService entityExportService;
+    private final TransactionService transactionService;
 
     @GetMapping("/template")
     public ResponseEntity<InputStreamResource> getTemplate() {
@@ -27,7 +29,7 @@ public class HelperController {
         entityExportRequest.setEntityName("transactions-template");
         FileStream fileStream = entityExportService.export(UserMail.from(null), entityExportRequest);
 
-        return FileHelper.sendFileAsAttachment(fileStream, "template.xlsx");
+        return FileHelper.sendFileAsAttachment(fileStream);
     }
 
     @GetMapping("/template/fields")

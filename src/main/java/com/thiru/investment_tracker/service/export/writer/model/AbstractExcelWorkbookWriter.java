@@ -1,6 +1,7 @@
 package com.thiru.investment_tracker.service.export.writer.model;
 
 import com.thiru.investment_tracker.dto.enums.ExcelDataType;
+import com.thiru.investment_tracker.entity.model.AuditableEntity;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-public abstract class AbstractExcelWorkbookWriter<Entity> implements ExcelWorkbookWriter<Entity> {
+public abstract class AbstractExcelWorkbookWriter<EntityType extends AuditableEntity> implements ExcelWorkbookWriter<EntityType> {
 
     private final String sheetName;
     private final List<String> columnFields;
@@ -31,10 +32,10 @@ public abstract class AbstractExcelWorkbookWriter<Entity> implements ExcelWorkbo
 
     protected abstract Map<String, String> simpleColumnHeaders();
 
-    protected abstract Map<String, Function<Entity, ExcelDataTypePair>> simpleColumnValueMap();
+    protected abstract Map<String, Function<EntityType, Object>> simpleColumnValueMap();
 
     @Override
-    public InputStreamResource process(List<Entity> entities) {
+    public InputStreamResource process(List<EntityType> entities) {
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try (XSSFWorkbook workbook = new XSSFWorkbook()) {
@@ -47,36 +48,39 @@ public abstract class AbstractExcelWorkbookWriter<Entity> implements ExcelWorkbo
         }
     }
 
-    private void sheetWriter(Sheet sheet, List<Entity> entities) {
+    private void sheetWriter(Sheet sheet, List<EntityType> entities) {
 
         for (int rowIndex = 0; rowIndex < entities.size(); rowIndex++) {
-            Entity entity = entities.get(rowIndex);
+            EntityType entityType = entities.get(rowIndex);
             Row row = sheet.createRow(rowIndex + 1);
             for (String columnField : columnFields) {
-                cellPopulator(row.createCell(columnIndexMap.get(columnField)), columnField, entity);
+                cellPopulator(row.createCell(columnIndexMap.get(columnField)), columnField, entityType);
             }
         }
     }
 
-    private void cellPopulator(Cell cell, String columnField, Entity entity) {
+    private void cellPopulator(Cell cell, String columnField, EntityType entityType) {
 
-        ExcelDataTypePair pair = this.simpleColumnValueMap().get(columnField).apply(entity);
-        if (pair.data() == null) {
+        Object data = this.simpleColumnValueMap().get(columnField).apply(entityType);
+        if (data == null) {
             return;
         }
 
-        switch (pair.excelDataType()) {
-            case STRING:
-                cell.setCellValue((String) pair.data());
+        switch (data) {
+            case Boolean flag:
+                cell.setCellValue(flag);
                 break;
-            case DOUBLE:
-                cell.setCellValue((Double) pair.data());
+            case Double num:
+                cell.setCellValue(num);
                 break;
-            case LOCAL_DATE:
-                setDateField(cell, (LocalDate) pair.data());
+            case String str:
+                cell.setCellValue(str);
+                break;
+            case LocalDate localDate:
+                setDateField(cell, localDate);
                 break;
             default:
-                throw new IllegalArgumentException("Cell value conversion not supported: " + pair.excelDataType());
+                throw new IllegalArgumentException("Cell value conversion not supported currently: " + data);
         }
     }
 
