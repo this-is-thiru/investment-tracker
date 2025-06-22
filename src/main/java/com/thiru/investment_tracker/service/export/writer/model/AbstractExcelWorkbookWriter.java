@@ -1,6 +1,5 @@
 package com.thiru.investment_tracker.service.export.writer.model;
 
-import com.thiru.investment_tracker.dto.enums.ExcelDataType;
 import com.thiru.investment_tracker.entity.model.AuditableEntity;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import org.apache.poi.ss.usermodel.*;
@@ -41,6 +40,7 @@ public abstract class AbstractExcelWorkbookWriter<EntityType extends AuditableEn
         try (XSSFWorkbook workbook = new XSSFWorkbook()) {
             Sheet sheet = ExcelSheetHelper.createNewSheet(workbook, this.headers(), sheetName);
             sheetWriter(sheet, entities);
+            extraSheetWriter(workbook, entities);
             workbook.write(outputStream);
             return new InputStreamResource(new ByteArrayInputStream(outputStream.toByteArray()));
         } catch (IOException e) {
@@ -59,7 +59,7 @@ public abstract class AbstractExcelWorkbookWriter<EntityType extends AuditableEn
         }
     }
 
-    private void cellPopulator(Cell cell, String columnField, EntityType entityType) {
+    protected void cellPopulator(Cell cell, String columnField, EntityType entityType) {
 
         Object data = this.simpleColumnValueMap().get(columnField).apply(entityType);
         if (data == null) {
@@ -107,7 +107,6 @@ public abstract class AbstractExcelWorkbookWriter<EntityType extends AuditableEn
         return TCollectionUtil.map(orderedColumns(), column -> simpleColumnHeaders().get(column).toUpperCase());
     }
 
-    protected static ExcelDataTypePair dataTypePair(Object data, ExcelDataType excelDataType) {
-        return new ExcelDataTypePair(data, excelDataType);
+    protected void extraSheetWriter(XSSFWorkbook workbook, List<EntityType> entities) {
     }
 }

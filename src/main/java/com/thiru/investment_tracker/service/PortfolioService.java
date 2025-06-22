@@ -30,8 +30,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
-@AllArgsConstructor
 @Service
+@AllArgsConstructor
 public class PortfolioService {
 
     private final PortfolioRepository portfolioRepository;
@@ -141,7 +141,8 @@ public class PortfolioService {
 
         validateTransaction(stockEntities, assetRequest);
 
-        updateQuantity(userMail, transactionId, stockEntities, assetRequest);
+        updateQuantityBySavingReportAndProfitAndLoss(userMail, transactionId, stockEntities, assetRequest);
+
         List<String> updatedStockEntities = TCollectionUtil.applyMap(stockEntities, asset -> asset.getQuantity() == 0,
                 AssetEntity::getId);
         portfolioRepository.saveAll(stockEntities);
@@ -250,7 +251,7 @@ public class PortfolioService {
         return assetRequest.getPrice() * assetRequest.getQuantity();
     }
 
-    private void updateQuantity(UserMail userMail, String transactionId, List<AssetEntity> stockEntities, AssetRequest assetRequest) {
+    private void updateQuantityBySavingReportAndProfitAndLoss(UserMail userMail, String transactionId, List<AssetEntity> stockEntities, AssetRequest assetRequest) {
 
         double sellQuantity = assetRequest.getQuantity();
         Iterator<AssetEntity> stockEntitiesIterator = stockEntities.iterator();
@@ -318,6 +319,12 @@ public class PortfolioService {
 
     public List<AssetEntity> searchAssets(UserMail userMail, List<QueryFilter> queryFilters) {
         return mongoTemplateService.getDocuments(userMail, queryFilters, AssetEntity.class);
+    }
+
+    public List<AssetResponse> getExportEntities(UserMail userMail, List<QueryFilter> queryFilters) {
+        List<AssetEntity> entities = mongoTemplateService.getDocuments(userMail, queryFilters, AssetEntity.class);
+        Map<String, List<AssetEntity>> stockEntityMap = TCollectionUtil.groupingBy(entities, stockWithCodeAndBroker());
+        return TCollectionUtil.map(stockEntityMap.values(), PortfolioService::combineAllDetailsOfEntities);
     }
 
     public List<AssetEntity> stocksForCorporateActions(String stockCode, LocalDate recordDate) {

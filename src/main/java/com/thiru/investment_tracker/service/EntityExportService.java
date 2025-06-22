@@ -28,12 +28,12 @@ public class EntityExportService {
     }
 
     private FileStream portfolioExport(UserMail userMail, EntityExportRequest exportRequest) {
-        ExcelWorkbookProcessor processor = new AssetExcelWorkbookProcessor(userMail, exportRequest.getSelectedColumns(), portfolioService);
+        ExcelWorkbookProcessor processor = new AssetExcelWorkbookProcessor(userMail, exportRequest, portfolioService);
         return processor.fileStream();
     }
 
     private FileStream transactionExport(UserMail userMail, EntityExportRequest exportRequest) {
-        ExcelWorkbookProcessor processor = new TransactionExcelWorkbookProcessor(userMail, exportRequest.getSelectedColumns(), transactionService);
+        ExcelWorkbookProcessor processor = new TransactionExcelWorkbookProcessor(userMail, exportRequest, transactionService);
         return processor.fileStream();
     }
 

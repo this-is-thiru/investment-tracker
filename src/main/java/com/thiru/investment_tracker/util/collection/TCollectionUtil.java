@@ -23,19 +23,19 @@ public class TCollectionUtil {
     }
 
     public static <T, R> List<R> map(Collection<T> source, Function<T, R> mapper) {
-        return stream(source).map(mapper).toList();
+        return stream(source).map(mapper).collect(Collectors.toList());
     }
 
     public static <T, R> List<R> mapAndApply(Collection<T> source, Function<T, R> mapper, Predicate<R> predicate) {
-        return stream(source).map(mapper).filter(predicate).toList();
+        return stream(source).map(mapper).filter(predicate).collect(Collectors.toList());
     }
 
     public static <T> List<T> filter(Collection<T> source, Predicate<T> consumer) {
-        return stream(source).filter(consumer).toList();
+        return stream(source).filter(consumer).collect(Collectors.toList());
     }
 
     public static <T, R> List<R> applyMap(Collection<T> source, Predicate<T> predicate, Function<T, R> mapper) {
-        return stream(source).filter(predicate).map(mapper).toList();
+        return stream(source).filter(predicate).map(mapper).collect(Collectors.toList());
     }
 
     public static <T> T findFirst(Collection<T> source, Predicate<T> predicate, T defaultValue) {
@@ -59,7 +59,7 @@ public class TCollectionUtil {
     }
 
     public static <T> List<T> flatMap(Collection<List<T>> source) {
-        return stream(source).flatMap(TCollectionUtil::stream).toList();
+        return stream(source).flatMap(TCollectionUtil::stream).collect(Collectors.toList());
     }
 
     public static <T> LongStream mapToLong(List<T> list, ToLongFunction<T> mapper) {
