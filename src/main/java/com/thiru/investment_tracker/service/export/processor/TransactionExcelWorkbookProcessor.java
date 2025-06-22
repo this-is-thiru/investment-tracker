@@ -1,5 +1,6 @@
 package com.thiru.investment_tracker.service.export.processor;
 
+import com.thiru.investment_tracker.dto.EntityExportRequest;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.TransactionEntity;
 import com.thiru.investment_tracker.helper.file.FileType;
@@ -18,9 +19,9 @@ public class TransactionExcelWorkbookProcessor extends AbstractExcelWorkbookProc
     private final TransactionService transactionService;
     private final List<String> columnFields;
 
-    public TransactionExcelWorkbookProcessor(UserMail userMail, List<String> columnFields, TransactionService transactionService) {
+    public TransactionExcelWorkbookProcessor(UserMail userMail, EntityExportRequest exportRequest, TransactionService transactionService) {
         super(userMail, ASSET_EXCEL_FILE_NAME, FILE_TYPE);
-        this.columnFields = columnFields;
+        this.columnFields = exportRequest.getSelectedColumns();
         this.transactionService = transactionService;
     }
 

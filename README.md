@@ -10,3 +10,7 @@
   * queue 
   * routing key
 ###### Note: binding for exchange is mandatory, based on this only consumer will consume from queue.
+
+
+Resources:
+* https://gist.github.com/conholdate-gists/413f3fdf681361ad1a625a876955689a - excel sheet to combine

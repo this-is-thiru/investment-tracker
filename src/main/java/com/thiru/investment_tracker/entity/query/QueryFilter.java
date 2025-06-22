@@ -39,12 +39,12 @@ public class QueryFilter {
 
     private static void sanitizeAndPopulateEmailFilter(List<QueryFilter> queryFilters, String email) {
 
-        List<QueryFilter> nonEmailFilters = TCollectionUtil.filter(queryFilters, filter -> !AssetEntity.EMAIL.equals(filter.getFilterKey()));
-        QueryFilter emailFilter = QueryFilter.builder().filterKey("email").operation(QueryFilter.FilterOperation.EQUALS).value(email).build();
-        nonEmailFilters.add(emailFilter);
+        List<QueryFilter> sanitizedQueryFilters = TCollectionUtil.filter(queryFilters, filter -> !AssetEntity.EMAIL.equals(filter.getFilterKey()));
+        QueryFilter emailFilter = QueryFilter.builder().filterKey("email").operation(QueryFilter.FilterOperation.EQUALS).value(email).isDateField(false).build();
+        sanitizedQueryFilters.add(emailFilter);
 
         queryFilters.clear();
-        queryFilters.addAll(nonEmailFilters);
+        queryFilters.addAll(sanitizedQueryFilters);
     }
 
     private static void validateFilters(List<QueryFilter> queryFilters) {

@@ -10,8 +10,8 @@ import java.util.List;
 @Getter
 @Setter
 public class EntityExportRequest {
-    private List<String> selectedColumns = new ArrayList<>();
     private String entityName;
     private List<String> emailAddresses = new ArrayList<>();
-    private List<QueryFilter> queryFilters = new ArrayList<>();
+    private List<String> selectedColumns = new ArrayList<>();
+    private List<QueryFilter> filters = new ArrayList<>();
 }

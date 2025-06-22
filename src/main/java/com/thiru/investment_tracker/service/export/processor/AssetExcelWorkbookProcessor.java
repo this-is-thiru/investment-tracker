@@ -1,12 +1,14 @@
 package com.thiru.investment_tracker.service.export.processor;
 
 import com.thiru.investment_tracker.dto.AssetResponse;
+import com.thiru.investment_tracker.dto.EntityExportRequest;
 import com.thiru.investment_tracker.dto.user.UserMail;
+import com.thiru.investment_tracker.entity.query.QueryFilter;
+import com.thiru.investment_tracker.helper.file.FileType;
+import com.thiru.investment_tracker.service.PortfolioService;
 import com.thiru.investment_tracker.service.export.processor.model.AbstractExcelWorkbookProcessor;
 import com.thiru.investment_tracker.service.export.writer.AssetExcelWorkbookWriter;
 import com.thiru.investment_tracker.service.export.writer.model.ExcelWorkbookWriter;
-import com.thiru.investment_tracker.helper.file.FileType;
-import com.thiru.investment_tracker.service.PortfolioService;
 
 import java.util.List;
 
@@ -17,10 +19,12 @@ public class AssetExcelWorkbookProcessor extends AbstractExcelWorkbookProcessor<
 
     private final PortfolioService portfolioService;
     private final List<String> columnFields;
+    private final List<QueryFilter> queryFilters;
 
-    public AssetExcelWorkbookProcessor(UserMail userMail, List<String> columnFields, PortfolioService portfolioService) {
+    public AssetExcelWorkbookProcessor(UserMail userMail, EntityExportRequest exportRequest, PortfolioService portfolioService) {
         super(userMail, ASSET_EXCEL_FILE_NAME, FILE_TYPE);
-        this.columnFields = columnFields;
+        this.columnFields = exportRequest.getSelectedColumns();
+        this.queryFilters = exportRequest.getFilters();
         this.portfolioService = portfolioService;
     }
 
@@ -31,6 +35,6 @@ public class AssetExcelWorkbookProcessor extends AbstractExcelWorkbookProcessor<
 
     @Override
     protected List<AssetResponse> entities() {
-        return portfolioService.getAllStocks(getUserMail());
+        return portfolioService.getExportEntities(getUserMail() , queryFilters);
     }
 }

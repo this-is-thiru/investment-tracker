@@ -4,8 +4,12 @@ import com.thiru.investment_tracker.dto.AssetResponse;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.service.export.writer.model.AbstractExcelWorkbookWriter;
+import com.thiru.investment_tracker.service.export.writer.model.ExcelSheetHelper;
 import com.thiru.investment_tracker.util.collection.TOptional;
 import com.thiru.investment_tracker.util.transaction.ExcelHeaders;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.util.HashMap;
 import java.util.List;
@@ -77,4 +81,31 @@ public class AssetExcelWorkbookWriter extends AbstractExcelWorkbookWriter<AssetR
         simpleColumnValueMap.put(MISC_CHARGES, AssetResponse::getMiscCharges);
         return simpleColumnValueMap;
     }
+
+    @Override
+    protected void extraSheetWriter(XSSFWorkbook workbook, List<AssetResponse> entities) {
+        List<String> quantityHeaders = List.of(ExcelHeaders.STOCK_CODE, ExcelHeaders.BROKER_NAME, ExcelHeaders.BROKER_NAME, ExcelHeaders.QUANTITY);
+        Sheet sheet = ExcelSheetHelper.createNewSheet(workbook, quantityHeaders, "TRANSACTIONS");
+
+        int rowCount = 1;
+        for (AssetResponse entity : entities) {
+            rowCount = updateTransactionSheet(sheet, rowCount, entity);
+        }
+    }
+
+    public static int updateTransactionSheet(Sheet transactionsSheet, int rowCount, AssetResponse assetResponse) {
+
+        Map<String, Double> transactionQuantities = assetResponse.getTransactionQuantities();
+        for (Map.Entry<String, Double> entry : transactionQuantities.entrySet()) {
+
+            Row row = transactionsSheet.createRow(rowCount);
+            row.createCell(0).setCellValue(assetResponse.getStockCode());
+            row.createCell(1).setCellValue(assetResponse.getBrokerName().name());
+            row.createCell(2).setCellValue(entry.getKey());
+            row.createCell(3).setCellValue(entry.getValue());
+            rowCount++;
+        }
+        return rowCount;
+    }
+
 }
