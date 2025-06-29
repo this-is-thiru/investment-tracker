@@ -14,6 +14,8 @@ import java.util.function.Predicate;
 public abstract class AbstractRequestParser<RequestType> implements RequestParser<RequestType> {
 
     private static final String EXCEL_TYPE = "text/xls";
+    private static final String EXCEL_TYPE1 = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
 
     protected abstract Map<String, ExcelDataType> simpleDataTypeMap();
 
@@ -37,7 +39,7 @@ public abstract class AbstractRequestParser<RequestType> implements RequestParse
     }
 
     private static boolean isValidExcelFile(MultipartFile file) {
-        return EXCEL_TYPE.equals(file.getContentType());
+        return EXCEL_TYPE.equals(file.getContentType()) || EXCEL_TYPE1.equals(file.getContentType());
     }
 
 
