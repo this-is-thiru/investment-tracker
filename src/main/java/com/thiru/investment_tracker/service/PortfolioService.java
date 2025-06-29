@@ -160,7 +160,7 @@ public class PortfolioService {
         double existingQuantity = TCollectionUtil.mapToDouble(stockEntities, AssetEntity::getQuantity).sum();
 
         if (existingQuantity < assetRequest.getQuantity()) {
-            throw new IllegalArgumentException("Not enough stocks to sell");
+            throw new IllegalArgumentException("Not enough stocks to sell for: " + assetRequest.getStockCode());
         }
     }
 
