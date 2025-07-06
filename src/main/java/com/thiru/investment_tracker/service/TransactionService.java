@@ -34,8 +34,8 @@ public class TransactionService {
         TransactionEntity transactionEntity = assetRequest.getTransaction();
         transactionEntity.setEmail(userMail.getEmail());
 
-        log.info("Transaction: {}, Stock: '{}' on '{}' noted successfully", transactionEntity.getTransactionType(),
-                transactionEntity.getStockName(), transactionEntity.getTransactionDate());
+        log.info("Transaction: {}, Stock: '{}' on '{}' noted successfully for: {}", transactionEntity.getTransactionType(),
+                transactionEntity.getStockName(), transactionEntity.getTransactionDate(), userMail.getEmail());
         TransactionEntity savedTransactionEntity = transactionRepository.save(transactionEntity);
         return savedTransactionEntity.getId();
     }

@@ -7,6 +7,7 @@ import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.ExcelDataType;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.service.parser.model.AbstractRequestParser;
+import com.thiru.investment_tracker.util.collection.TOptional;
 import com.thiru.investment_tracker.util.parser.CellDetail;
 import com.thiru.investment_tracker.util.transaction.ExcelHeaders;
 
@@ -162,7 +163,7 @@ assetRequest.setTransactionType(TransactionType.valueOf(transactionType));
     private static void setComment(AssetRequest assetRequest, Map<String, CellDetail> record) {
 
         CellDetail cellDetail = record.get(ExcelHeaders.COMMENTS);
-        assetRequest.setComment((String) cellDetail.getCellValue());
+        assetRequest.setComment((String) TOptional.map1(cellDetail, CellDetail::getCellValue));
     }
 
     private static LocalDate getDefaultMaturity(AssetType assetType, LocalDate transactionDate, LocalDate maturityDate) {
