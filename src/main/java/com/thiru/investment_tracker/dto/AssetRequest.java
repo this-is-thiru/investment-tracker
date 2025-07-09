@@ -9,7 +9,7 @@ import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.entity.AssetEntity;
 import com.thiru.investment_tracker.entity.TransactionEntity;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
-import com.thiru.investment_tracker.util.collection.TLocaleDate;
+import com.thiru.investment_tracker.util.time.TLocalDate;
 import com.thiru.investment_tracker.util.time.TLocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -55,7 +55,7 @@ public class AssetRequest {
     // remove this as we use orderTimeQuantity
     private Long orderExecutionTimestamp;
     private List<OrderTimeQuantity> orderTimeQuantities = new ArrayList<>();
-    private String timezoneId = TLocaleDate.TIME_ZONE_IST;
+    private String timezoneId = TLocalDate.TIME_ZONE_IST;
 
     @JsonIgnore
     public TransactionEntity getTransaction() {

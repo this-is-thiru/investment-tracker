@@ -1,6 +1,6 @@
 package com.thiru.investment_tracker.dto;
 
-import com.thiru.investment_tracker.util.collection.TLocaleDate;
+import com.thiru.investment_tracker.util.time.TLocalDate;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,5 +15,5 @@ import java.time.LocalDateTime;
 public class OrderTimeQuantity {
 	private Double quantity;
 	private LocalDateTime orderExecutionTime;
-	private String timezoneId = TLocaleDate.TIME_ZONE_IST;
+	private String timezoneId = TLocalDate.TIME_ZONE_IST;
 }

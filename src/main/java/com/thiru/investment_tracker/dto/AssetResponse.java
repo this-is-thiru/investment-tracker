@@ -6,9 +6,8 @@ import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.dto.model.AuditMetadataDto;
 import com.thiru.investment_tracker.dto.model.AuditableResponse;
-import com.thiru.investment_tracker.entity.model.AuditableEntity;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
-import com.thiru.investment_tracker.util.collection.TLocaleDate;
+import com.thiru.investment_tracker.util.time.TLocalDate;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -41,7 +40,7 @@ public class AssetResponse implements AuditableResponse {
 	// remove this as we use orderTimeQuantity
 	private Instant orderExecutionTime;
 	private List<OrderTimeQuantity> orderTimeQuantities = new ArrayList<>();
-	private String timezoneId = TLocaleDate.TIME_ZONE_IST;
+	private String timezoneId = TLocalDate.TIME_ZONE_IST;
 	private String accountType;
 	private String accountHolder;
 	private String remarks;

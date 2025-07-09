@@ -1,7 +1,7 @@
 package com.thiru.investment_tracker.entity.query;
 
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
-import com.thiru.investment_tracker.util.collection.TLocaleDate;
+import com.thiru.investment_tracker.util.time.TLocalDate;
 import lombok.Getter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -61,7 +61,7 @@ public class QueryBuilder {
     private static void sanitize(QueryFilter queryFilter) {
         if (queryFilter.getIsDateField()) {
             String value = (String) queryFilter.getValue();
-            queryFilter.setValue(TLocaleDate.convertToDate(value));
+            queryFilter.setValue(TLocalDate.convertToDate(value));
         }
     }
 }

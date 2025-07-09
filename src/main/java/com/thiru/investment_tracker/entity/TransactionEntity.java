@@ -10,7 +10,7 @@ import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.entity.helper.AuditMetadata;
 import com.thiru.investment_tracker.entity.model.AuditableEntity;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
-import com.thiru.investment_tracker.util.collection.TLocaleDate;
+import com.thiru.investment_tracker.util.time.TLocalDate;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -79,7 +79,7 @@ public class TransactionEntity implements AuditableEntity {
 	private LocalDateTime orderExecutionTime;
 
 	@Field("timezone_id")
-	private String timezoneId = TLocaleDate.TIME_ZONE_IST;
+	private String timezoneId = TLocalDate.TIME_ZONE_IST;
 
 	@Field(name = "account_type", targetType = FieldType.STRING)
 	private AccountType accountType;
