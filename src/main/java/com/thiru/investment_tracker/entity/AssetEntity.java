@@ -116,7 +116,7 @@ public class AssetEntity implements AuditableEntity {
     public static final String EMAIL = "email";
 
     @Transient
-    public static Set<String> ALLOWED_FIELDS = Set.of("email", "transaction_date", "transaction_type",
+    public static Set<String> ALLOWED_FIELDS = Set.of(EMAIL, "transaction_date", "transaction_type",
             "account_type", "account_holder", "exchange_name", "stock_code", "broker_name", "asset_type");
 
 }
