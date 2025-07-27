@@ -14,5 +14,7 @@ public interface TransactionRepository extends MongoRepository<TransactionEntity
 
     List<TransactionEntity> findByStockCodeAndTransactionDateBeforeOrderByTransactionDateDesc(String stockCode, LocalDate transactionDate);
 
+    List<TransactionEntity> findByEmailAndStockCodeAndTransactionDateBeforeOrderByTransactionDateDesc(String email, String stockCode, LocalDate transactionDate);
+
     void deleteByEmail(String email);
 }

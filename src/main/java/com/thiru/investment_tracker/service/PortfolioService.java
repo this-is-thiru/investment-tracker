@@ -11,11 +11,11 @@ import com.thiru.investment_tracker.entity.query.QueryFilter;
 import com.thiru.investment_tracker.repository.PortfolioRepository;
 import com.thiru.investment_tracker.service.parser.AssetRequestParser;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
-import com.thiru.investment_tracker.util.time.TLocalDate;
 import com.thiru.investment_tracker.util.collection.TObjectMapper;
 import com.thiru.investment_tracker.util.parser.ExcelBuilder;
 import com.thiru.investment_tracker.util.parser.ExcelParser;
-import lombok.AllArgsConstructor;
+import com.thiru.investment_tracker.util.time.TLocalDate;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.util.Pair;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PortfolioService {
 
     private final PortfolioRepository portfolioRepository;
@@ -39,10 +39,17 @@ public class PortfolioService {
     private final ProfitAndLossService profitAndLossService;
     private final MongoTemplateService mongoTemplateService;
     private final ReportService reportService;
+    private final TemporaryTransactionService temporaryTransactionService;
 
     @Transactional
-    public String addTransaction(UserMail userMail, AssetRequest assetRequest) {
+    public String addTransaction(UserMail userMail, AssetRequest assetRequest, List<String> filteredOutTransactions) {
         sanitizeAssetRequest(assetRequest);
+
+        Optional<String> filteredOutTransaction = temporaryTransactionService.filterOutTransaction(userMail, assetRequest);
+        if(filteredOutTransaction.isPresent()) {
+            filteredOutTransactions.add(filteredOutTransaction.get());
+            return "Transaction stored as temporary transaction, needs to perform after corporate action ..!";
+        }
 
         TransactionType transactionType = assetRequest.getTransactionType();
         // Add transaction
@@ -71,8 +78,13 @@ public class PortfolioService {
 
         AssetRequestParser assetRequestParser = new AssetRequestParser();
         List<AssetRequest> assetRequests = assetRequestParser.parse(file);
-        TCollectionUtil.map(assetRequests, assetRequest -> addTransaction(userMail, assetRequest));
-        return "Transactions uploaded successfully";
+        List<String> filteredOutTransactions = new ArrayList<>();
+        TCollectionUtil.map(assetRequests, assetRequest -> addTransaction(userMail, assetRequest, filteredOutTransactions));
+
+        if (!filteredOutTransactions.isEmpty()) {
+            return String.format("Filtered out transactions: %s", filteredOutTransactions);
+        }
+        return "All transactions uploaded successfully";
     }
 
     public void buyStock(UserMail userMail, String transactionId, AssetRequest assetRequest) {
@@ -329,6 +341,10 @@ public class PortfolioService {
 
     public List<AssetEntity> stocksForCorporateActions(String stockCode, LocalDate recordDate) {
         return portfolioRepository.findByStockCodeAndTransactionDateBefore(stockCode, recordDate);
+    }
+
+    public List<AssetEntity> testStocksForCorporateActions(String email, String stockCode, LocalDate recordDate) {
+        return portfolioRepository.findByEmailAndStockCodeAndTransactionDateBefore(email, stockCode, recordDate);
     }
 
     public void saveCorporateActionProcessedStocks(List<AssetEntity> stocks) {
