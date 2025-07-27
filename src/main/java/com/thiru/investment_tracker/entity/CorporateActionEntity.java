@@ -1,5 +1,6 @@
 package com.thiru.investment_tracker.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thiru.investment_tracker.dto.enums.CorporateActionType;
 import com.thiru.investment_tracker.entity.helper.AuditMetadata;
 import com.thiru.investment_tracker.entity.model.AuditableEntity;
@@ -11,6 +12,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
+
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -31,15 +34,17 @@ public class CorporateActionEntity implements AuditableEntity {
     @Field("description")
     private String description;
     @Field("record_date")
-    private String recordDate;
+    private LocalDate recordDate;
     @Field("ex_date")
-    private String exDate;
+    private LocalDate exDate;
+    @Field("priority")
+    private int priority;
     @Field("action_price")
     private String actionPrice;
     @Field("ratio")
     private String ratio;
     @Field("date")
-    private String date;
+    private LocalDate date;
 
     @Field("audit_metadata")
     @Setter(value = AccessLevel.NONE)

@@ -7,8 +7,9 @@ import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.TransactionEntity;
 import com.thiru.investment_tracker.entity.query.QueryFilter;
 import com.thiru.investment_tracker.repository.TransactionRepository;
+import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.collection.TObjectMapper;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,9 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-@AllArgsConstructor
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;
@@ -64,8 +65,13 @@ public class TransactionService {
         return transactionRepository.findByStockCodeAndTransactionDateBeforeOrderByTransactionDateDesc(stockCode, recordDate);
     }
 
-    public void saveCorporateActionProcessedTransactions(List<TransactionEntity> transactionEntities) {
-        transactionRepository.saveAll(transactionEntities);
+    public List<TransactionEntity> testTransactionsForCorporateActions(String email, String stockCode, LocalDate recordDate) {
+        return transactionRepository.findByEmailAndStockCodeAndTransactionDateBeforeOrderByTransactionDateDesc(email, stockCode, recordDate);
+    }
+
+    public List<String> saveCorporateActionProcessedTransactions(List<TransactionEntity> transactionEntities) {
+        List<TransactionEntity> savedTransactions = transactionRepository.saveAll(transactionEntities);
+        return TCollectionUtil.map(savedTransactions, TransactionEntity::getId);
     }
 
     public List<TransactionEntity> getUserTransactions(UserMail userMail, List<QueryFilter> queryFilters) {

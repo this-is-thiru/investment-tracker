@@ -3,6 +3,7 @@ package com.thiru.investment_tracker.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
+import com.thiru.investment_tracker.dto.enums.CorporateActionType;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.dto.model.AuditMetadataDto;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
@@ -40,6 +41,7 @@ public class TransactionResponse {
     private double brokerCharges;
     private double miscCharges;
     private String comment;
+    private CorporateActionType corporateActionType;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCollectionUtil.DATE_FORMAT)
     private LocalDate maturityDate;

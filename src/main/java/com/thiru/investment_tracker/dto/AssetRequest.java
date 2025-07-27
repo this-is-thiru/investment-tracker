@@ -7,6 +7,7 @@ import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.entity.AssetEntity;
+import com.thiru.investment_tracker.entity.TemporaryTransactionEntity;
 import com.thiru.investment_tracker.entity.TransactionEntity;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.time.TLocalDate;
@@ -25,7 +26,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @ToString
-public class AssetRequest {
+public class AssetRequest implements AssetEntityProtoType, TransactionEntityProtoType {
     private String email;
     private String stockCode;
     private String stockName;
@@ -57,6 +58,7 @@ public class AssetRequest {
     private List<OrderTimeQuantity> orderTimeQuantities = new ArrayList<>();
     private String timezoneId = TLocalDate.TIME_ZONE_IST;
 
+    @Override
     @JsonIgnore
     public TransactionEntity getTransaction() {
 
@@ -84,6 +86,7 @@ public class AssetRequest {
         return transactionEntity;
     }
 
+    @Override
     @JsonIgnore
     public AssetEntity getAsset() {
         AssetEntity assetEntity = new AssetEntity();

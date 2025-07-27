@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thiru.investment_tracker.dto.CorporateActionDto;
 import com.thiru.investment_tracker.dto.OrderTimeQuantity;
-import com.thiru.investment_tracker.dto.enums.AccountType;
-import com.thiru.investment_tracker.dto.enums.AssetType;
-import com.thiru.investment_tracker.dto.enums.BrokerName;
-import com.thiru.investment_tracker.dto.enums.TransactionType;
+import com.thiru.investment_tracker.dto.enums.*;
 import com.thiru.investment_tracker.entity.helper.AuditMetadata;
 import com.thiru.investment_tracker.entity.model.AuditableEntity;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
@@ -91,6 +88,9 @@ public class AssetEntity implements AuditableEntity {
     @Field("account_holder")
     private String accountHolder;
 
+    @Field(value = "corporate_action", targetType = FieldType.STRING)
+    private CorporateActionType corporateActionType;
+
     @JsonIgnore
     @Field(name = "transaction_type", targetType = FieldType.STRING)
     private TransactionType transactionType;
@@ -105,7 +105,7 @@ public class AssetEntity implements AuditableEntity {
     private List<String> sellTransactionIds = new ArrayList<>();
 
     @Field("corporate_actions")
-    private List<CorporateActionDto> corporateActions = new ArrayList<>();
+    private List<CorporateActionEntity> corporateActions = new ArrayList<>();
 
     @Field("audit_metadata")
     @Setter(value = AccessLevel.NONE)
