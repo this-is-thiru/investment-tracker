@@ -24,8 +24,15 @@ public class CorporateActionController {
         return ResponseEntity.ok(message);
     }
 
+    @PutMapping("/update/priority/{id}/{priority}")
+    public ResponseEntity<String> updateCorporateActionPriority(@PathVariable String id, @PathVariable int priority) {
+
+        String message = corporateActionService.updateCorporateActionPriority(id, priority);
+        return ResponseEntity.ok(message);
+    }
+
     @GetMapping("/list")
-    public ResponseEntity< List<CorporateActionDto>> getCorporateActions(@RequestParam List<String> ids) {
+    public ResponseEntity<List<CorporateActionDto>> getCorporateActions(@RequestParam List<String> ids) {
 
         List<CorporateActionDto> actions = corporateActionService.getCorporateActions(ids);
         return ResponseEntity.ok(actions);

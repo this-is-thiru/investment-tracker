@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -37,12 +38,35 @@ public class CorporateActionService {
         CorporateActionEntity corporateActionEntity = actionWrapper.getAsEntity();
         List<CorporateActionEntity> actions = corporateActionRepository.findByStockCodeAndRecordDateAndOrderByPriorityAsc(actionWrapper.getStockCode(), actionWrapper.getRecordDate());
         CorporateActionEntity actionWithSamePriority = TCollectionUtil.findFirst(actions, action -> action.getPriority() == corporateActionEntity.getPriority());
-        if (!actions.isEmpty() && actionWithSamePriority != null) {
+        CorporateActionEntity actionForSameStock = TCollectionUtil.findFirst(actions, action -> action.getStockCode().equals(corporateActionEntity.getStockCode()));
+
+        if (actionForSameStock != null) {
+            throw new IllegalArgumentException("Corporate actions is already present id: " + actionWithSamePriority.getId());
+        }
+
+        if (actionWithSamePriority != null) {
             List<String> actionIds = TCollectionUtil.map(actions, CorporateActionEntity::getId);
             throw new IllegalArgumentException("Update the priorities for the corporate actions with Ids: " + actionIds);
         }
+
         corporateActionRepository.save(corporateActionEntity);
         return "Corporate action: " + actionWrapper.getType() + " added successfully for stock: " + actionWrapper.getStockCode();
+    }
+
+    public String updateCorporateActionPriority(String id, int priority) {
+
+        Optional<CorporateActionEntity> existingAction = corporateActionRepository.findById(id);
+        if (existingAction.isEmpty()) {
+            throw new IllegalArgumentException("No corporate actions found with id: " + id);
+        }
+        CorporateActionEntity entity = existingAction.get();
+        int existingPriority = entity.getPriority();
+        if (existingPriority == priority) {
+            throw new IllegalArgumentException("Existing priority and new priority is same.");
+        }
+        entity.setPriority(priority);
+        corporateActionRepository.save(entity);
+        return "Priority has been updated for the action: " + id + " stock: " + entity.getStockCode() + " from: " + existingPriority + " to: " + priority;
     }
 
     public List<CorporateActionDto> getCorporateActions(List<String> ids) {
