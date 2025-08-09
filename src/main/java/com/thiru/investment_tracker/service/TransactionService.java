@@ -3,6 +3,7 @@ package com.thiru.investment_tracker.service;
 import com.thiru.investment_tracker.dto.AssetRequest;
 import com.thiru.investment_tracker.dto.TransactionResponse;
 import com.thiru.investment_tracker.dto.enums.AssetType;
+import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.TransactionEntity;
 import com.thiru.investment_tracker.entity.query.QueryFilter;
@@ -32,7 +33,7 @@ public class TransactionService {
         if (assetRequest.getTransactionDate() == null) {
             assetRequest.setTransactionDate(LocalDate.now());
         }
-        TransactionEntity transactionEntity = assetRequest.getTransaction();
+        TransactionEntity transactionEntity = assetRequest.asTransaction();
         transactionEntity.setEmail(userMail.getEmail());
 
         log.info("Transaction: {}, Stock: '{}' on '{}' noted successfully for: {}", transactionEntity.getTransactionType(),
@@ -65,8 +66,8 @@ public class TransactionService {
         return transactionRepository.findByStockCodeAndTransactionDateBeforeOrderByTransactionDateDesc(stockCode, recordDate);
     }
 
-    public List<TransactionEntity> testTransactionsForCorporateActions(String email, String stockCode, LocalDate recordDate) {
-        return transactionRepository.findByEmailAndStockCodeAndTransactionDateBeforeOrderByTransactionDateDesc(email, stockCode, recordDate);
+    public List<TransactionEntity> testTransactionsForCorporateActions(String email, String stockCode, BrokerName brokerName, LocalDate recordDate) {
+        return transactionRepository.findByEmailAndStockCodeAndBrokerNameAndTransactionDateBeforeOrderByTransactionDateDesc(email, stockCode, brokerName, recordDate);
     }
 
     public List<String> saveCorporateActionProcessedTransactions(List<TransactionEntity> transactionEntities) {

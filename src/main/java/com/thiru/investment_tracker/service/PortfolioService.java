@@ -7,8 +7,11 @@ import com.thiru.investment_tracker.dto.enums.HoldingType;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.AssetEntity;
+import com.thiru.investment_tracker.entity.TemporaryTransactionEntity;
 import com.thiru.investment_tracker.entity.query.QueryFilter;
+import com.thiru.investment_tracker.exception.BadRequestException;
 import com.thiru.investment_tracker.repository.PortfolioRepository;
+import com.thiru.investment_tracker.repository.TemporaryTransactionRepository;
 import com.thiru.investment_tracker.service.parser.AssetRequestParser;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.collection.TObjectMapper;
@@ -40,13 +43,15 @@ public class PortfolioService {
     private final MongoTemplateService mongoTemplateService;
     private final ReportService reportService;
     private final TemporaryTransactionService temporaryTransactionService;
+    private final TemporaryTransactionRepository temporaryTransactionRepository;
 
     @Transactional
     public String addTransaction(UserMail userMail, AssetRequest assetRequest, List<String> filteredOutTransactions) {
+        validateAssetRequest(userMail, assetRequest);
         sanitizeAssetRequest(assetRequest);
 
         Optional<String> filteredOutTransaction = temporaryTransactionService.filterOutTransaction(userMail, assetRequest);
-        if(filteredOutTransaction.isPresent()) {
+        if (filteredOutTransaction.isPresent()) {
             filteredOutTransactions.add(filteredOutTransaction.get());
             return "Transaction stored as temporary transaction, needs to perform after corporate action ..!";
         }
@@ -65,6 +70,15 @@ public class PortfolioService {
                 yield "Stock sell updated in portfolio and profit and loss updated in profit and loss";
             }
         };
+    }
+
+    private static void validateAssetRequest(UserMail userMail, AssetRequest assetRequest) {
+        if (null == assetRequest.getEmail() || assetRequest.getEmail().isBlank()) {
+            return;
+        }
+        if (!userMail.getEmail().equals(assetRequest.getEmail())) {
+            throw new BadRequestException("Email does not match");
+        }
     }
 
     private static void sanitizeAssetRequest(AssetRequest assetRequest) {
@@ -87,6 +101,27 @@ public class PortfolioService {
         return "All transactions uploaded successfully";
     }
 
+    @Transactional
+    public String redriveTemporaryTransactions(UserMail userMail) {
+
+        List<TemporaryTransactionEntity> userTemporaryTransactions = temporaryTransactionRepository.findByEmail(userMail.getEmail());
+        List<String> filteredOutTransactions = new ArrayList<>();
+
+        for (TemporaryTransactionEntity temporaryTransaction : userTemporaryTransactions) {
+            if (!temporaryTransactionService.filterOutTransaction(userMail, temporaryTransaction)) {
+                log.info("Redriving transaction: {}", temporaryTransaction.getId());
+                addTransaction(userMail, temporaryTransaction.getAssetRequest(), filteredOutTransactions);
+                temporaryTransactionRepository.deleteById(temporaryTransaction.getId());
+            }
+        }
+
+        if (!filteredOutTransactions.isEmpty()) {
+            return String.format("Filtered out transactions: %s", filteredOutTransactions);
+        }
+
+        return "All transactions uploaded successfully";
+    }
+
     public void buyStock(UserMail userMail, String transactionId, AssetRequest assetRequest) {
 
         String email = userMail.getEmail();
@@ -96,9 +131,7 @@ public class PortfolioService {
         String accountHolder = assetRequest.getAccountHolder();
         LocalDate transactionDate = assetRequest.getTransactionDate();
 
-        Optional<AssetEntity> optionalStock = portfolioRepository
-                .findByEmailAndStockCodeAndBrokerNameAndAccountHolderAndTransactionDate(email, stockCode,
-                        brokerName, accountHolder, transactionDate);
+        Optional<AssetEntity> optionalStock = portfolioRepository.findByEmailAndStockCodeAndBrokerNameAndAccountHolderAndTransactionDate(email, stockCode, brokerName, accountHolder, transactionDate);
         AssetEntity assetEntity;
         if (optionalStock.isPresent()) {
             assetEntity = optionalStock.get();
@@ -124,7 +157,7 @@ public class PortfolioService {
 
             assetRequest.getOrderTimeQuantities().add(orderTimeQuantity);
         } else {
-            assetEntity = assetRequest.getAsset();
+            assetEntity = assetRequest.asAsset();
             double totalValueOfTransaction = getTotalValue(assetRequest);
 
             assetEntity.setTotalValue(totalValueOfTransaction);
@@ -147,16 +180,13 @@ public class PortfolioService {
         BrokerName brokerName = assetRequest.getBrokerName();
         String accountHolder = assetRequest.getAccountHolder();
 
-        List<AssetEntity> stockEntities = portfolioRepository
-                .findByEmailAndStockCodeAndBrokerNameAndAccountHolderOrderByTransactionDate(email, stockCode,
-                        brokerName, accountHolder);
+        List<AssetEntity> stockEntities = portfolioRepository.findByEmailAndStockCodeAndBrokerNameAndAccountHolderOrderByTransactionDate(email, stockCode, brokerName, accountHolder);
 
         validateTransaction(stockEntities, assetRequest);
 
         updateQuantityBySavingReportAndProfitAndLoss(userMail, transactionId, stockEntities, assetRequest);
 
-        List<String> updatedStockEntities = TCollectionUtil.applyMap(stockEntities, asset -> asset.getQuantity() == 0,
-                AssetEntity::getId);
+        List<String> updatedStockEntities = TCollectionUtil.applyMap(stockEntities, asset -> asset.getQuantity() == 0, AssetEntity::getId);
         portfolioRepository.saveAll(stockEntities);
 
         if (!updatedStockEntities.isEmpty()) {
@@ -251,9 +281,7 @@ public class PortfolioService {
         assetResponse.setPrice(totalValue / quantity);
         assetResponse.setBrokerCharges(brokerCharges);
         assetResponse.setMiscCharges(miscCharges);
-        Map<String, Double> transactionQuantities = transactionDatesMap.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey())
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+        Map<String, Double> transactionQuantities = transactionDatesMap.entrySet().stream().sorted(Map.Entry.comparingByKey()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
         assetResponse.setTransactionQuantities(transactionQuantities);
         assetResponse.setTransactionDate(null);
         return assetResponse;
@@ -351,11 +379,7 @@ public class PortfolioService {
         portfolioRepository.saveAll(stocks);
     }
 
-//    public List<Asset> testMethod(UserMail userMail, String stockCode, LocalDate recordDate) {
-//
-//        return portfolioRepository.findByEmailAndStockCodeAndTransactionDateBefore(userMail.getEmail(), stockCode, recordDate);
-//    }
-
+    @Transactional
     public String clearAllRecordsForCustomer(UserMail userMail) {
 
         log.info("Initiated deletion of all records of user: {}", userMail.getEmail());
@@ -368,6 +392,8 @@ public class PortfolioService {
         log.info("Deleted all transactions for user: {}", userMail.getEmail());
         profitAndLossService.deleteProfitAndLoss(userMail);
         log.info("Deleted all profit and loss reports for user: {}", userMail.getEmail());
+        temporaryTransactionService.deleteTemporaryTransaction(userMail);
+        log.info("Deleted all temporary transactions for user: {}", userMail.getEmail());
 
         return "User: " + userMail.getEmail() + ", records and transactions deleted successfully";
     }
@@ -385,8 +411,7 @@ public class PortfolioService {
         List<AssetResponse> resultedAssets = TCollectionUtil.map(resultedAssetsMap.values(), PortfolioService::combineAllDetailsOfEntities);
 
         List<String> stockCodes = TCollectionUtil.map(resultedAssets, AssetResponse::getStockCode);
-        Map<String, Double> assetQuantityMap = TCollectionUtil.toMap(resultedAssets, stockCodeWithBroker(),
-                AssetResponse::getQuantity);
+        Map<String, Double> assetQuantityMap = TCollectionUtil.toMap(resultedAssets, stockCodeWithBroker(), AssetResponse::getQuantity);
 
         List<AssetResponse> allAssets = getStockEntities(userMail, new HashSet<>(stockCodes));
 
@@ -418,11 +443,7 @@ public class PortfolioService {
 
     private List<AssetEntity> getLongTermHeldAssets(UserMail userMail, String oneYearBeforeDate) {
 
-        QueryFilter queryFilter = QueryFilter.builder()
-                .filterKey("transaction_date")
-                .value(oneYearBeforeDate)
-                .operation(QueryFilter.FilterOperation.LESSER_THAN)
-                .isDateField(true).build();
+        QueryFilter queryFilter = QueryFilter.builder().filterKey("transaction_date").value(oneYearBeforeDate).operation(QueryFilter.FilterOperation.LESSER_THAN).isDateField(true).build();
 
         List<QueryFilter> queryFilters = new ArrayList<>();
         queryFilters.add(queryFilter);
@@ -432,11 +453,7 @@ public class PortfolioService {
 
     private List<AssetEntity> getShortTermHeldAssets(UserMail userMail, String oneYearBeforeDate) {
 
-        QueryFilter queryFilter = QueryFilter.builder()
-                .filterKey("transaction_date")
-                .value(oneYearBeforeDate)
-                .operation(QueryFilter.FilterOperation.GREATER_THAN)
-                .isDateField(true).build();
+        QueryFilter queryFilter = QueryFilter.builder().filterKey("transaction_date").value(oneYearBeforeDate).operation(QueryFilter.FilterOperation.GREATER_THAN).isDateField(true).build();
 
         List<QueryFilter> queryFilters = new ArrayList<>();
         queryFilters.add(queryFilter);

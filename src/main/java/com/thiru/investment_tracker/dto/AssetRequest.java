@@ -7,7 +7,6 @@ import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.entity.AssetEntity;
-import com.thiru.investment_tracker.entity.TemporaryTransactionEntity;
 import com.thiru.investment_tracker.entity.TransactionEntity;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.time.TLocalDate;
@@ -60,7 +59,7 @@ public class AssetRequest implements AssetEntityProtoType, TransactionEntityProt
 
     @Override
     @JsonIgnore
-    public TransactionEntity getTransaction() {
+    public TransactionEntity asTransaction() {
 
         TransactionEntity transactionEntity = new TransactionEntity();
         transactionEntity.setEmail(email);
@@ -88,7 +87,7 @@ public class AssetRequest implements AssetEntityProtoType, TransactionEntityProt
 
     @Override
     @JsonIgnore
-    public AssetEntity getAsset() {
+    public AssetEntity asAsset() {
         AssetEntity assetEntity = new AssetEntity();
 
         assetEntity.setStockCode(stockCode);

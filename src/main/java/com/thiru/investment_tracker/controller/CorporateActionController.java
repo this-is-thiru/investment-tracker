@@ -1,6 +1,8 @@
 package com.thiru.investment_tracker.controller;
 
 import com.thiru.investment_tracker.dto.CorporateActionDto;
+import com.thiru.investment_tracker.dto.user.UserMail;
+import com.thiru.investment_tracker.entity.CorporateActionEntity;
 import com.thiru.investment_tracker.service.CorporateActionService;
 import com.thiru.investment_tracker.service.TemporaryTransactionService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,11 @@ public class CorporateActionController {
         return ResponseEntity.ok(message);
     }
 
+    @GetMapping("/{id}")
+    public CorporateActionEntity getCorporateAction(@PathVariable String id) {
+        return corporateActionService.getCorporateActionDetails(id);
+    }
+
     @PutMapping("/update/priority/{id}/{priority}")
     public ResponseEntity<String> updateCorporateActionPriority(@PathVariable String id, @PathVariable int priority) {
 
@@ -38,10 +45,15 @@ public class CorporateActionController {
         return ResponseEntity.ok(actions);
     }
 
+    @PutMapping("/perform/{email}")
+    public void performCorporateActions(@PathVariable String email) {
+        corporateActionService.performPendingCorporateActions(email);
+    }
+
     @PutMapping("/perform")
     public ResponseEntity<String> updateCorporateAction(@RequestBody CorporateActionDto corporateActionRequest) {
 
-        String message = corporateActionService.updateCorporateAction(corporateActionRequest);
+        String message = corporateActionService.performCorporateAction(corporateActionRequest);
         return ResponseEntity.ok(message);
     }
 
@@ -55,7 +67,7 @@ public class CorporateActionController {
     @PutMapping("/perform/test")
     public ResponseEntity<Boolean> updateCorporateActionBonus(@RequestBody CorporateActionDto request) {
 
-        boolean message = temporaryTransactionService.isCorporateActionToPerform(request.getStockCode(), request.getRecordDate());
+        boolean message = temporaryTransactionService.anyCorporateActionToPerform(UserMail.from("test"), request.getStockCode(), request.getRecordDate());
         return ResponseEntity.ok(message);
     }
 

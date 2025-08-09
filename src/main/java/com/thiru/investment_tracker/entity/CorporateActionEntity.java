@@ -1,6 +1,7 @@
 package com.thiru.investment_tracker.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.CorporateActionType;
 import com.thiru.investment_tracker.entity.helper.AuditMetadata;
 import com.thiru.investment_tracker.entity.model.AuditableEntity;
@@ -31,6 +32,8 @@ public class CorporateActionEntity implements AuditableEntity {
     private String toStockName;
     @Field(name = "type", targetType = FieldType.STRING)
     private CorporateActionType type;
+    @Field(name = "asset_type", targetType = FieldType.STRING)
+    private AssetType assetType;
     @Field("description")
     private String description;
     @Field("record_date")

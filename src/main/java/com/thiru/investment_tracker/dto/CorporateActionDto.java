@@ -2,19 +2,15 @@ package com.thiru.investment_tracker.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.CorporateActionType;
 import com.thiru.investment_tracker.dto.model.AuditMetadataDto;
 import com.thiru.investment_tracker.dto.model.AuditableResponse;
 import com.thiru.investment_tracker.entity.CorporateActionEntity;
-import com.thiru.investment_tracker.entity.helper.AuditMetadata;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
-import com.thiru.investment_tracker.util.time.TLocalDateTime;
 import lombok.Data;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Data
 public class CorporateActionDto implements AuditableResponse {
@@ -24,6 +20,7 @@ public class CorporateActionDto implements AuditableResponse {
     private String toStockCode;
     private String toStockName;
     private CorporateActionType type;
+    private AssetType assetType;
     private String description;
     private String actionPrice;
     private String ratio;
@@ -49,6 +46,7 @@ public class CorporateActionDto implements AuditableResponse {
         corporateAction.setToStockCode(toStockCode);
         corporateAction.setToStockName(toStockName);
         corporateAction.setType(type);
+        corporateAction.setAssetType(assetType);
         corporateAction.setDescription(description);
         corporateAction.setActionPrice(actionPrice);
         corporateAction.setRatio(ratio);

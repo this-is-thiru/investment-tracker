@@ -8,4 +8,5 @@ import java.util.List;
 public interface TemporaryTransactionRepository extends MongoRepository<TemporaryTransactionEntity, String> {
 
     List<TemporaryTransactionEntity> findByEmail(String email);
+    void deleteByEmail(String email);
 }
