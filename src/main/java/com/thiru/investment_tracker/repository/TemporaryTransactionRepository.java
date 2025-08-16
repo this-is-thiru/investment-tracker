@@ -13,5 +13,8 @@ public interface TemporaryTransactionRepository extends MongoRepository<Temporar
 
     List<TemporaryTransactionEntity> findByEmailAndStockCodeAndAssetTypeAndTransactionDateAfterOrderByTransactionDateAsc(String email, String stockCode, AssetType assetType, LocalDate transactionDate);
 
+    List<TemporaryTransactionEntity> findByEmailAndStockCodeAndAssetTypeAndTransactionDateBefore(String email, String stockCode, AssetType assetType, LocalDate transactionDate);
+
+
     void deleteByEmail(String email);
 }

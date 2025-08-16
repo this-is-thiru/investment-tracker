@@ -112,6 +112,15 @@ public class CorporateActionService {
     }
 
     @Transactional
+    public void deleteCorporateActions(String id) {
+        corporateActionRepository.deleteById(id);
+    }
+
+    public List<CorporateActionEntity> getAllCorporateActions() {
+        return corporateActionRepository.findAll();
+    }
+
+    @Transactional
     public void performPendingCorporateActions(String email) {
 
         LocalDate today = TLocalDate.today();
@@ -134,11 +143,12 @@ public class CorporateActionService {
 
         String stockCode = corporateAction.getStockCode();
         AssetType assetType = corporateAction.getAssetType();
-        LocalDate txnDate = corporateAction.getRecordDate();
+        LocalDate recordDate = corporateAction.getRecordDate();
 
-        List<TemporaryTransactionEntity> temporaryTransactions = temporaryTransactionRepository
-                .findByEmailAndStockCodeAndAssetTypeAndTransactionDateAfterOrderByTransactionDateAsc(email, stockCode, assetType, txnDate.minusDays(ONE));
-        return !temporaryTransactions.isEmpty();
+        List<TemporaryTransactionEntity> beforeTemporaryTransactions = temporaryTransactionRepository
+                .findByEmailAndStockCodeAndAssetTypeAndTransactionDateBefore(email, stockCode, assetType, recordDate);
+
+        return !beforeTemporaryTransactions.isEmpty();
     }
 
     public void performPendingCorporateAction(String email, CorporateActionEntity corporateAction) {
@@ -350,12 +360,12 @@ public class CorporateActionService {
 
     private void updateLastlyPerformedCorporateAction(String email, String stockCode, AssetType assetType, CorporateActionType actionType, LocalDate exDate) {
 
-        Optional<LastlyPerformedCorporateAction> lastlyPerformedCorporateAction = lastlyPerformedCorporateActionRepo
+        Optional<LastlyPerformedCorporateAction> lpcaOptional = lastlyPerformedCorporateActionRepo
                 .findByEmailAndStockCodeAndAssetTypeAndActionType(email, stockCode, assetType, actionType);
-
-        LastlyPerformedCorporateAction action = lastlyPerformedCorporateAction.orElse(LastlyPerformedCorporateAction.builder()
+        LastlyPerformedCorporateAction lastlyPerformedCorporateAction = lpcaOptional.orElse(LastlyPerformedCorporateAction.builder()
                 .email(email).stockCode(stockCode).actionType(actionType).actionDate(exDate).build());
 
-        lastlyPerformedCorporateActionRepo.save(action);
+        lastlyPerformedCorporateAction.setActionDate(exDate);
+        lastlyPerformedCorporateActionRepo.save(lastlyPerformedCorporateAction);
     }
 }

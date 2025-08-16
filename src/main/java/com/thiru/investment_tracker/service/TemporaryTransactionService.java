@@ -77,8 +77,12 @@ public class TemporaryTransactionService {
 
         Optional<LastlyPerformedCorporateAction> lastlyPerformedActionOptional = lastlyPerformedCorporateActionRepo
                 .findByEmailAndStockCodeAndAssetTypeAndActionType(userMail.getEmail(), stockCode, assetType, actionType);
-        Optional<LocalDate> nextDayOfActionDay = lastlyPerformedActionOptional.map(LastlyPerformedCorporateAction::getActionDate);
-        return nextDayOfActionDay.map(actionDate -> actionDate.isBefore(corporateAction.getRecordDate())).orElse(true);
+        Optional<LocalDate> nextDayOfActionDay = lastlyPerformedActionOptional.map(lpa->lpa.getActionDate().plusDays(1));
+
+        if (nextDayOfActionDay.isPresent() && corporateAction.getRecordDate().isBefore(nextDayOfActionDay.get())) {
+            return false;
+        }
+        return true;
     }
 
     public void deleteTemporaryTransaction(UserMail userMail) {

@@ -7,6 +7,7 @@ import com.thiru.investment_tracker.service.CorporateActionService;
 import com.thiru.investment_tracker.service.TemporaryTransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -48,6 +49,17 @@ public class CorporateActionController {
     @PutMapping("/perform/{email}")
     public void performCorporateActions(@PathVariable String email) {
         corporateActionService.performPendingCorporateActions(email);
+    }
+
+    @GetMapping("/all")
+    public List<CorporateActionEntity> deleteCorporateActions() {
+        return corporateActionService.getAllCorporateActions();
+    }
+
+    @PreAuthorize("hasAnyRole('SUPER_USER')")
+    @DeleteMapping("/delete/{id}")
+    public void deleteCorporateActions(@PathVariable String id) {
+        corporateActionService.deleteCorporateActions(id);
     }
 
     @PutMapping("/perform")
