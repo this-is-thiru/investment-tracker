@@ -3,12 +3,14 @@ package com.thiru.investment_tracker.service;
 import com.thiru.investment_tracker.dto.AssetRequest;
 import com.thiru.investment_tracker.dto.TransactionResponse;
 import com.thiru.investment_tracker.dto.enums.AssetType;
+import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.TransactionEntity;
 import com.thiru.investment_tracker.entity.query.QueryFilter;
 import com.thiru.investment_tracker.repository.TransactionRepository;
+import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.collection.TObjectMapper;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,9 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-@AllArgsConstructor
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;
@@ -31,7 +33,7 @@ public class TransactionService {
         if (assetRequest.getTransactionDate() == null) {
             assetRequest.setTransactionDate(LocalDate.now());
         }
-        TransactionEntity transactionEntity = assetRequest.getTransaction();
+        TransactionEntity transactionEntity = assetRequest.asTransaction();
         transactionEntity.setEmail(userMail.getEmail());
 
         log.info("Transaction: {}, Stock: '{}' on '{}' noted successfully for: {}", transactionEntity.getTransactionType(),
@@ -64,8 +66,18 @@ public class TransactionService {
         return transactionRepository.findByStockCodeAndTransactionDateBeforeOrderByTransactionDateDesc(stockCode, recordDate);
     }
 
-    public void saveCorporateActionProcessedTransactions(List<TransactionEntity> transactionEntities) {
-        transactionRepository.saveAll(transactionEntities);
+    public List<TransactionEntity> testTransactionsForCorporateActions(String email, String stockCode, BrokerName brokerName, LocalDate recordDate) {
+        return transactionRepository.findByEmailAndStockCodeAndBrokerNameAndTransactionDateBeforeOrderByTransactionDateDesc(email, stockCode, brokerName, recordDate);
+    }
+
+    public List<String> saveCorporateActionProcessedTransactions(List<TransactionEntity> transactionEntities) {
+        List<TransactionEntity> savedTransactions = transactionRepository.saveAll(transactionEntities);
+        return TCollectionUtil.map(savedTransactions, TransactionEntity::getId);
+    }
+
+    public List<TransactionResponse> userTransactions(UserMail userMail, List<QueryFilter> queryFilters) {
+        List<TransactionEntity> transactions = getUserTransactions(userMail, queryFilters);
+        return transactions.stream().map(transaction -> TObjectMapper.copy(transaction, TransactionResponse.class)).toList();
     }
 
     public List<TransactionEntity> getUserTransactions(UserMail userMail, List<QueryFilter> queryFilters) {

@@ -1,26 +1,30 @@
 package com.thiru.investment_tracker.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.CorporateActionType;
+import com.thiru.investment_tracker.dto.model.AuditMetadataDto;
+import com.thiru.investment_tracker.dto.model.AuditableResponse;
+import com.thiru.investment_tracker.entity.CorporateActionEntity;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
-import com.thiru.investment_tracker.util.time.TLocalDateTime;
 import lombok.Data;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Data
-public class CorporateActionDto {
+public class CorporateActionDto implements AuditableResponse {
+    private String id;
     private String stockCode;
     private String stockName;
     private String toStockCode;
     private String toStockName;
     private CorporateActionType type;
+    private AssetType assetType;
     private String description;
     private String actionPrice;
     private String ratio;
+    private int priority;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCollectionUtil.DATE_FORMAT)
     private LocalDate exDate;
@@ -28,10 +32,27 @@ public class CorporateActionDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCollectionUtil.DATE_FORMAT)
     private LocalDate recordDate;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCollectionUtil.DATE_FORMAT)
+    private LocalDate date;
 
-    @CreatedBy
-    private String createdBy;
-    @CreatedDate
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TLocalDateTime.COMPLETE_DATE_TIME_FORMAT)
-    private LocalDateTime createdAt;
+    private AuditMetadataDto auditMetadata;
+
+    @JsonIgnore
+    public CorporateActionEntity getAsEntity() {
+        CorporateActionEntity corporateAction = new CorporateActionEntity();
+
+        corporateAction.setStockCode(stockCode);
+        corporateAction.setStockName(stockName);
+        corporateAction.setToStockCode(toStockCode);
+        corporateAction.setToStockName(toStockName);
+        corporateAction.setType(type);
+        corporateAction.setAssetType(assetType);
+        corporateAction.setDescription(description);
+        corporateAction.setActionPrice(actionPrice);
+        corporateAction.setRatio(ratio);
+        corporateAction.setExDate(exDate);
+        corporateAction.setRecordDate(recordDate);
+
+        return corporateAction;
+    }
 }

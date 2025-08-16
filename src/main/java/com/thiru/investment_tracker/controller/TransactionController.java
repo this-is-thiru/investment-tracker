@@ -17,8 +17,8 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     @PostMapping
-    public List<TransactionEntity> getUserTransaction(@PathVariable String email, @RequestBody BulkGetRequest bulkGetRequest) {
-        return transactionService.getUserTransactions(UserMail.from(email), bulkGetRequest.getQueryFilters());
+    public List<TransactionResponse> getUserTransaction(@PathVariable String email, @RequestBody BulkGetRequest bulkGetRequest) {
+        return transactionService.userTransactions(UserMail.from(email), bulkGetRequest.getQueryFilters());
     }
 
     @GetMapping
