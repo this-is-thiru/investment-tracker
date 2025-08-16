@@ -34,6 +34,7 @@ public class TransactionResponse {
     private double totalValue;
     private TransactionType transactionType;
     private String orderId;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCollectionUtil.DATE_TIME_FORMAT)
     private LocalDateTime orderExecutionTime;
     private String timezoneId = TLocalDate.TIME_ZONE_IST;
     private String accountType;

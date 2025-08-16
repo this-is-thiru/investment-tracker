@@ -5,12 +5,10 @@ import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.CorporateActionType;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
-import com.thiru.investment_tracker.entity.AssetEntity;
-import com.thiru.investment_tracker.entity.CorporateActionEntity;
-import com.thiru.investment_tracker.entity.LastlyPerformedCorporateAction;
-import com.thiru.investment_tracker.entity.TransactionEntity;
+import com.thiru.investment_tracker.entity.*;
 import com.thiru.investment_tracker.repository.CorporateActionRepository;
 import com.thiru.investment_tracker.repository.LastlyPerformedCorporateActionRepo;
+import com.thiru.investment_tracker.repository.TemporaryTransactionRepository;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.collection.TObjectMapper;
 import com.thiru.investment_tracker.util.time.TLocalDate;
@@ -36,6 +34,7 @@ public class CorporateActionService {
 
     private final PortfolioService portfolioService;
     private final TransactionService transactionService;
+    private final TemporaryTransactionRepository temporaryTransactionRepository;
     private final CorporateActionRepository corporateActionRepository;
     private final LastlyPerformedCorporateActionRepo lastlyPerformedCorporateActionRepo;
 
@@ -122,10 +121,24 @@ public class CorporateActionService {
         List<CorporateActionEntity> corporateActions = corporateActionRepository.findByTypeInAndRecordDateBetween(CorporateActionType.FILTERABLE_CORPORATE_ACTIONS, fromDate, toDate);
 
         for (CorporateActionEntity corporateAction : corporateActions) {
+            if (skipPendingCorporateAction(email, corporateAction)) {
+                continue;
+            }
             performPendingCorporateAction(email, corporateAction);
         }
 
         System.out.println(corporateActions);
+    }
+
+    private boolean skipPendingCorporateAction(String email, CorporateActionEntity corporateAction) {
+
+        String stockCode = corporateAction.getStockCode();
+        AssetType assetType = corporateAction.getAssetType();
+        LocalDate txnDate = corporateAction.getRecordDate();
+
+        List<TemporaryTransactionEntity> temporaryTransactions = temporaryTransactionRepository
+                .findByEmailAndStockCodeAndAssetTypeAndTransactionDateAfterOrderByTransactionDateAsc(email, stockCode, assetType, txnDate.minusDays(ONE));
+        return !temporaryTransactions.isEmpty();
     }
 
     public void performPendingCorporateAction(String email, CorporateActionEntity corporateAction) {

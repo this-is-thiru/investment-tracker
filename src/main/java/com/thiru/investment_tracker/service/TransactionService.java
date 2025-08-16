@@ -75,6 +75,11 @@ public class TransactionService {
         return TCollectionUtil.map(savedTransactions, TransactionEntity::getId);
     }
 
+    public List<TransactionResponse> userTransactions(UserMail userMail, List<QueryFilter> queryFilters) {
+        List<TransactionEntity> transactions = getUserTransactions(userMail, queryFilters);
+        return transactions.stream().map(transaction -> TObjectMapper.copy(transaction, TransactionResponse.class)).toList();
+    }
+
     public List<TransactionEntity> getUserTransactions(UserMail userMail, List<QueryFilter> queryFilters) {
         return mongoTemplateService.getDocuments(userMail, queryFilters, TransactionEntity.class);
     }
