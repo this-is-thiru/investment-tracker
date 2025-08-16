@@ -275,7 +275,7 @@ public class CorporateActionService {
         String stockCode = corporateAction.getStockCode();
         LocalDate recordDate = corporateAction.getRecordDate();
 
-        List<AssetEntity> stockEntities = portfolioService.testStocksForCorporateActions(email, stockCode, recordDate);
+        List<AssetEntity> stockEntities = portfolioService.stocksForCorporateActions(email, stockCode, recordDate);
         if (stockEntities.isEmpty()) {
             log.info("No stock found for corporate action: {} for stock: {} on record date: {}", corporateAction.getType(), stockCode, recordDate);
             updateLastlyPerformedCorporateAction(email, stockCode, corporateAction.getAssetType(), corporateAction.getType(), corporateAction.getExDate());

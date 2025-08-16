@@ -26,6 +26,7 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class AssetRequest implements AssetEntityProtoType, TransactionEntityProtoType {
+    private String tempTransactionId; // To keep track of temp transactions
     private String email;
     private String stockCode;
     private String stockName;
@@ -62,6 +63,7 @@ public class AssetRequest implements AssetEntityProtoType, TransactionEntityProt
     public TransactionEntity asTransaction() {
 
         TransactionEntity transactionEntity = new TransactionEntity();
+        transactionEntity.setId(tempTransactionId);
         transactionEntity.setEmail(email);
         transactionEntity.setStockCode(stockCode);
         transactionEntity.setStockName(stockName);

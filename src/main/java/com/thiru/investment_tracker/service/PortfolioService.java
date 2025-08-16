@@ -107,11 +107,15 @@ public class PortfolioService {
         List<TemporaryTransactionEntity> userTemporaryTransactions = temporaryTransactionRepository.findByEmail(userMail.getEmail());
         List<String> filteredOutTransactions = new ArrayList<>();
 
+        List<String> redrivenTransactions = new ArrayList<>();
         for (TemporaryTransactionEntity temporaryTransaction : userTemporaryTransactions) {
             if (!temporaryTransactionService.filterOutTransaction(userMail, temporaryTransaction)) {
                 log.info("Redriving transaction: {}", temporaryTransaction.getId());
+                AssetRequest tempTransaction = temporaryTransaction.getAssetRequest();
+                tempTransaction.setTempTransactionId(temporaryTransaction.getId());
                 addTransaction(userMail, temporaryTransaction.getAssetRequest(), filteredOutTransactions);
                 temporaryTransactionRepository.deleteById(temporaryTransaction.getId());
+                redrivenTransactions.add(temporaryTransaction.getId());
             }
         }
 
@@ -119,7 +123,7 @@ public class PortfolioService {
             return String.format("Filtered out transactions: %s", filteredOutTransactions);
         }
 
-        return "All transactions uploaded successfully";
+        return "Redriven temporary transactions: " + redrivenTransactions;
     }
 
     public void buyStock(UserMail userMail, String transactionId, AssetRequest assetRequest) {
@@ -371,7 +375,7 @@ public class PortfolioService {
         return portfolioRepository.findByStockCodeAndTransactionDateBefore(stockCode, recordDate);
     }
 
-    public List<AssetEntity> testStocksForCorporateActions(String email, String stockCode, LocalDate recordDate) {
+    public List<AssetEntity> stocksForCorporateActions(String email, String stockCode, LocalDate recordDate) {
         return portfolioRepository.findByEmailAndStockCodeAndTransactionDateBefore(email, stockCode, recordDate);
     }
 
