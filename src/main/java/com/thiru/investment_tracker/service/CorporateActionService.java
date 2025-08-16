@@ -278,12 +278,14 @@ public class CorporateActionService {
         List<AssetEntity> stockEntities = portfolioService.testStocksForCorporateActions(email, stockCode, recordDate);
         if (stockEntities.isEmpty()) {
             log.info("No stock found for corporate action: {} for stock: {} on record date: {}", corporateAction.getType(), stockCode, recordDate);
+            updateLastlyPerformedCorporateAction(email, stockCode, corporateAction.getAssetType(), corporateAction.getType(), corporateAction.getExDate());
             return null;
         }
 
         Map<BrokerName, List<AssetEntity>> brokerNameAndStocksMap = TCollectionUtil.groupingBy(stockEntities, AssetEntity::getBrokerName);
         for (Map.Entry<BrokerName, List<AssetEntity>> entry : brokerNameAndStocksMap.entrySet()) {
             processBonusShares(email, corporateAction, entry.getKey(), entry.getValue());
+            updateLastlyPerformedCorporateAction(email, stockCode, corporateAction.getAssetType(), corporateAction.getType(), corporateAction.getExDate());
         }
 
         return "Success";
@@ -325,7 +327,6 @@ public class CorporateActionService {
         }
         portfolioService.saveCorporateActionProcessedStocks(stockEntities);
 
-        updateLastlyPerformedCorporateAction(email, stockCode, corporateAction.getAssetType(), corporateAction.getType(), corporateAction.getExDate());
         log.info("Bonus shares: {} added for symbol: {} in Broker: {}", newTransactionIds.getFirst(), stockCode, brokerName);
     }
 
