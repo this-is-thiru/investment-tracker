@@ -12,18 +12,18 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/temporary-transactions/")
+@RequestMapping("/temporary-transactions/user/{email}")
 public class TemporaryTransactionsController {
 
     private final PortfolioService portfolioService;
     private final TemporaryTransactionService temporaryTransactionService;
 
-    @GetMapping("/{email}/all")
+    @GetMapping("/all")
     public List<TemporaryTransactionEntity> getAllTemporaryTransactions(@PathVariable String email) {
         return temporaryTransactionService.getAllTemporaryTransactions(UserMail.from(email));
     }
 
-    @PostMapping("/{email}/redrive")
+    @PostMapping("/redrive")
     public String redriveTemporaryTransactions(@PathVariable String email) {
         return portfolioService.redriveTemporaryTransactions(UserMail.from(email));
     }

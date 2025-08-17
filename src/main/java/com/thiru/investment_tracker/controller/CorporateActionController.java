@@ -46,11 +46,6 @@ public class CorporateActionController {
         return ResponseEntity.ok(actions);
     }
 
-    @PutMapping("/perform/{email}")
-    public void performCorporateActions(@PathVariable String email) {
-        corporateActionService.performPendingCorporateActions(email);
-    }
-
     @GetMapping("/all")
     public List<CorporateActionEntity> deleteCorporateActions() {
         return corporateActionService.getAllCorporateActions();
@@ -69,24 +64,10 @@ public class CorporateActionController {
         return ResponseEntity.ok(message);
     }
 
-    @PutMapping("/perform/bonus/{email}")
-    public ResponseEntity<String> updateCorporateActionBonus(@PathVariable String email, @RequestBody CorporateActionDto corporateActionRequest) {
-
-        String message = corporateActionService.processBonusShares(email, corporateActionRequest);
-        return ResponseEntity.ok(message);
-    }
-
     @PutMapping("/perform/test")
     public ResponseEntity<Boolean> updateCorporateActionBonus(@RequestBody CorporateActionDto request) {
 
         boolean message = temporaryTransactionService.anyCorporateActionToPerform(UserMail.from("test"), request.getStockCode(), request.getRecordDate());
         return ResponseEntity.ok(message);
-    }
-
-    @GetMapping("/perform/test/{email}/{year}/{quarter}")
-    public ResponseEntity<Boolean> updateCorporateActionBonus(@PathVariable String email, @PathVariable int year, @PathVariable int quarter) {
-
-        corporateActionService.performQuarterlyCorporateActions(email, year, quarter);
-        return ResponseEntity.ok(true);
     }
 }
