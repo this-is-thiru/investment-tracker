@@ -15,6 +15,7 @@ public class ExcelHeaders {
     public static final String PRICE = "PRICE";
     public static final String TOTAL_VALUE = "TOTAL VALUE";
     public static final String QUANTITY = "QUANTITY";
+    public static final String TOTAL_QUANTITY = "TOTAL QUANTITY";
     public static final String TRANSACTION_TYPE = "TRANSACTION TYPE";
     public static final String TRANSACTION_DATE = "TRANSACTION DATE";
     public static final String BROKER_CHARGES = "BROKER CHARGES";
@@ -28,7 +29,7 @@ public class ExcelHeaders {
 
     public static String[] getPortfolioHeaders() {
         return new String[]{ExcelHeaders.EMAIL, ExcelHeaders.STOCK_NAME, ExcelHeaders.STOCK_CODE,
-                ExcelHeaders.QUANTITY, "TOTAL QUANTITY", ExcelHeaders.PRICE, ExcelHeaders.TOTAL_VALUE,
+                ExcelHeaders.QUANTITY, ExcelHeaders.TOTAL_QUANTITY, ExcelHeaders.PRICE, ExcelHeaders.TOTAL_VALUE,
                 ExcelHeaders.EXCHANGE_NAME, ExcelHeaders.BROKER_NAME, ExcelHeaders.ASSET_TYPE,
                 ExcelHeaders.MATURITY_DATE, ExcelHeaders.BROKER_CHARGES, ExcelHeaders.MISC_CHARGES, "HIII"};
     }

@@ -1,9 +1,9 @@
 package com.thiru.investment_tracker.auth.controller;
 
-import com.thiru.investment_tracker.auth.model.LoginRequest;
-import com.thiru.investment_tracker.auth.model.LoginResponse;
-import com.thiru.investment_tracker.auth.model.RegistrationRequest;
-import com.thiru.investment_tracker.auth.model.RoleUpgradeRequest;
+import com.thiru.investment_tracker.auth.dto.LoginRequest;
+import com.thiru.investment_tracker.auth.dto.LoginResponse;
+import com.thiru.investment_tracker.auth.dto.RegistrationRequest;
+import com.thiru.investment_tracker.auth.dto.RoleUpgradeRequest;
 import com.thiru.investment_tracker.auth.service.AuthService;
 import com.thiru.investment_tracker.util.collection.TObjectMapper;
 import lombok.AllArgsConstructor;

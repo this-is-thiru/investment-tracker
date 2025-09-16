@@ -1,6 +1,6 @@
 package com.thiru.investment_tracker.auth.filter;
 
-import com.thiru.investment_tracker.auth.model.AuthHelper;
+import com.thiru.investment_tracker.auth.dto.AuthHelper;
 import com.thiru.investment_tracker.auth.service.AuthService;
 import com.thiru.investment_tracker.auth.service.UserValidator;
 import io.jsonwebtoken.Claims;

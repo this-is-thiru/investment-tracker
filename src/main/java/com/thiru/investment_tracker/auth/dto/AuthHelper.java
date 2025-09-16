@@ -1,4 +1,4 @@
-package com.thiru.investment_tracker.auth.model;
+package com.thiru.investment_tracker.auth.dto;
 
 import com.thiru.investment_tracker.util.collection.TObjectMapper;
 import io.jsonwebtoken.Claims;

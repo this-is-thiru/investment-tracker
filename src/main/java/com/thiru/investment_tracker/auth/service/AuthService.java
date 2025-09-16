@@ -1,9 +1,9 @@
 package com.thiru.investment_tracker.auth.service;
 
 import com.thiru.investment_tracker.auth.entity.UserDetail;
-import com.thiru.investment_tracker.auth.model.AuthHelper;
-import com.thiru.investment_tracker.auth.model.LoginResponse;
-import com.thiru.investment_tracker.auth.model.RegistrationRequest;
+import com.thiru.investment_tracker.auth.dto.AuthHelper;
+import com.thiru.investment_tracker.auth.dto.LoginResponse;
+import com.thiru.investment_tracker.auth.dto.RegistrationRequest;
 import com.thiru.investment_tracker.auth.repository.UserDetailsRepository;
 import io.jsonwebtoken.*;
 import lombok.AllArgsConstructor;

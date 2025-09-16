@@ -53,7 +53,7 @@ public class AssetExcelWorkbookWriter extends AbstractExcelWorkbookWriter<AssetR
         simpleColumnHeaders.put(EXCHANGE_NAME, ExcelHeaders.EXCHANGE_NAME);
         simpleColumnHeaders.put(BROKER_NAME, ExcelHeaders.BROKER_NAME);
         simpleColumnHeaders.put(STOCK_QUANTITY, ExcelHeaders.QUANTITY);
-        simpleColumnHeaders.put(STOCK_TOTAL_QUANTITY, ExcelHeaders.TOTAL_VALUE);
+        simpleColumnHeaders.put(STOCK_TOTAL_QUANTITY, ExcelHeaders.TOTAL_QUANTITY);
         simpleColumnHeaders.put(STOCK_PRICE, ExcelHeaders.PRICE);
         simpleColumnHeaders.put(STOCK_TOTAL_VALUE, ExcelHeaders.TOTAL_VALUE);
         simpleColumnHeaders.put(MATURITY_DATE, ExcelHeaders.MATURITY_DATE);
