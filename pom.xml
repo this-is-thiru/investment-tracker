@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.4</version>
+        <version>3.5.6</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.thiru</groupId>
@@ -15,12 +15,9 @@
     <description>Investment Tracker</description>
 
     <properties>
-        <java.version>21</java.version>
-        <jjwt.version>0.12.6</jjwt.version>
-        <poi-ooxml.version>5.4.0</poi-ooxml.version>
-        <openapi.version>2.8.6</openapi.version>
-        <openapi.generator.version>7.12.0</openapi.generator.version>
-        <antrun.plugin.version>3.1.0</antrun.plugin.version>
+        <java.version>25</java.version>
+        <jjwt.version>0.13.0</jjwt.version>
+        <poi-ooxml.version>5.4.1</poi-ooxml.version>
     </properties>
 
     <dependencies>
@@ -91,12 +88,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>${openapi.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
@@ -137,72 +128,21 @@
 
     </dependencies>
 
+
     <build>
-        <finalName>investment-tracker</finalName>
         <plugins>
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.thiru.investment_tracker.InvestmentTrackerApplication</mainClass>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
-
-            <plugin>
-                <groupId>org.openapitools</groupId>
-                <artifactId>openapi-generator-maven-plugin</artifactId>
-                <version>${openapi.generator.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>${project.basedir}/src/main/resources/openapi.yaml</inputSpec>
-                            <generatorName>spring</generatorName>
-                            <library>spring-boot</library>
-                            <output>${project.basedir}/target/generated-sources/openapi</output>
-                            <apiPackage>com.thiru.investment_tracker.api</apiPackage>
-                            <modelPackage>com.thiru.investment_tracker.model</modelPackage>
-                            <invokerPackage>com.thiru.investment_tracker.invoker</invokerPackage>
-                            <configOptions>
-                                <useSpringBoot3>true</useSpringBoot3>
-                                <openApiNullable>false</openApiNullable>
-                                <generateTests>false</generateTests>
-                                <generatedConstructorWithRequiredArgs>false</generatedConstructorWithRequiredArgs>
-                                <delegatePattern>true</delegatePattern>
-                                <additionalModelTypeAnnotations>
-                                    @lombok.Builder(toBuilder=true)
-                                    @lombok.NoArgsConstructor
-                                    @lombok.AllArgsConstructor
-                                </additionalModelTypeAnnotations>
-                            </configOptions>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>${antrun.plugin.version}</version>
-                <executions>
-                    <execution>
-                        <phase>process-sources</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <!-- remove the unwanted generated testcases by the spring generator of openapi -->
-                                <delete dir="${project.build.directory}/generated-sources/openapi/src/test"/>
-                            </target>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-
         </plugins>
     </build>
 
