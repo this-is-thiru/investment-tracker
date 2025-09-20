@@ -1,9 +1,9 @@
 package com.thiru.investment_tracker.service;
 
 
-import com.thiru.investment_tracker.model.CalculationType;
-import com.thiru.investment_tracker.model.FinanceRequest;
-import com.thiru.investment_tracker.model.FinanceResponse;
+import com.thiru.investment_tracker.dto.FinanceRequest;
+import com.thiru.investment_tracker.dto.FinanceResponse;
+import com.thiru.investment_tracker.dto.enums.CalculationType;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,30 +13,25 @@ public class FinancesService {
 
         CalculationType calculationType = financeRequest.getCalculationType();
         return switch (calculationType) {
-            case EMI:
-                yield calculateEmi(financeRequest);
-            case TOTAL_AMOUNT:
-                yield calculateFinalAmount(financeRequest);
-            case PRINCIPAL_AMOUNT:
-                yield null;
-            case RATE_OF_INTEREST:
-                yield new FinanceResponse().rateOfInterest(financeRequest.getRateOfInterest());
-            case TIME_PERIOD:
-//                return new FinanceResponse().timePeriod(financeRequest.getTimePeriod());
-            case NONE:
-               throw new IllegalArgumentException("Invalid calculation type");
+            case EMI -> calculateEmi(financeRequest);
+            case TOTAL_AMOUNT -> calculateFinalAmount(financeRequest);
+            case PRINCIPAL_AMOUNT -> null;
+            case RATE_OF_INTEREST ->
+                    FinanceResponse.builder().rateOfInterest(financeRequest.getRateOfInterest()).build();
+            case TIME_PERIOD,//                return new FinanceResponse().timePeriod(financeRequest.getTimePeriod());
+                 NONE -> throw new IllegalArgumentException("Invalid calculation type");
         };
     }
 
     private FinanceResponse calculateEmi(FinanceRequest financeRequest) {
 
         double emiAmount = calculatedEmi(financeRequest);
-        return new FinanceResponse().emiAmount((int) Math.ceil(emiAmount));
+        return FinanceResponse.builder().emiAmount((int) Math.ceil(emiAmount)).build();
     }
 
     private FinanceResponse calculateFinalAmount(FinanceRequest financeRequest) {
         double finalAmount = calculatedEmi(financeRequest) * financeRequest.getTimePeriod();
-        return new FinanceResponse().finalAmount(finalAmount);
+        return FinanceResponse.builder().finalAmount(finalAmount).build();
     }
 
     private double calculatedEmi(FinanceRequest financeRequest) {

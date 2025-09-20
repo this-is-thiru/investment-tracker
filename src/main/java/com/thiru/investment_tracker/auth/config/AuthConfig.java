@@ -1,7 +1,7 @@
 package com.thiru.investment_tracker.auth.config;
 
 import com.thiru.investment_tracker.auth.filter.AuthFilter;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,7 +26,7 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AuthConfig {
 
     private final AuthFilter authFilter;

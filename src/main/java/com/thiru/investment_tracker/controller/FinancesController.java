@@ -1,14 +1,12 @@
 package com.thiru.investment_tracker.controller;
 
-import com.thiru.investment_tracker.model.FinanceRequest;
-import com.thiru.investment_tracker.model.FinanceResponse;
-import com.thiru.investment_tracker.model.InterestRateResponse;
-import com.thiru.investment_tracker.model.StepUpSIPRequest;
+import com.thiru.investment_tracker.dto.FinanceRequest;
+import com.thiru.investment_tracker.dto.FinanceResponse;
+import com.thiru.investment_tracker.dto.InterestRateResponse;
+import com.thiru.investment_tracker.dto.StepUpSIPRequest;
 import com.thiru.investment_tracker.service.FinancesService;
-
 import com.thiru.investment_tracker.service.StepUpSIPCalculator;
 import lombok.AllArgsConstructor;
-
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -1,7 +1,8 @@
 package com.thiru.investment_tracker.service;
 
-import com.thiru.investment_tracker.model.InterestRateResponse;
-import com.thiru.investment_tracker.model.StepUpSIPRequest;
+
+import com.thiru.investment_tracker.dto.InterestRateResponse;
+import com.thiru.investment_tracker.dto.StepUpSIPRequest;
 import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
