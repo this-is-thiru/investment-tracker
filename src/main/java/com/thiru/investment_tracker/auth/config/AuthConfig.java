@@ -38,7 +38,7 @@ public class AuthConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login", "/auth/register", "/helper/**", "/swagger-ui/**", "/v3/**", "/openapi.yaml", "/finances/**", "/template/**").permitAll()
+                        .requestMatchers("/auth/login", "/auth/register", "/helper/**", "/finances/**", "/template/**").permitAll()
                         .requestMatchers("/auth/**", "/portfolio/**", "/reports/**", "/transactions/**", "/corporate-action/**", "/temporary-transactions/**").authenticated())
                 .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(Customizer.withDefaults())
