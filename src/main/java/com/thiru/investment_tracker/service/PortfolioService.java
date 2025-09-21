@@ -285,7 +285,9 @@ public class PortfolioService {
         assetResponse.setPrice(totalValue / quantity);
         assetResponse.setBrokerCharges(brokerCharges);
         assetResponse.setMiscCharges(miscCharges);
-        Map<String, Double> transactionQuantities = transactionDatesMap.entrySet().stream().sorted(Map.Entry.comparingByKey()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+        Map<String, Double> transactionQuantities = transactionDatesMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, _) -> e1, LinkedHashMap::new));
         assetResponse.setTransactionQuantities(transactionQuantities);
         assetResponse.setTransactionDate(null);
         return assetResponse;
