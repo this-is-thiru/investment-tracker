@@ -30,5 +30,5 @@ public class LastlyPerformedCorporateAction implements AuditableEntity {
 
     @Field("audit_metadata")
     @Setter(value = AccessLevel.NONE)
-    private AuditMetadata auditMetadata = new AuditMetadata();
+    private final AuditMetadata auditMetadata = new AuditMetadata();
 }
