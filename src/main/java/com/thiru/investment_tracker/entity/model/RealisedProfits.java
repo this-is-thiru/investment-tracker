@@ -1,12 +1,11 @@
 package com.thiru.investment_tracker.entity.model;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
-
-import org.springframework.data.mongodb.core.mapping.Field;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.mongodb.core.mapping.Field;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor(staticName = "empty")
