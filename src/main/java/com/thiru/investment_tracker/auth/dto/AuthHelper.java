@@ -1,6 +1,6 @@
 package com.thiru.investment_tracker.auth.dto;
 
-import com.thiru.investment_tracker.util.collection.TObjectMapper;
+import com.thiru.investment_tracker.core.util.collection.TObjectMapper;
 import io.jsonwebtoken.Claims;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

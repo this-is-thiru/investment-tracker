@@ -1,7 +1,7 @@
 package com.thiru.investment_tracker.auth.service;
 
-import com.thiru.investment_tracker.util.collection.TCollectionUtil;
-import com.thiru.investment_tracker.util.collection.TStringUtil;
+import com.thiru.investment_tracker.core.util.collection.TCollectionUtil;
+import com.thiru.investment_tracker.core.util.collection.TStringUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

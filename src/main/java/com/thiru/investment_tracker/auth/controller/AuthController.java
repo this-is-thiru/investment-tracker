@@ -5,7 +5,7 @@ import com.thiru.investment_tracker.auth.dto.LoginResponse;
 import com.thiru.investment_tracker.auth.dto.RegistrationRequest;
 import com.thiru.investment_tracker.auth.dto.RoleUpgradeRequest;
 import com.thiru.investment_tracker.auth.service.AuthService;
-import com.thiru.investment_tracker.util.collection.TObjectMapper;
+import com.thiru.investment_tracker.core.util.collection.TObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
