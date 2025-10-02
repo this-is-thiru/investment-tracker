@@ -18,7 +18,7 @@ public class BrokerChargesRequest{
     private LocalDate startDate;
     private EntityStatus status;
     private double accountOpeningCharges;
-    private double amcCharges;
+    private double amcChargesAnnually;
     private BrokerageChargesDto brokerageCharges;
     private double dpChargesPerScrip;
     private double stt;

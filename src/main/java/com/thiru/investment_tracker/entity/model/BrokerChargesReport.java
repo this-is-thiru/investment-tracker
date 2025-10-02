@@ -5,24 +5,8 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 
-// TODO: Rename the document fields purchasePrice -> purchaseAmount, sellPrice -> sellAmount, brokerCharges -> brokerage
 @Data
-public class ReportModel {
-    @Field("purchase_amount")
-    private double purchaseAmount;
-
-    @Field("sell_amount")
-    private double sellAmount;
-
-    @Field("profit")
-    private double profit;
-
-    @Field("broker_charges")
-    private double brokerCharges;
-
-    @Field("misc_charges")
-    private double miscCharges;
-
+public class BrokerChargesReport {
     @Field("brokerage")
     private double brokerage;
 

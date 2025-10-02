@@ -24,7 +24,7 @@ public class UserBrokerChargeService {
     private final UserBrokerChargesRepository userBrokerChargesRepository;
     private final BrokerChargeService brokerChargeService;
 
-    public void addUserBrokerChargeEntry(UserMail userMail, BrokerChargeContext brokerChargeContext) {
+    public UserBrokerCharges addUserBrokerChargeEntry(UserMail userMail, BrokerChargeContext brokerChargeContext) {
         BrokerName brokerName = brokerChargeContext.brokerName();
         String stockCode = brokerChargeContext.stockCode();
         LocalDate transactionDate = brokerChargeContext.transactionDate();
@@ -32,7 +32,7 @@ public class UserBrokerChargeService {
         BrokerCharges brokerCharges = brokerChargeService.getBrokerCharge(brokerName, transactionDate);
         if (brokerCharges == null) {
             log.error("Broker charges not found for user: {}, brokerContext: {}", userMail, brokerChargeContext);
-            return;
+            return null;
         }
 
         UserBrokerCharges brokerCharge = getUserBrokerCharges(brokerChargeContext, brokerCharges);
@@ -40,6 +40,7 @@ public class UserBrokerChargeService {
         if (brokerChargesOptional.isEmpty()) {
             brokerCharge.setDpCharges(brokerCharge.getDpCharges());
         }
+        return userBrokerChargesRepository.save(brokerCharge);
     }
 
     private UserBrokerCharges getUserBrokerCharges(BrokerChargeContext brokerChargeContext, BrokerCharges brokerCharges) {
@@ -61,13 +62,13 @@ public class UserBrokerChargeService {
     }
 
     private double getGovtCharges(BrokerChargeContext brokerChargeContext, BrokerCharges brokerCharges) {
-        double sttCharge = brokerChargeContext.totalSellCost() * brokerCharges.getStt() / 100;
-        double sebiCharge = brokerChargeContext.totalSellCost() * brokerCharges.getSebiCharges() / 100;
+        double sttCharge = brokerChargeContext.totalAmount() * brokerCharges.getStt() / 100;
+        double sebiCharge = brokerChargeContext.totalAmount() * brokerCharges.getSebiCharges() / 100;
         double govtCharges = sttCharge + sebiCharge;
 
         var brokerChargesOptional = brokerChargeContext.transactionType();
         if (brokerChargesOptional == BrokerChargeTransactionType.BUY) {
-            double stampDuty = brokerChargeContext.totalSellCost() * brokerCharges.getStampDuty() / 100;
+            double stampDuty = brokerChargeContext.totalAmount() * brokerCharges.getStampDuty() / 100;
             govtCharges += stampDuty;
         }
         return govtCharges;
@@ -133,7 +134,7 @@ public class UserBrokerChargeService {
         }
 
         double brokeragePercentage = brokerageCharges.getBrokerage();
-        double brokerageWithFromPercentage = brokerChargeContext.totalSellCost() * brokeragePercentage / 100;
+        double brokerageWithFromPercentage = brokerChargeContext.totalAmount() * brokeragePercentage / 100;
         double brokerageChargesAmount = brokerageCharges.getBrokerageCharges();
 
         if (brokerageCharges.getBrokerageAggregator() == BrokerageAggregatorType.MIN) {

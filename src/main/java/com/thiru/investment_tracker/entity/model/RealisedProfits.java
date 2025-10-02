@@ -16,4 +16,6 @@ public class RealisedProfits implements Serializable {
 
 	private FinancialReport shortTermCapitalGains;
 	private FinancialReport longTermCapitalGains;
+
+    private BrokerChargesReport brokerChargesReport;
 }

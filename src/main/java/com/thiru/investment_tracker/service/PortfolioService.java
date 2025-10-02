@@ -1,12 +1,21 @@
 package com.thiru.investment_tracker.service;
 
-import com.thiru.investment_tracker.dto.*;
+import com.thiru.investment_tracker.dto.AssetRequest;
+import com.thiru.investment_tracker.dto.AssetResponse;
+import com.thiru.investment_tracker.dto.OrderTimeQuantity;
+import com.thiru.investment_tracker.dto.ProfitAndLossContext;
+import com.thiru.investment_tracker.dto.ProfitAndLossResponse;
+import com.thiru.investment_tracker.dto.ProfitLossContext;
+import com.thiru.investment_tracker.dto.ReportContext;
+import com.thiru.investment_tracker.dto.context.BuyContext;
+import com.thiru.investment_tracker.dto.enums.AccountType;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.HoldingType;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.AssetEntity;
+import com.thiru.investment_tracker.entity.ProfitAndLossEntity;
 import com.thiru.investment_tracker.entity.TemporaryTransactionEntity;
 import com.thiru.investment_tracker.entity.query.QueryFilter;
 import com.thiru.investment_tracker.exception.BadRequestException;
@@ -28,7 +37,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -331,6 +348,50 @@ public class PortfolioService {
         }
     }
 
+    private void updateQuantityBySavingReportAndProfitAndLoss1(UserMail userMail, String transactionId, List<AssetEntity> stockEntities, AssetRequest assetRequest) {
+
+        double sellQuantity = assetRequest.getQuantity();
+        Iterator<AssetEntity> stockEntitiesIterator = stockEntities.iterator();
+        List<BuyContext> buyContexts = new ArrayList<>();
+        while (sellQuantity > 0) {
+            AssetEntity assetEntity = stockEntitiesIterator.next();
+            assetEntity.getSellTransactionIds().add(transactionId);
+            Double assetQuantity = assetEntity.getQuantity();
+
+            if (sellQuantity >= assetQuantity) {
+                buyContexts.add(new BuyContext(assetEntity.getQuantity(), assetEntity.getTransactionDate(), assetEntity.getPrice()));
+
+                assetEntity.setQuantity(0D);
+                assetEntity.setTotalValue(0);
+                sellQuantity = sellQuantity - assetQuantity;
+            } else {
+                buyContexts.add(new BuyContext(sellQuantity, assetEntity.getTransactionDate(), assetEntity.getPrice()));
+
+                double remainingQuantity = assetQuantity - sellQuantity;
+                assetEntity.setQuantity(remainingQuantity);
+                assetEntity.setTotalValue(remainingQuantity * assetEntity.getPrice());
+                sellQuantity = 0;
+            }
+
+            var profitLossContext = toProfitLossContext(assetRequest, buyContexts, transactionId);
+            profitAndLossService.updateProfitAndLoss(userMail, profitLossContext);
+        }
+    }
+
+    private static ProfitLossContext toProfitLossContext(AssetRequest assetRequest, List<BuyContext> buyContexts, String transactionId) {
+
+        double sellQuantity = assetRequest.getQuantity();
+        LocalDate sellDate = assetRequest.getTransactionDate();
+        double price = assetRequest.getPrice();
+        AccountType accountType = assetRequest.getAccountType();
+        String accountHolder = assetRequest.getAccountHolder();
+        String stockCode = assetRequest.getStockCode();
+        BrokerName brokerName = assetRequest.getBrokerName();
+
+        return new ProfitLossContext(transactionId, sellQuantity, sellDate, price, stockCode, brokerName, assetRequest.getExchangeName(),
+                TransactionType.SELL, null, accountType, accountHolder, buyContexts);
+    }
+
     private static ReportContext toReportContext(AssetEntity assetEntity, AssetRequest assetRequest, double sellQuantity) {
 
         ReportContext reportContext = ReportContext.empty();
@@ -359,7 +420,7 @@ public class PortfolioService {
 
     }
 
-    public ProfitAndLossResponse getProfitAndLoss(UserMail userMail, String financialYear) {
+    public ProfitAndLossEntity getProfitAndLoss(UserMail userMail, String financialYear) {
         return profitAndLossService.getProfitAndLoss(userMail, financialYear);
     }
 

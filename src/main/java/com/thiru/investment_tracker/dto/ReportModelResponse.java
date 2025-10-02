@@ -9,8 +9,8 @@ import lombok.Data;
 
 @Data
 public class ReportModelResponse {
-    private double purchasePrice;
-    private double sellPrice;
+    private double purchaseAmount;
+    private double sellAmount;
     private double profit;
     private double brokerCharges;
     private double miscCharges;

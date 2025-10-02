@@ -46,7 +46,6 @@ public class BrokerChargeService {
         if (chargesOptional.isEmpty()) {
             throw new BadRequestException("Broker charges with id: " + id + " not found");
         }
-
         return chargesOptional.get();
     }
 
@@ -70,7 +69,7 @@ public class BrokerChargeService {
         brokerCharges.setEndDate(brokerChargesRequest.getStartDate().plusYears(BROKER_CHARGES_VALIDITY_IN_YEARS));
         brokerCharges.setStatus(brokerChargesRequest.getStatus());
         brokerCharges.setAccountOpeningCharges(brokerChargesRequest.getAccountOpeningCharges());
-        brokerCharges.setAmcCharges(brokerChargesRequest.getAmcCharges());
+        brokerCharges.setAmcChargesAnnually(brokerChargesRequest.getAmcChargesAnnually());
         brokerCharges.setBrokerageCharges(TObjectMapper.copy(brokerChargesRequest.getBrokerageCharges(), BrokerageCharges.class));
         brokerCharges.setDpChargesPerScrip(brokerChargesRequest.getDpChargesPerScrip());
         brokerCharges.setStt(brokerChargesRequest.getStt());

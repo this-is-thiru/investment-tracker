@@ -51,4 +51,9 @@ public class ProfitAndLossEntity implements AuditableEntity {
 		this.email = email;
 	}
 
+    public ProfitAndLossEntity(String email, String financialYear) {
+        this.email = email;
+        this.financialYear = financialYear;
+    }
+
 }

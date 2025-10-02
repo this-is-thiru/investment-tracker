@@ -19,12 +19,12 @@ public class BrokerChargesController {
     private final BrokerChargeService brokerChargeService;
 
     @PostMapping("/add")
-    public String addCorporateAction(@RequestBody BrokerChargesRequest brokerChargesRequest) {
+    public String addBrokerCharge(@RequestBody BrokerChargesRequest brokerChargesRequest) {
         return brokerChargeService.addBrokerCharge(brokerChargesRequest);
     }
 
     @GetMapping("/{id}")
-    public BrokerCharges getCorporateAction(@PathVariable String id) {
+    public BrokerCharges getBrokerCharge(@PathVariable String id) {
         return brokerChargeService.getBrokerCharges(id);
     }
 }

@@ -3,10 +3,8 @@ package com.thiru.investment_tracker.dto.context;
 import com.thiru.investment_tracker.dto.enums.BrokerChargeTransactionType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.CorporateActionType;
-import org.jspecify.annotations.NonNull;
 
 import java.time.LocalDate;
-import java.util.List;
 
 public record BrokerChargeContext(
         String transactionId,
@@ -14,11 +12,8 @@ public record BrokerChargeContext(
         BrokerName brokerName,
         BrokerChargeTransactionType transactionType,
         LocalDate transactionDate,
-        boolean isForShortTermStock,
         String exchangeName,
         CorporateActionType corporateActionType,
-        double totalSellCost,
-
-        @NonNull List<BuyContext> buyContexts
+        double totalAmount
 ) {
 }
