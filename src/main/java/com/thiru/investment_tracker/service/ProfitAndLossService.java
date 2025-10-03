@@ -1,7 +1,6 @@
 package com.thiru.investment_tracker.service;
 
 import com.thiru.investment_tracker.dto.ProfitAndLossContext;
-import com.thiru.investment_tracker.dto.ProfitAndLossResponse;
 import com.thiru.investment_tracker.dto.ProfitLossContext;
 import com.thiru.investment_tracker.dto.context.BrokerChargeContext;
 import com.thiru.investment_tracker.dto.context.BuyContext;
@@ -12,13 +11,15 @@ import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.ProfitAndLossEntity;
 import com.thiru.investment_tracker.entity.UserBrokerCharges;
+import com.thiru.investment_tracker.entity.model.BrokerChargesReport;
 import com.thiru.investment_tracker.entity.model.FinancialReport;
 import com.thiru.investment_tracker.entity.model.FortnightReport;
+import com.thiru.investment_tracker.entity.model.MonthlyBrokerCharges;
 import com.thiru.investment_tracker.entity.model.MonthlyReport;
 import com.thiru.investment_tracker.entity.model.RealisedProfits;
 import com.thiru.investment_tracker.entity.model.ReportModel;
+import com.thiru.investment_tracker.entity.model.YearlyBrokerCharges;
 import com.thiru.investment_tracker.repository.ProfitAndLossRepository;
-import com.thiru.investment_tracker.util.collection.TObjectMapper;
 import com.thiru.investment_tracker.util.collection.TOptional;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -40,7 +41,7 @@ import java.util.Optional;
 public class ProfitAndLossService {
 
     private static final int MARCH = 3;
-    private static final int DAY = 31;
+    private static final int DAY_31 = 31;
 
     private final ProfitAndLossRepository profitAndLossRepository;
     private final UserBrokerChargeService userBrokerChargeService;
@@ -147,9 +148,9 @@ public class ProfitAndLossService {
         metadata.setPurchaseAmount(metadata.getPurchaseAmount() + internalContext.getPurchasePrice());
         metadata.setSellAmount(metadata.getSellAmount() + internalContext.getSellPrice());
         metadata.setProfit(metadata.getProfit() + internalContext.getProfit());
-        metadata.setBrokerCharges(metadata.getBrokerCharges() + internalContext.getBrokerCharges());
+        metadata.setBrokerage(metadata.getBrokerage() + internalContext.getBrokerCharges());
         metadata.setMiscCharges(metadata.getMiscCharges() + internalContext.getMiscCharges());
-        metadata.setLastUpdatedTime(LocalDateTime.now());
+//        metadata.setLastUpdatedTime(LocalDateTime.now());
     }
 
     private static Map<Month, MonthlyReport> updateMonthlyReports(Map<Month, MonthlyReport> monthlyReports,
@@ -190,7 +191,7 @@ public class ProfitAndLossService {
         double purchaseBrokerCharges = profitAndLossContext.getPurchaseContext().getBrokerCharges();
         double sellBrokerCharges = profitAndLossContext.getSellContext().getBrokerCharges();
         double brokerCharges = purchaseBrokerCharges + sellBrokerCharges;
-        fortnightReport.setBrokerCharges(fortnightReport.getBrokerCharges() + brokerCharges);
+        fortnightReport.setBrokerage(fortnightReport.getBrokerage() + brokerCharges);
 
         double purchaseMiscCharges = profitAndLossContext.getPurchaseContext().getMiscCharges();
         double sellMiscCharges = profitAndLossContext.getSellContext().getMiscCharges();
@@ -230,7 +231,7 @@ public class ProfitAndLossService {
     }
 
     private static LocalDate financialYearEnd(int year) {
-        return LocalDate.of(year, MARCH, DAY);
+        return LocalDate.of(year, MARCH, DAY_31);
     }
 
     public ProfitAndLossEntity getProfitAndLoss(UserMail userMail, String financialYear) {
@@ -313,9 +314,6 @@ public class ProfitAndLossService {
 
         String email = userMail.getEmail();
 
-        BrokerChargeContext brokerChargeContext = brokerChargeContext(profitLossContext);
-        UserBrokerCharges userBrokerCharges = userBrokerChargeService.addUserBrokerChargeEntry(userMail, brokerChargeContext);
-
         LocalDate transactionDate = profitLossContext.date();
         String financialYear = sanitizeFinancialYear(transactionDate);
 
@@ -329,6 +327,11 @@ public class ProfitAndLossService {
             InternalContext internalContext = new InternalContext(purchaseAmount, sellAmount, transactionDate, isShortTermHeld);
             updateProfitAndLossReport(profitAndLossEntity, profitLossContext, internalContext);
         }
+
+        // calculate and update the broker charges
+        BrokerChargeContext brokerChargeContext = brokerChargeContext(profitLossContext);
+        UserBrokerCharges userBrokerCharges = userBrokerChargeService.addUserBrokerChargeEntry(userMail, brokerChargeContext);
+        updateBrokerChargesReport(profitAndLossEntity, profitLossContext, userBrokerCharges);
         profitAndLossRepository.save(profitAndLossEntity);
     }
 
@@ -407,31 +410,72 @@ public class ProfitAndLossService {
         fortnightReport.setSellAmount(fortnightReport.getSellAmount() + internalContext.sellAmount());
     }
 
-    private static void updateYearlyBrokerCharges(FinancialReport financialReport, UserBrokerCharges userBrokerCharges) {
-        financialReport.setBrokerage(financialReport.getBrokerage() + userBrokerCharges.getBrokerage());
-        financialReport.setAccountOpeningCharges(financialReport.getAccountOpeningCharges() + userBrokerCharges.getAccountOpeningCharges());
-        financialReport.setAmcCharges(financialReport.getAmcCharges() + userBrokerCharges.getAmcCharges());
-        financialReport.setGovtCharges(financialReport.getGovtCharges() + userBrokerCharges.getGovtCharges());
-        financialReport.setTaxes(financialReport.getTaxes() + userBrokerCharges.getTaxes());
-        financialReport.setDpCharges(financialReport.getDpCharges() + userBrokerCharges.getDpCharges());
+    private static void updateBrokerChargesReport(ProfitAndLossEntity profitAndLossEntity, ProfitLossContext profitLossContext, UserBrokerCharges userBrokerCharges) {
+
+        AccountType accountType = profitLossContext.accountType();
+        if (accountType == AccountType.SELF) {
+            RealisedProfits existingRealisedProfits = TOptional.mapO(profitAndLossEntity.getRealisedProfits(), RealisedProfits.empty());
+            RealisedProfits calculatedProfitDetails = calculateBrokerChargesDetails(existingRealisedProfits, userBrokerCharges);
+            profitAndLossEntity.setRealisedProfits(calculatedProfitDetails);
+        } else {
+            RealisedProfits outSourcedRealisedProfits = TOptional.mapO(profitAndLossEntity.getOutSourcedRealisedProfits(), RealisedProfits.empty());
+            RealisedProfits calculatedProfitDetails = calculateBrokerChargesDetails(outSourcedRealisedProfits, userBrokerCharges);
+            profitAndLossEntity.setOutSourcedRealisedProfits(calculatedProfitDetails);
+        }
+
+        profitAndLossEntity.setLastUpdatedTime(LocalDateTime.now());
     }
 
-    private static void updateMonthlyBrokerCharges(MonthlyReport monthlyReport, UserBrokerCharges userBrokerCharges) {
-        monthlyReport.setBrokerage(monthlyReport.getBrokerage() + userBrokerCharges.getBrokerage());
-        monthlyReport.setAccountOpeningCharges(monthlyReport.getAccountOpeningCharges() + userBrokerCharges.getAccountOpeningCharges());
-        monthlyReport.setAmcCharges(monthlyReport.getAmcCharges() + userBrokerCharges.getAmcCharges());
-        monthlyReport.setGovtCharges(monthlyReport.getGovtCharges() + userBrokerCharges.getGovtCharges());
-        monthlyReport.setTaxes(monthlyReport.getTaxes() + userBrokerCharges.getTaxes());
-        monthlyReport.setDpCharges(monthlyReport.getDpCharges() + userBrokerCharges.getDpCharges());
+    private static RealisedProfits calculateBrokerChargesDetails(RealisedProfits realisedProfits, UserBrokerCharges userBrokerCharges) {
+        YearlyBrokerCharges yearlyBrokerCharges = TOptional.mapO(realisedProfits.getYearlyBrokerCharges(), new YearlyBrokerCharges());
+
+        Map<Month, MonthlyBrokerCharges> monthlyBrokerCharges = updateMonthlyReport(yearlyBrokerCharges.getMonthlyReport(), userBrokerCharges);
+        yearlyBrokerCharges.setMonthlyReport(monthlyBrokerCharges);
+
+        updateYearlyBrokerCharges(yearlyBrokerCharges, userBrokerCharges);
+        return realisedProfits;
     }
 
-    private static void updateFortnightBrokerCharges(FortnightReport fortnightReport, UserBrokerCharges userBrokerCharges) {
-        fortnightReport.setBrokerage(fortnightReport.getBrokerage() + userBrokerCharges.getBrokerage());
-        fortnightReport.setAccountOpeningCharges(fortnightReport.getAccountOpeningCharges() + userBrokerCharges.getAccountOpeningCharges());
-        fortnightReport.setAmcCharges(fortnightReport.getAmcCharges() + userBrokerCharges.getAmcCharges());
-        fortnightReport.setGovtCharges(fortnightReport.getGovtCharges() + userBrokerCharges.getGovtCharges());
-        fortnightReport.setTaxes(fortnightReport.getTaxes() + userBrokerCharges.getTaxes());
-        fortnightReport.setDpCharges(fortnightReport.getDpCharges() + userBrokerCharges.getDpCharges());
+    private static Map<Month, MonthlyBrokerCharges> updateMonthlyReport(Map<Month, MonthlyBrokerCharges> monthlyBrokerCharges, UserBrokerCharges userBrokerCharges) {
+        LocalDate transactionDate = userBrokerCharges.getTransactionDate();
+        Month month = transactionDate.getMonth();
+        MonthlyBrokerCharges monthlyBrokerCharge = monthlyBrokerCharges.getOrDefault(month, new MonthlyBrokerCharges(month));
+
+        BrokerChargesReport fortnightReport;
+        if (transactionDate.getDayOfMonth() <= 15) {
+            fortnightReport = TOptional.mapO(monthlyBrokerCharge.getFirstHalfBrokerCharges(), new BrokerChargesReport());
+            monthlyBrokerCharge.setFirstHalfBrokerCharges(fortnightReport);
+        } else {
+            fortnightReport = TOptional.mapO(monthlyBrokerCharge.getSecondHalfBrokerCharges(), new BrokerChargesReport());
+            monthlyBrokerCharge.setSecondHalfBrokerCharges(fortnightReport);
+        }
+
+        updateFortnightBrokerCharges(fortnightReport, userBrokerCharges);
+        updateMonthlyBrokerCharges(monthlyBrokerCharge, userBrokerCharges);
+        monthlyBrokerCharges.put(month, monthlyBrokerCharge);
+
+        return monthlyBrokerCharges;
+    }
+
+    private static void updateYearlyBrokerCharges(YearlyBrokerCharges yearlyBrokerCharges, UserBrokerCharges userBrokerCharges) {
+        updateBrokerCharges(yearlyBrokerCharges, userBrokerCharges);
+    }
+
+    private static void updateMonthlyBrokerCharges(MonthlyBrokerCharges monthlyBrokerCharge, UserBrokerCharges userBrokerCharges) {
+        updateBrokerCharges(monthlyBrokerCharge, userBrokerCharges);
+    }
+
+    private static void updateFortnightBrokerCharges(BrokerChargesReport fortnightBrokerChargesReport, UserBrokerCharges userBrokerCharges) {
+        updateBrokerCharges(fortnightBrokerChargesReport, userBrokerCharges);
+    }
+
+    private static void updateBrokerCharges(BrokerChargesReport brokerChargesReport, UserBrokerCharges userBrokerCharges) {
+        brokerChargesReport.setBrokerage(brokerChargesReport.getBrokerage() + userBrokerCharges.getBrokerage());
+        brokerChargesReport.setAccountOpeningCharges(brokerChargesReport.getAccountOpeningCharges() + userBrokerCharges.getAccountOpeningCharges());
+        brokerChargesReport.setAmcCharges(brokerChargesReport.getAmcCharges() + userBrokerCharges.getAmcCharges());
+        brokerChargesReport.setGovtCharges(brokerChargesReport.getGovtCharges() + userBrokerCharges.getGovtCharges());
+        brokerChargesReport.setTaxes(brokerChargesReport.getTaxes() + userBrokerCharges.getTaxes());
+        brokerChargesReport.setDpCharges(brokerChargesReport.getDpCharges() + userBrokerCharges.getDpCharges());
     }
 
     private static boolean isShortTermCapitalGain(LocalDate buyDate, LocalDate sellDate) {

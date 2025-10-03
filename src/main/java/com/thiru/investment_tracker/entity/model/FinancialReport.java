@@ -17,5 +17,6 @@ public class FinancialReport extends ReportModel {
 	/**
 	 * This stores P&L for each month (i.e each fortnight)
 	 */
+    @Field("capital_gains")
 	private Map<Month, MonthlyReport> monthlyReport = new HashMap<>();
 }

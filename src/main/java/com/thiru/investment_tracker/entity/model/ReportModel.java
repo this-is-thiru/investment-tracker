@@ -1,11 +1,11 @@
 package com.thiru.investment_tracker.entity.model;
 
 import lombok.Data;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 
-// TODO: Rename the document fields purchasePrice -> purchaseAmount, sellPrice -> sellAmount, brokerCharges -> brokerage
 @Data
 public class ReportModel {
     @Field("purchase_amount")
@@ -16,9 +16,6 @@ public class ReportModel {
 
     @Field("profit")
     private double profit;
-
-    @Field("broker_charges")
-    private double brokerCharges;
 
     @Field("misc_charges")
     private double miscCharges;
@@ -42,5 +39,6 @@ public class ReportModel {
     private double dpCharges;
 
     @Field(name = "last_updated_time")
+    @LastModifiedDate
     private LocalDateTime lastUpdatedTime;
 }

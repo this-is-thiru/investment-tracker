@@ -1,6 +1,7 @@
 package com.thiru.investment_tracker.entity.model;
 
 import lombok.Data;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
@@ -26,5 +27,6 @@ public class BrokerChargesReport {
     private double dpCharges;
 
     @Field(name = "last_updated_time")
+    @LastModifiedDate
     private LocalDateTime lastUpdatedTime;
 }
