@@ -3,9 +3,6 @@ package com.thiru.investment_tracker.service;
 import com.thiru.investment_tracker.dto.AssetRequest;
 import com.thiru.investment_tracker.dto.AssetResponse;
 import com.thiru.investment_tracker.dto.OrderTimeQuantity;
-import com.thiru.investment_tracker.dto.reports.profitloss.ProfitAndLossContext;
-import com.thiru.investment_tracker.dto.reports.profitloss.ProfitAndLossResponse;
-import com.thiru.investment_tracker.dto.reports.profitloss.ProfitLossContext;
 import com.thiru.investment_tracker.dto.ReportContext;
 import com.thiru.investment_tracker.dto.context.BuyContext;
 import com.thiru.investment_tracker.dto.enums.AccountType;
@@ -13,9 +10,11 @@ import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.HoldingType;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
+import com.thiru.investment_tracker.dto.reports.profitloss.ProfitAndLossContext;
+import com.thiru.investment_tracker.dto.reports.profitloss.ProfitAndLossResponse;
+import com.thiru.investment_tracker.dto.reports.profitloss.ProfitLossContext;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.AssetEntity;
-import com.thiru.investment_tracker.entity.ProfitAndLossEntity;
 import com.thiru.investment_tracker.entity.TemporaryTransactionEntity;
 import com.thiru.investment_tracker.entity.query.QueryFilter;
 import com.thiru.investment_tracker.exception.BadRequestException;
@@ -315,6 +314,7 @@ public class PortfolioService {
         return assetRequest.getPrice() * assetRequest.getQuantity();
     }
 
+    @SuppressWarnings({"removal"})
     private void updateQuantityBySavingReportAndProfitAndLoss(UserMail userMail, String transactionId, List<AssetEntity> stockEntities, AssetRequest assetRequest) {
 
         double sellQuantity = assetRequest.getQuantity();
