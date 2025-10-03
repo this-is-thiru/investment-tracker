@@ -28,11 +28,11 @@ public class TObjectMapper {
     }
 
     public static <T> T copy(Object source, Class<T> targetClass) {
-        return readValue(OBJECT_MAPPER, writeValueAsString(OBJECT_MAPPER, source), targetClass);
+        return readValue(OBJECT_MAPPER, writeValueAsString(source), targetClass);
     }
 
     public static <T> T safeCopy(Object source, Class<T> targetClass) {
-        return readValue(OBJECT_MAPPER_SAFE, writeValueAsString(OBJECT_MAPPER_SAFE, source), targetClass);
+        return readValue(OBJECT_MAPPER_SAFE, writeValueAsString(source), targetClass);
     }
 
     public static <T> List<T> readAsList(String content, Class<T> targetClass) {
@@ -66,7 +66,7 @@ public class TObjectMapper {
         }
 
         try {
-            String content = writeValueAsString(OBJECT_MAPPER, object);
+            String content = writeValueAsString(object);
             JavaType listType = OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, targetClass);
             return OBJECT_MAPPER.readValue(content, listType);
         } catch (JsonProcessingException e) {
@@ -81,7 +81,7 @@ public class TObjectMapper {
         }
 
         try {
-            String content = writeValueAsString(OBJECT_MAPPER_SAFE, object);
+            String content = writeValueAsString(object);
             JavaType listType = OBJECT_MAPPER_SAFE.getTypeFactory().constructCollectionType(List.class, targetClass);
             return OBJECT_MAPPER_SAFE.readValue(content, listType);
         } catch (JsonProcessingException e) {
@@ -100,9 +100,9 @@ public class TObjectMapper {
         }
     }
 
-    public static String writeValueAsString(ObjectMapper objectMapper, Object source) {
+    public static String writeValueAsString(Object source) {
         try {
-            return objectMapper.writeValueAsString(source);
+            return OBJECT_MAPPER.writeValueAsString(source);
         } catch (IOException e) {
             throw new IllegalArgumentException(e);
         }
