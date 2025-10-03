@@ -28,6 +28,9 @@ public class UserBrokerCharges implements AuditableEntity {
     @MongoId
     private String id;
 
+    @Field("email")
+    private String email;
+
     @Field(name = "broker_name", targetType = FieldType.STRING)
     private BrokerName brokerName;
 

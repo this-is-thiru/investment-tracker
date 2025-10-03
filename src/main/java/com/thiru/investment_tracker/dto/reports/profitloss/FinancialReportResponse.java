@@ -1,4 +1,4 @@
-package com.thiru.investment_tracker.dto;
+package com.thiru.investment_tracker.dto.reports.profitloss;
 
 import java.time.Month;
 import java.util.HashMap;

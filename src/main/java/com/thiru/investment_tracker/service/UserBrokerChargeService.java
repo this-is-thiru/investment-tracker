@@ -35,24 +35,30 @@ public class UserBrokerChargeService {
             return null;
         }
 
-        UserBrokerCharges brokerCharge = getUserBrokerCharges(brokerChargeContext, brokerCharges);
-        var brokerChargesOptional = userBrokerChargesRepository.findFirstSellTxnByBrokerNameAndStockCodeAndTransactionDate(brokerName, stockCode, transactionDate);
+        UserBrokerCharges brokerCharge = getUserBrokerCharges(userMail, brokerChargeContext, brokerCharges);
+        var brokerChargesOptional = userBrokerChargesRepository.findTopSellTxnByBrokerNameAndStockCodeAndTransactionDate(userMail.getEmail(), brokerName, stockCode, transactionDate);
         if (brokerChargesOptional.isEmpty()) {
             brokerCharge.setDpCharges(brokerCharge.getDpCharges());
         }
         return userBrokerChargesRepository.save(brokerCharge);
     }
 
-    private UserBrokerCharges getUserBrokerCharges(BrokerChargeContext brokerChargeContext, BrokerCharges brokerCharges) {
+    public void deleteUserBrokerCharges(UserMail userMail) {
+        userBrokerChargesRepository.deleteByEmail(userMail.getEmail());
+    }
+
+    private UserBrokerCharges getUserBrokerCharges(UserMail userMail, BrokerChargeContext brokerChargeContext, BrokerCharges brokerCharges) {
         UserBrokerCharges userBrokerCharges = new UserBrokerCharges();
 
+        double dpCharges = getDpCharges(userMail, brokerChargeContext.brokerName(), brokerChargeContext.stockCode(), brokerChargeContext.transactionDate(), brokerCharges);
+        userBrokerCharges.setEmail(userMail.getEmail());
         userBrokerCharges.setBrokerName(brokerChargeContext.brokerName());
         userBrokerCharges.setStockCode(brokerChargeContext.stockCode());
         userBrokerCharges.setTransactionDate(brokerChargeContext.transactionDate());
         userBrokerCharges.setType(brokerChargeContext.transactionType());
         userBrokerCharges.setBrokerage(getBrokerage(brokerChargeContext, brokerCharges.getBrokerageCharges()));
         userBrokerCharges.setGovtCharges(getGovtCharges(brokerChargeContext, brokerCharges));
-        userBrokerCharges.setDpCharges(getDpCharges(brokerChargeContext.brokerName(), brokerChargeContext.stockCode(), brokerChargeContext.transactionDate(), brokerCharges));
+        userBrokerCharges.setDpCharges(dpCharges);
         userBrokerCharges.setTransactionId(brokerChargeContext.transactionId());
 
         // handle amc or account opening charges
@@ -88,11 +94,11 @@ public class UserBrokerChargeService {
         double taxPercentage = Double.parseDouble(taxComponents[0]);
         String taxComponentName = taxComponents[1];
         if ("brokerage".equalsIgnoreCase(taxComponentName)) {
-            return userBrokerCharges.getBrokerage() * taxPercentage/100;
+            return userBrokerCharges.getBrokerage() * taxPercentage / 100;
         } else if ("dp_charges".equalsIgnoreCase(taxComponentName)) {
-            return userBrokerCharges.getDpCharges() * taxPercentage/100;
+            return userBrokerCharges.getDpCharges() * taxPercentage / 100;
         } else if ("stt".equalsIgnoreCase(taxComponentName)) {
-            return userBrokerCharges.getGovtCharges() * taxPercentage/100;
+            return userBrokerCharges.getGovtCharges() * taxPercentage / 100;
         } else if ("amc_charges".equalsIgnoreCase(taxComponentName)) {
             return userBrokerCharges.getAmcCharges();
         }
@@ -101,8 +107,8 @@ public class UserBrokerChargeService {
         return 0.0;
     }
 
-    private double getDpCharges(BrokerName brokerName, String stockCode, LocalDate transactionDate, BrokerCharges brokerCharges) {
-        var brokerChargesOptional = userBrokerChargesRepository.findFirstSellTxnByBrokerNameAndStockCodeAndTransactionDate(brokerName, stockCode, transactionDate);
+    private double getDpCharges(UserMail userMail, BrokerName brokerName, String stockCode, LocalDate transactionDate, BrokerCharges brokerCharges) {
+        var brokerChargesOptional = userBrokerChargesRepository.findTopSellTxnByBrokerNameAndStockCodeAndTransactionDate(userMail.getEmail(), brokerName, stockCode, transactionDate);
         if (brokerChargesOptional.isEmpty()) {
             return brokerCharges.getDpChargesPerScrip();
         }
@@ -122,8 +128,6 @@ public class UserBrokerChargeService {
             }
         } else if (type == BrokerChargeTransactionType.ACCOUNT_OPENING_CHARGES) {
             userBrokerCharges.setAccountOpeningCharges(brokerCharges.getAccountOpeningCharges());
-        } else {
-            log.error("Invalid transaction type: {}", type);
         }
     }
 

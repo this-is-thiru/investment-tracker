@@ -3,9 +3,9 @@ package com.thiru.investment_tracker.service;
 import com.thiru.investment_tracker.dto.AssetRequest;
 import com.thiru.investment_tracker.dto.AssetResponse;
 import com.thiru.investment_tracker.dto.OrderTimeQuantity;
-import com.thiru.investment_tracker.dto.ProfitAndLossContext;
-import com.thiru.investment_tracker.dto.ProfitAndLossResponse;
-import com.thiru.investment_tracker.dto.ProfitLossContext;
+import com.thiru.investment_tracker.dto.reports.profitloss.ProfitAndLossContext;
+import com.thiru.investment_tracker.dto.reports.profitloss.ProfitAndLossResponse;
+import com.thiru.investment_tracker.dto.reports.profitloss.ProfitLossContext;
 import com.thiru.investment_tracker.dto.ReportContext;
 import com.thiru.investment_tracker.dto.context.BuyContext;
 import com.thiru.investment_tracker.dto.enums.AccountType;
@@ -61,6 +61,7 @@ public class PortfolioService {
     private final ReportService reportService;
     private final TemporaryTransactionService temporaryTransactionService;
     private final TemporaryTransactionRepository temporaryTransactionRepository;
+    private final UserBrokerChargeService userBrokerChargeService;
 
     @Transactional
     public String addTransaction(UserMail userMail, AssetRequest assetRequest, List<String> filteredOutTransactions) {
@@ -348,7 +349,7 @@ public class PortfolioService {
         }
     }
 
-    private void updateQuantityBySavingReportAndProfitAndLoss1(UserMail userMail, String transactionId, List<AssetEntity> stockEntities, AssetRequest assetRequest) {
+    public void updateQuantityBySavingReportAndProfitAndLoss1(UserMail userMail, String transactionId, List<AssetEntity> stockEntities, AssetRequest assetRequest) {
 
         double sellQuantity = assetRequest.getQuantity();
         Iterator<AssetEntity> stockEntitiesIterator = stockEntities.iterator();
@@ -372,10 +373,9 @@ public class PortfolioService {
                 assetEntity.setTotalValue(remainingQuantity * assetEntity.getPrice());
                 sellQuantity = 0;
             }
-
-            var profitLossContext = toProfitLossContext(assetRequest, buyContexts, transactionId);
-            profitAndLossService.updateProfitAndLoss(userMail, profitLossContext);
         }
+        var profitLossContext = toProfitLossContext(assetRequest, buyContexts, transactionId);
+        profitAndLossService.updateProfitAndLoss(userMail, profitLossContext);
     }
 
     private static ProfitLossContext toProfitLossContext(AssetRequest assetRequest, List<BuyContext> buyContexts, String transactionId) {
@@ -420,7 +420,7 @@ public class PortfolioService {
 
     }
 
-    public ProfitAndLossEntity getProfitAndLoss(UserMail userMail, String financialYear) {
+    public ProfitAndLossResponse getProfitAndLoss(UserMail userMail, String financialYear) {
         return profitAndLossService.getProfitAndLoss(userMail, financialYear);
     }
 
@@ -461,6 +461,8 @@ public class PortfolioService {
         log.info("Deleted all profit and loss reports for user: {}", userMail.getEmail());
         temporaryTransactionService.deleteTemporaryTransaction(userMail);
         log.info("Deleted all temporary transactions for user: {}", userMail.getEmail());
+        userBrokerChargeService.deleteUserBrokerCharges(userMail);
+        log.info("Deleted all user broker charges for user: {}", userMail.getEmail());
 
         return "User: " + userMail.getEmail() + ", records and transactions deleted successfully";
     }

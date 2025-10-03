@@ -1,7 +1,8 @@
 package com.thiru.investment_tracker.service;
 
-import com.thiru.investment_tracker.dto.ProfitAndLossContext;
-import com.thiru.investment_tracker.dto.ProfitLossContext;
+import com.thiru.investment_tracker.dto.reports.profitloss.ProfitAndLossContext;
+import com.thiru.investment_tracker.dto.reports.profitloss.ProfitAndLossResponse;
+import com.thiru.investment_tracker.dto.reports.profitloss.ProfitLossContext;
 import com.thiru.investment_tracker.dto.context.BrokerChargeContext;
 import com.thiru.investment_tracker.dto.context.BuyContext;
 import com.thiru.investment_tracker.dto.enums.AccountType;
@@ -20,6 +21,7 @@ import com.thiru.investment_tracker.entity.model.RealisedProfits;
 import com.thiru.investment_tracker.entity.model.ReportModel;
 import com.thiru.investment_tracker.entity.model.YearlyBrokerCharges;
 import com.thiru.investment_tracker.repository.ProfitAndLossRepository;
+import com.thiru.investment_tracker.util.collection.TObjectMapper;
 import com.thiru.investment_tracker.util.collection.TOptional;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -234,15 +236,15 @@ public class ProfitAndLossService {
         return LocalDate.of(year, MARCH, DAY_31);
     }
 
-    public ProfitAndLossEntity getProfitAndLoss(UserMail userMail, String financialYear) {
+    public ProfitAndLossResponse getProfitAndLoss(UserMail userMail, String financialYear) {
 
         String email = userMail.getEmail();
 
         Optional<ProfitAndLossEntity> optionalProfitAndLoss = profitAndLossRepository.findByEmailAndFinancialYear(email,
                 financialYear);
-        return optionalProfitAndLoss.orElse(new ProfitAndLossEntity());
+        ProfitAndLossEntity profitAndLossEntity = optionalProfitAndLoss.orElse(new ProfitAndLossEntity());
 
-//        return TObjectMapper.copy(profitAndLossEntity, ProfitAndLossResponse.class);
+        return TObjectMapper.safeCopy(profitAndLossEntity, ProfitAndLossResponse.class);
     }
 
     public void deleteProfitAndLoss(UserMail userMail) {
@@ -427,7 +429,11 @@ public class ProfitAndLossService {
     }
 
     private static RealisedProfits calculateBrokerChargesDetails(RealisedProfits realisedProfits, UserBrokerCharges userBrokerCharges) {
-        YearlyBrokerCharges yearlyBrokerCharges = TOptional.mapO(realisedProfits.getYearlyBrokerCharges(), new YearlyBrokerCharges());
+        YearlyBrokerCharges yearlyBrokerCharges = realisedProfits.getYearlyBrokerCharges();
+        if (realisedProfits.getYearlyBrokerCharges() == null) {
+            yearlyBrokerCharges = new YearlyBrokerCharges();
+            realisedProfits.setYearlyBrokerCharges(yearlyBrokerCharges);
+        }
 
         Map<Month, MonthlyBrokerCharges> monthlyBrokerCharges = updateMonthlyReport(yearlyBrokerCharges.getMonthlyReport(), userBrokerCharges);
         yearlyBrokerCharges.setMonthlyReport(monthlyBrokerCharges);

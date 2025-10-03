@@ -1,8 +1,6 @@
-package com.thiru.investment_tracker.dto;
+package com.thiru.investment_tracker.dto.reports.profitloss;
 
 import java.time.Month;
-
-import com.thiru.investment_tracker.entity.model.FortnightReport;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,6 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MonthlyReportResponse extends ReportModelResponse {
 	private Month month;
-	private FortnightReport firstFortnightReport;
-	private FortnightReport secondFortnightReport;
+	private ReportModelResponse firstFortnightReport;
+	private ReportModelResponse secondFortnightReport;
 }

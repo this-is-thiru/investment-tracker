@@ -2,6 +2,7 @@ package com.thiru.investment_tracker.controller;
 
 import com.thiru.investment_tracker.dto.*;
 import com.thiru.investment_tracker.dto.enums.HoldingType;
+import com.thiru.investment_tracker.dto.reports.profitloss.ProfitAndLossResponse;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.AssetEntity;
 import com.thiru.investment_tracker.entity.ProfitAndLossEntity;
@@ -52,7 +53,7 @@ public class PortfolioController {
     // }
 
     @GetMapping("/profit-and-loss")
-    public ResponseEntity<ProfitAndLossEntity> getProfitAndLoss(@PathVariable String email,
+    public ResponseEntity<ProfitAndLossResponse> getProfitAndLoss(@PathVariable String email,
                                                                 @RequestParam String financialYear) {
         return ResponseEntity.ok(portfolioService.getProfitAndLoss(UserMail.from(email), financialYear));
     }
