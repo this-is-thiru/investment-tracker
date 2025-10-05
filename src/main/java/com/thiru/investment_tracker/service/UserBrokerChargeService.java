@@ -1,5 +1,6 @@
 package com.thiru.investment_tracker.service;
 
+import com.thiru.investment_tracker.dto.context.AmcChargesContext;
 import com.thiru.investment_tracker.dto.context.BrokerChargeContext;
 import com.thiru.investment_tracker.dto.enums.AmcChargeFrequency;
 import com.thiru.investment_tracker.dto.enums.BrokerChargeTransactionType;
@@ -26,7 +27,6 @@ public class UserBrokerChargeService {
 
     public UserBrokerCharges addUserBrokerChargeEntry(UserMail userMail, BrokerChargeContext brokerChargeContext) {
         BrokerName brokerName = brokerChargeContext.brokerName();
-        String stockCode = brokerChargeContext.stockCode();
         LocalDate transactionDate = brokerChargeContext.transactionDate();
 
         BrokerCharges brokerCharges = brokerChargeService.getBrokerCharge(brokerName, transactionDate);
@@ -36,15 +36,23 @@ public class UserBrokerChargeService {
         }
 
         UserBrokerCharges brokerCharge = getUserBrokerCharges(userMail, brokerChargeContext, brokerCharges);
-        var brokerChargesOptional = userBrokerChargesRepository.findTopSellTxnByBrokerNameAndStockCodeAndTransactionDate(userMail.getEmail(), brokerName, stockCode, transactionDate);
-        if (brokerChargesOptional.isEmpty()) {
-            brokerCharge.setDpCharges(brokerCharge.getDpCharges());
-        }
         return userBrokerChargesRepository.save(brokerCharge);
     }
 
-    public void deleteUserBrokerCharges(UserMail userMail) {
-        userBrokerChargesRepository.deleteByEmail(userMail.getEmail());
+    public UserBrokerCharges addAmcChargesEntry(UserMail userMail, AmcChargesContext amcChargesContext) {
+        UserBrokerCharges brokerCharge = getUserBrokerCharges(userMail, amcChargesContext);
+        return userBrokerChargesRepository.save(brokerCharge);
+    }
+
+    private UserBrokerCharges getUserBrokerCharges(UserMail userMail, AmcChargesContext amcChargesContext) {
+        UserBrokerCharges userBrokerCharges = new UserBrokerCharges();
+        userBrokerCharges.setEmail(userMail.getEmail());
+        userBrokerCharges.setBrokerName(amcChargesContext.brokerName());
+        userBrokerCharges.setTransactionDate(amcChargesContext.transactionDate());
+        userBrokerCharges.setType(BrokerChargeTransactionType.AMC_CHARGES);
+        userBrokerCharges.setAmcCharges(amcChargesContext.amount());
+        userBrokerCharges.setTaxes(amcChargesContext.taxes());
+        return userBrokerCharges;
     }
 
     private UserBrokerCharges getUserBrokerCharges(UserMail userMail, BrokerChargeContext brokerChargeContext, BrokerCharges brokerCharges) {
@@ -108,8 +116,8 @@ public class UserBrokerChargeService {
     }
 
     private double getDpCharges(UserMail userMail, BrokerName brokerName, String stockCode, LocalDate transactionDate, BrokerCharges brokerCharges) {
-        var brokerChargesOptional = userBrokerChargesRepository.findTopSellTxnByBrokerNameAndStockCodeAndTransactionDate(userMail.getEmail(), brokerName, stockCode, transactionDate);
-        if (brokerChargesOptional.isEmpty()) {
+        var brokerCharge = userBrokerChargesRepository.findTopSellTxnByBrokerNameAndStockCodeAndTransactionDate(userMail.getEmail(), brokerName, stockCode, transactionDate);
+        if (brokerCharge.isEmpty()) {
             return brokerCharges.getDpChargesPerScrip();
         }
         return 0.0;
@@ -149,5 +157,9 @@ public class UserBrokerChargeService {
             return Math.max(tempBrokerage, brokerageChargesAmount);
         }
         return 0;
+    }
+
+    public void deleteUserBrokerCharges(UserMail userMail) {
+        userBrokerChargesRepository.deleteByEmail(userMail.getEmail());
     }
 }

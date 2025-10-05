@@ -389,7 +389,7 @@ public class PortfolioService {
         BrokerName brokerName = assetRequest.getBrokerName();
 
         return new ProfitLossContext(transactionId, sellQuantity, sellDate, price, stockCode, brokerName, assetRequest.getExchangeName(),
-                TransactionType.SELL, null, accountType, accountHolder, buyContexts);
+                assetRequest.getAssetType(), TransactionType.SELL, null, accountType, accountHolder, buyContexts);
     }
 
     private static ReportContext toReportContext(AssetEntity assetEntity, AssetRequest assetRequest, double sellQuantity) {
