@@ -514,6 +514,7 @@ public class ProfitAndLossService {
 
         UserBrokerCharges userBrokerCharges = userBrokerChargeService.addAmcChargesEntry(userMail, amcChargesContext);
         updateBrokerChargesReport(profitAndLossEntity, AccountType.SELF, userBrokerCharges);
+        profitAndLossRepository.save(profitAndLossEntity);
         return userBrokerCharges.getId();
     }
 

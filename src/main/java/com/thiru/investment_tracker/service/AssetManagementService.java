@@ -1,16 +1,19 @@
 package com.thiru.investment_tracker.service;
 
+import com.thiru.investment_tracker.dto.AssetManagementDetailsRequest;
 import com.thiru.investment_tracker.dto.context.AmcChargesContext;
 import com.thiru.investment_tracker.dto.enums.BrokerChargeTransactionType;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.AssetManagementDetails;
 import com.thiru.investment_tracker.repository.AssetManagementRepository;
+import com.thiru.investment_tracker.util.collection.TObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -41,12 +44,30 @@ public class AssetManagementService {
         System.out.println("Update lastUpdated on and redrive the transactions for: " + idsWithNullLastAmcChargesDate);
     }
 
-    public AssetManagementDetails.AmcChargesEvent imposeAmcCharges(AssetManagementDetails assetManagementDetail, LocalDate fromDate, double quarterlyCharges) {
-        double taxes = assetManagementDetail.getAmcCharges() * assetManagementDetail.getTaxOnAmcCharges() / 100;
+    private AssetManagementDetails.AmcChargesEvent imposeAmcCharges(AssetManagementDetails assetManagementDetail, LocalDate fromDate, double quarterlyCharges) {
+        double taxes = quarterlyCharges * assetManagementDetail.getTaxOnAmcCharges() / 100;
         LocalDate transactionDate = assetManagementDetail.getLastAmcChargesDeductedOn();
         AmcChargesContext amcChargesContext = new AmcChargesContext(assetManagementDetail.getBrokerName(), BrokerChargeTransactionType.AMC_CHARGES,
                 transactionDate, quarterlyCharges, taxes);
         String id = profitAndLossService.updateProfitAndLossWithAmcCharges(UserMail.from(assetManagementDetail.getEmail()), amcChargesContext);
         return new AssetManagementDetails.AmcChargesEvent(id, transactionDate.plusDays(1), quarterlyCharges, List.of(fromDate, transactionDate));
+    }
+
+    public void addAssetManagementEntry(UserMail userMail, AssetManagementDetailsRequest request) {
+        if (request.getLastAmcChargesDeductedOn() == null) {
+            throw new IllegalArgumentException("Last Amc Charges Deducted On cannot be null");
+        }
+        Optional<AssetManagementDetails> assetManagementDetailsOpt = assetManagementRepository.findByEmailAndBrokerName(userMail.getEmail(), request.getBrokerName());
+        if (assetManagementDetailsOpt.isPresent()) {
+            String existingId = assetManagementDetailsOpt.get().getId();
+            AssetManagementDetails assetManagementDetails = TObjectMapper.safeCopy(request, AssetManagementDetails.class);
+            assetManagementDetails.setEmail(userMail.getEmail());
+            assetManagementDetails.setId(existingId);
+            assetManagementRepository.save(assetManagementDetails);
+            return;
+        }
+        AssetManagementDetails assetManagementDetails = TObjectMapper.safeCopy(request, AssetManagementDetails.class);
+        assetManagementDetails.setEmail(userMail.getEmail());
+        assetManagementRepository.save(assetManagementDetails);
     }
 }

@@ -12,10 +12,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(staticName = "empty")
 public class RealisedProfits implements Serializable {
 
-	@Field("last_updated_time")
-    @LastModifiedDate
-	private LocalDateTime lastUpdatedTime;
-
     @Field("short_term_capital_gains")
 	private FinancialReport shortTermCapitalGains;
 
@@ -24,4 +20,8 @@ public class RealisedProfits implements Serializable {
 
     @Field("yearly_broker_charges")
     private YearlyBrokerCharges yearlyBrokerCharges;
+
+    @Field("last_updated_time")
+    @LastModifiedDate
+    private LocalDateTime lastUpdatedTime;
 }
