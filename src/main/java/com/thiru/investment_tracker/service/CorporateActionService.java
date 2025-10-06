@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -31,6 +32,7 @@ import java.util.Optional;
 public class CorporateActionService {
 
     private static final int ONE = 1;
+    private static final Set<Month> QUARTER_START_MONTHS = Set.of(Month.JANUARY, Month.APRIL, Month.JULY, Month.OCTOBER);
 
     private final PortfolioService portfolioService;
     private final TransactionService transactionService;
@@ -121,11 +123,14 @@ public class CorporateActionService {
     }
 
     @Transactional
-    public void performPendingCorporateActions(String email) {
+    public void performPendingCorporateActions(String email, String month, int year) {
 
-        LocalDate today = TLocalDate.today();
-        Month quarterStart = today.getMonth().firstMonthOfQuarter();
-        LocalDate fromDate = LocalDate.of(today.getYear(), quarterStart, ONE);
+        Month quarterStart = Month.valueOf(month);
+        if (!QUARTER_START_MONTHS.contains(quarterStart)) {
+            throw new IllegalArgumentException("Invalid month: " + month);
+        }
+
+        LocalDate fromDate = LocalDate.of(year, quarterStart, ONE);
         LocalDate toDate = TLocalDate.today();
         List<CorporateActionEntity> corporateActions = corporateActionRepository.findByTypeInAndRecordDateBetween(CorporateActionType.FILTERABLE_CORPORATE_ACTIONS, fromDate, toDate);
 
