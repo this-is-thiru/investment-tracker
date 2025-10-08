@@ -20,7 +20,7 @@ public class CorporateActionDto implements AuditableResponse {
     private String toStockCode;
     private String toStockName;
     private CorporateActionType type;
-    private AssetType assetType;
+    private AssetType assetType = AssetType.EQUITY;
     private String description;
     private String actionPrice;
     private String ratio;
