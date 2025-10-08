@@ -373,7 +373,7 @@ public class CorporateActionService {
         Optional<LastlyPerformedCorporateAction> lpcaOptional = lastlyPerformedCorporateActionRepo
                 .findByEmailAndStockCodeAndAssetTypeAndActionType(email, stockCode, assetType, actionType);
         LastlyPerformedCorporateAction lastlyPerformedCorporateAction = lpcaOptional.orElse(LastlyPerformedCorporateAction.builder()
-                .email(email).stockCode(stockCode).actionType(actionType).actionDate(exDate).build());
+                .email(email).stockCode(stockCode).assetType(assetType).actionType(actionType).actionDate(exDate).build());
 
         lastlyPerformedCorporateAction.setActionDate(exDate);
         lastlyPerformedCorporateActionRepo.save(lastlyPerformedCorporateAction);
