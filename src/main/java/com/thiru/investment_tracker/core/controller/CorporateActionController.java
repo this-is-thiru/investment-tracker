@@ -47,7 +47,7 @@ public class CorporateActionController {
     }
 
     @GetMapping("/all")
-    public List<CorporateActionEntity> deleteCorporateActions() {
+    public List<CorporateActionEntity> getAllCorporateActions() {
         return corporateActionService.getAllCorporateActions();
     }
 
@@ -65,7 +65,7 @@ public class CorporateActionController {
     }
 
     @PutMapping("/perform/test")
-    public ResponseEntity<Boolean> updateCorporateActionBonus(@RequestBody CorporateActionDto request) {
+    public ResponseEntity<Boolean> anyCorporateActionToPerform(@RequestBody CorporateActionDto request) {
 
         boolean message = temporaryTransactionService.anyCorporateActionToPerform(UserMail.from("test"), request.getStockCode(), request.getRecordDate());
         return ResponseEntity.ok(message);

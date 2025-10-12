@@ -1,11 +1,16 @@
 package com.thiru.investment_tracker.core.service;
 
+
 import com.thiru.investment_tracker.core.dto.CorporateActionDto;
 import com.thiru.investment_tracker.core.dto.enums.AssetType;
 import com.thiru.investment_tracker.core.dto.enums.BrokerName;
 import com.thiru.investment_tracker.core.dto.enums.CorporateActionType;
 import com.thiru.investment_tracker.core.dto.enums.TransactionType;
-import com.thiru.investment_tracker.core.entity.*;
+import com.thiru.investment_tracker.core.entity.AssetEntity;
+import com.thiru.investment_tracker.core.entity.CorporateActionEntity;
+import com.thiru.investment_tracker.core.entity.LastlyPerformedCorporateAction;
+import com.thiru.investment_tracker.core.entity.TemporaryTransactionEntity;
+import com.thiru.investment_tracker.core.entity.TransactionEntity;
 import com.thiru.investment_tracker.core.repository.CorporateActionRepository;
 import com.thiru.investment_tracker.core.repository.LastlyPerformedCorporateActionRepo;
 import com.thiru.investment_tracker.core.repository.TemporaryTransactionRepository;
@@ -23,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -31,6 +37,7 @@ import java.util.Optional;
 public class CorporateActionService {
 
     private static final int ONE = 1;
+    private static final Set<Month> QUARTER_START_MONTHS = Set.of(Month.JANUARY, Month.APRIL, Month.JULY, Month.OCTOBER);
 
     private final PortfolioService portfolioService;
     private final TransactionService transactionService;
@@ -121,11 +128,14 @@ public class CorporateActionService {
     }
 
     @Transactional
-    public void performPendingCorporateActions(String email) {
+    public void performPendingCorporateActions(String email, String month, int year) {
 
-        LocalDate today = TLocalDate.today();
-        Month quarterStart = today.getMonth().firstMonthOfQuarter();
-        LocalDate fromDate = LocalDate.of(today.getYear(), quarterStart, ONE);
+        Month quarterStart = Month.valueOf(month);
+        if (!QUARTER_START_MONTHS.contains(quarterStart)) {
+            throw new IllegalArgumentException("Invalid month: " + month);
+        }
+
+        LocalDate fromDate = LocalDate.of(year, quarterStart, ONE);
         LocalDate toDate = TLocalDate.today();
         List<CorporateActionEntity> corporateActions = corporateActionRepository.findByTypeInAndRecordDateBetween(CorporateActionType.FILTERABLE_CORPORATE_ACTIONS, fromDate, toDate);
 
@@ -364,7 +374,7 @@ public class CorporateActionService {
         Optional<LastlyPerformedCorporateAction> lpcaOptional = lastlyPerformedCorporateActionRepo
                 .findByEmailAndStockCodeAndAssetTypeAndActionType(email, stockCode, assetType, actionType);
         LastlyPerformedCorporateAction lastlyPerformedCorporateAction = lpcaOptional.orElse(LastlyPerformedCorporateAction.builder()
-                .email(email).stockCode(stockCode).actionType(actionType).actionDate(exDate).build());
+                .email(email).stockCode(stockCode).assetType(assetType).actionType(actionType).actionDate(exDate).build());
 
         lastlyPerformedCorporateAction.setActionDate(exDate);
         lastlyPerformedCorporateActionRepo.save(lastlyPerformedCorporateAction);

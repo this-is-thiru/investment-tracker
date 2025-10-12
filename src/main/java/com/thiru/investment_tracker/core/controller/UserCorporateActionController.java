@@ -13,9 +13,9 @@ public class UserCorporateActionController {
 
     private final CorporateActionService corporateActionService;
 
-    @PutMapping("/perform")
-    public void performCorporateActions(@PathVariable String email) {
-        corporateActionService.performPendingCorporateActions(email);
+    @PutMapping("/perform/{month}/{year}")
+    public void performCorporateActions(@PathVariable String email, @PathVariable String month, @PathVariable int year) {
+        corporateActionService.performPendingCorporateActions(email, month, year);
     }
 
     @PutMapping("/perform/bonus")
