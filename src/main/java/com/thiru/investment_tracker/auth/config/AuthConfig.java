@@ -47,6 +47,7 @@ public class AuthConfig {
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class).build();
     }
 
+    // TODO: Remove this code
 //    @Bean
 //    public CorsConfigurationSource corsConfigurationSource() {
 //        CorsConfiguration configuration = new CorsConfiguration();

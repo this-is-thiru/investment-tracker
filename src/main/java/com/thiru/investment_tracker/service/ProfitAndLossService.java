@@ -311,6 +311,8 @@ public class ProfitAndLossService {
             if (actionType == null) {
                 handleNormalSellCase(userMail, profitLossContext);
             }
+        } else {
+            // TODO: Implement the broker charges for buy case
         }
     }
 

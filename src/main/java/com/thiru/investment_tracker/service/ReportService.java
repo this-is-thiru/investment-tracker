@@ -17,7 +17,6 @@ public class ReportService {
 
     private final ReportRepository reportRepository;
 
-
     public void stockReport(UserMail userMail, ReportContext reportContext) {
 
         ReportEntity reportEntity = TObjectMapper.copy(reportContext, ReportEntity.class);
