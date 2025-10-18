@@ -311,9 +311,29 @@ public class ProfitAndLossService {
             if (actionType == null) {
                 handleNormalSellCase(userMail, profitLossContext);
             }
+        } else if (transactionType == TransactionType.BUY) {
+            handleNormalBuyCase(userMail, profitLossContext);
         } else {
-            // TODO: Implement the broker charges for buy case
+            log.error("Invalid transaction type: {}", transactionType);
         }
+    }
+
+    private void handleNormalBuyCase(UserMail userMail, ProfitLossContext profitLossContext) {
+        String email = userMail.getEmail();
+
+        LocalDate transactionDate = profitLossContext.date();
+        String financialYear = sanitizeFinancialYear(transactionDate);
+
+        Optional<ProfitAndLossEntity> optionalProfitAndLoss = profitAndLossRepository.findByEmailAndFinancialYear(email, financialYear);
+        ProfitAndLossEntity profitAndLossEntity = optionalProfitAndLoss.orElse(new ProfitAndLossEntity(email, financialYear));
+
+        // calculate and update the broker charges
+        if (profitLossContext.assetType() == AssetType.EQUITY) {
+            BrokerChargeContext brokerChargeContext = brokerChargeContext(profitLossContext);
+            UserBrokerCharges userBrokerCharges = userBrokerChargeService.addUserBrokerChargeEntry(userMail, brokerChargeContext);
+            updateBrokerChargesReport(profitAndLossEntity, profitLossContext.accountType(), userBrokerCharges);
+        }
+        profitAndLossRepository.save(profitAndLossEntity);
     }
 
     private void handleNormalSellCase(UserMail userMail, ProfitLossContext profitLossContext) {

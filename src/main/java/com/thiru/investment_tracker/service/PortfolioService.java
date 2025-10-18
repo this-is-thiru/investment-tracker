@@ -38,6 +38,7 @@ import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -190,6 +191,9 @@ public class PortfolioService {
             assetEntity.getOrderTimeQuantities().add(orderTimeQuantity);
         }
 
+        // Update the broker charges entry
+        updateBrokerChargesAndProfitAndLoss(userMail, transactionId, assetRequest);
+
         assetEntity.getBuyTransactionIds().add(transactionId);
         portfolioRepository.save(assetEntity);
     }
@@ -205,7 +209,7 @@ public class PortfolioService {
 
         validateTransaction(stockEntities, assetRequest);
 
-        updateQuantityBySavingReportAndProfitAndLoss(userMail, transactionId, stockEntities, assetRequest);
+        updateQuantityBySavingReportAndProfitAndLoss1(userMail, transactionId, stockEntities, assetRequest);
 
         List<String> updatedStockEntities = TCollectionUtil.applyMap(stockEntities, asset -> asset.getQuantity() == 0, AssetEntity::getId);
         portfolioRepository.saveAll(stockEntities);
@@ -347,6 +351,13 @@ public class PortfolioService {
             reportService.stockReport(userMail, reportContext);
             profitAndLossService.updateProfitAndLoss(userMail, profitAndLossContext);
         }
+    }
+
+    public void updateBrokerChargesAndProfitAndLoss(UserMail userMail, String transactionId, AssetRequest assetRequest) {
+        var profitLossContext = new ProfitLossContext(transactionId, assetRequest.getQuantity(), assetRequest.getTransactionDate(), assetRequest.getPrice(),
+                assetRequest.getStockCode(), assetRequest.getBrokerName(), assetRequest.getExchangeName(), assetRequest.getAssetType(), TransactionType.BUY,
+                null, assetRequest.getAccountType(), assetRequest.getAccountHolder(), Collections.emptyList());
+        profitAndLossService.updateProfitAndLoss(userMail, profitLossContext);
     }
 
     public void updateQuantityBySavingReportAndProfitAndLoss1(UserMail userMail, String transactionId, List<AssetEntity> stockEntities, AssetRequest assetRequest) {

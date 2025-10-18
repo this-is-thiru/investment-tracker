@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -39,6 +40,10 @@ public class UserBrokerChargeService {
         return userBrokerChargesRepository.save(brokerCharge);
     }
 
+    public List<UserBrokerCharges> getUserBrokerCharges(UserMail userMail) {
+        return userBrokerChargesRepository.findByEmail(userMail.getEmail());
+    }
+
     public UserBrokerCharges addAmcChargesEntry(UserMail userMail, AmcChargesContext amcChargesContext) {
         UserBrokerCharges brokerCharge = getUserBrokerCharges(userMail, amcChargesContext);
         return userBrokerChargesRepository.save(brokerCharge);
@@ -58,7 +63,10 @@ public class UserBrokerChargeService {
     private UserBrokerCharges getUserBrokerCharges(UserMail userMail, BrokerChargeContext brokerChargeContext, BrokerCharges brokerCharges) {
         UserBrokerCharges userBrokerCharges = new UserBrokerCharges();
 
-        double dpCharges = getDpCharges(userMail, brokerChargeContext.brokerName(), brokerChargeContext.stockCode(), brokerChargeContext.transactionDate(), brokerCharges);
+        double dpCharges = 0;
+        if (brokerChargeContext.transactionType() == BrokerChargeTransactionType.SELL) {
+            dpCharges = getDpCharges(userMail, brokerChargeContext.brokerName(), brokerChargeContext.stockCode(), brokerChargeContext.transactionDate(), brokerCharges);
+        }
         userBrokerCharges.setEmail(userMail.getEmail());
         userBrokerCharges.setBrokerName(brokerChargeContext.brokerName());
         userBrokerCharges.setStockCode(brokerChargeContext.stockCode());
@@ -70,7 +78,7 @@ public class UserBrokerChargeService {
         userBrokerCharges.setTransactionId(brokerChargeContext.transactionId());
 
         // handle amc or account opening charges
-        setIfAmcOrAccountOpeningCharges(userBrokerCharges, brokerCharges, brokerChargeContext.transactionType());
+//        setIfAmcOrAccountOpeningCharges(userBrokerCharges, brokerCharges, brokerChargeContext.transactionType());
         setTaxes(userBrokerCharges, brokerCharges);
         return userBrokerCharges;
     }
@@ -123,21 +131,21 @@ public class UserBrokerChargeService {
         return 0.0;
     }
 
-    private static void setIfAmcOrAccountOpeningCharges(UserBrokerCharges userBrokerCharges, BrokerCharges brokerCharges, BrokerChargeTransactionType type) {
-        if (type == BrokerChargeTransactionType.AMC_CHARGES) {
-            AmcChargeFrequency amcChargeFrequency = brokerCharges.getAmcChargeFrequency();
-            if (amcChargeFrequency == AmcChargeFrequency.ANNUALLY) {
-                userBrokerCharges.setAmcCharges(brokerCharges.getAmcChargesAnnually());
-            } else if (amcChargeFrequency == AmcChargeFrequency.QUARTERLY) {
-                double amcCharges = brokerCharges.getAmcChargesAnnually() / 4;
-                userBrokerCharges.setAmcCharges(amcCharges);
-            } else {
-                log.error("Invalid amc charge frequency: {}", amcChargeFrequency);
-            }
-        } else if (type == BrokerChargeTransactionType.ACCOUNT_OPENING_CHARGES) {
-            userBrokerCharges.setAccountOpeningCharges(brokerCharges.getAccountOpeningCharges());
-        }
-    }
+//    private static void setIfAmcOrAccountOpeningCharges(UserBrokerCharges userBrokerCharges, BrokerCharges brokerCharges, BrokerChargeTransactionType type) {
+//        if (type == BrokerChargeTransactionType.AMC_CHARGES) {
+//            AmcChargeFrequency amcChargeFrequency = brokerCharges.getAmcChargeFrequency();
+//            if (amcChargeFrequency == AmcChargeFrequency.ANNUALLY) {
+//                userBrokerCharges.setAmcCharges(brokerCharges.getAmcChargesAnnually());
+//            } else if (amcChargeFrequency == AmcChargeFrequency.QUARTERLY) {
+//                double amcCharges = brokerCharges.getAmcChargesAnnually() / 4;
+//                userBrokerCharges.setAmcCharges(amcCharges);
+//            } else {
+//                log.error("Invalid amc charge frequency: {}", amcChargeFrequency);
+//            }
+//        } else if (type == BrokerChargeTransactionType.ACCOUNT_OPENING_CHARGES) {
+//            userBrokerCharges.setAccountOpeningCharges(brokerCharges.getAccountOpeningCharges());
+//        }
+//    }
 
     private static double getBrokerage(BrokerChargeContext brokerChargeContext, BrokerageCharges brokerageCharges) {
 

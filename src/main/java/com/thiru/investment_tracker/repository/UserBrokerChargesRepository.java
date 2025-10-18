@@ -17,4 +17,6 @@ public interface UserBrokerChargesRepository extends MongoRepository<UserBrokerC
     );
 
     void deleteByEmail(String email);
+
+    List<UserBrokerCharges> findByEmail(String email);
 }
