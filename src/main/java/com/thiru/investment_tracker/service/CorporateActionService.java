@@ -1,5 +1,6 @@
 package com.thiru.investment_tracker.service;
 
+import com.thiru.investment_tracker.auth.service.UserDetailsImpl;
 import com.thiru.investment_tracker.dto.CorporateActionDto;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
@@ -136,7 +137,7 @@ public class CorporateActionService {
 
         LocalDate fromDate = LocalDate.of(year, quarterStart, ONE);
         LocalDate toDate = TLocalDate.today();
-        List<CorporateActionEntity> corporateActions = corporateActionRepository.findByTypeInAndRecordDateBetween(CorporateActionType.FILTERABLE_CORPORATE_ACTIONS, fromDate, toDate);
+        List<CorporateActionEntity> corporateActions = getCurrentQuarterCorporateActions(fromDate, toDate);
 
         for (CorporateActionEntity corporateAction : corporateActions) {
             if (skipPendingCorporateAction(email, corporateAction)) {
@@ -146,6 +147,16 @@ public class CorporateActionService {
         }
 
         System.out.println(corporateActions);
+    }
+
+    private List<CorporateActionEntity> getCurrentQuarterCorporateActions(LocalDate start, LocalDate transactionDate) {
+        var corporateActions = corporateActionRepository.findByTypeInAndRecordDateBetween(CorporateActionType.FILTERABLE_CORPORATE_ACTIONS, start, transactionDate);
+
+        if (isTestUser()) {
+            return corporateActions.stream().filter(CorporateActionEntity::isTestCorporateAction).toList();
+        }
+        return corporateActions.stream().filter(corporateAction -> !corporateAction.isTestCorporateAction())
+                .toList();
     }
 
     private boolean skipPendingCorporateAction(String email, CorporateActionEntity corporateAction) {
@@ -377,5 +388,9 @@ public class CorporateActionService {
 
         lastlyPerformedCorporateAction.setActionDate(exDate);
         lastlyPerformedCorporateActionRepo.save(lastlyPerformedCorporateAction);
+    }
+
+    private static boolean isTestUser() {
+        return UserDetailsImpl.hasRole("TEST_USER");
     }
 }
