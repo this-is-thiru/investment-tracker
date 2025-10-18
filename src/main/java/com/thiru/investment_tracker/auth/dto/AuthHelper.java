@@ -12,26 +12,27 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AuthHelper {
-    private static final String ROLES = "roles";
+    private static final String AUTHORITIES_KEY = "authorities";
 
     public enum Role {
-        ROLE_SUPER_USER,
-        ROLE_ADMIN,
-        ROLE_MANAGER,
-        ROLE_EDITOR,
-        ROLE_AUTHOR,
-        ROLE_MODERATOR,
-        ROLE_USER,
-        ROLE_GUEST
+        SUPER_USER,
+        ADMIN,
+        MANAGER,
+        EDITOR,
+        AUTHOR,
+        MODERATOR,
+        USER,
+        GUEST,
+        TEST_USER
     }
 
     private static final Map<Role, List<Role>> roleHierarchy = new HashMap<>();
 
     static {
-        roleHierarchy.put(Role.ROLE_SUPER_USER, List.of(Role.ROLE_ADMIN, Role.ROLE_MANAGER, Role.ROLE_EDITOR, Role.ROLE_AUTHOR, Role.ROLE_MODERATOR, Role.ROLE_USER, Role.ROLE_GUEST));
-        roleHierarchy.put(Role.ROLE_ADMIN, List.of(Role.ROLE_MANAGER, Role.ROLE_EDITOR, Role.ROLE_AUTHOR, Role.ROLE_MODERATOR, Role.ROLE_USER, Role.ROLE_GUEST));
-        roleHierarchy.put(Role.ROLE_MANAGER, List.of(Role.ROLE_EDITOR, Role.ROLE_AUTHOR, Role.ROLE_MODERATOR, Role.ROLE_USER, Role.ROLE_GUEST));
-        roleHierarchy.put(Role.ROLE_EDITOR, List.of(Role.ROLE_AUTHOR, Role.ROLE_MODERATOR, Role.ROLE_USER, Role.ROLE_GUEST));
+        roleHierarchy.put(Role.SUPER_USER, List.of(Role.ADMIN, Role.MANAGER, Role.EDITOR, Role.AUTHOR, Role.MODERATOR, Role.USER, Role.GUEST));
+        roleHierarchy.put(Role.ADMIN, List.of(Role.MANAGER, Role.EDITOR, Role.AUTHOR, Role.MODERATOR, Role.USER, Role.GUEST));
+        roleHierarchy.put(Role.MANAGER, List.of(Role.EDITOR, Role.AUTHOR, Role.MODERATOR, Role.USER, Role.GUEST));
+        roleHierarchy.put(Role.EDITOR, List.of(Role.AUTHOR, Role.MODERATOR, Role.USER, Role.GUEST));
     }
 
     public static boolean canUpgradeRole(Role currentRole, Role newRole) {
@@ -45,13 +46,13 @@ public class AuthHelper {
 
     public static List<GrantedAuthority> getAuthorities(Claims claims) {
 
-        List<String> roles = TObjectMapper.readAsList(claims.get(ROLES), String.class);
+        List<String> roles = TObjectMapper.readAsList(claims.get(AUTHORITIES_KEY), String.class);
         return roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
     }
 
     public static void setRoles(Map<String, Object> claims, Collection<? extends GrantedAuthority> authorities) {
 
-        List<String> roles = authorities.stream().map(GrantedAuthority::getAuthority).toList();
-        claims.put(ROLES, roles);
+        var userAuthorities = authorities.stream().map(GrantedAuthority::getAuthority).toList();
+        claims.put(AUTHORITIES_KEY, userAuthorities);
     }
 }
