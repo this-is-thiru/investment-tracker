@@ -47,6 +47,8 @@ public class CorporateActionEntity implements AuditableEntity {
     private String ratio;
     @Field("date")
     private LocalDate date;
+    @Field("is_test_corporate_action")
+    private boolean isTestCorporateAction = true;
 
     @Field("audit_metadata")
     @Setter(value = AccessLevel.NONE)

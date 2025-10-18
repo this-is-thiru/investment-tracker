@@ -22,7 +22,8 @@ public class AuthHelper {
         AUTHOR,
         MODERATOR,
         USER,
-        GUEST
+        GUEST,
+        TEST_USER
     }
 
     private static final Map<Role, List<Role>> roleHierarchy = new HashMap<>();
@@ -51,7 +52,7 @@ public class AuthHelper {
 
     public static void setRoles(Map<String, Object> claims, Collection<? extends GrantedAuthority> authorities) {
 
-        List<String> roles = authorities.stream().map(GrantedAuthority::getAuthority).toList();
-        claims.put(AUTHORITIES_KEY, roles);
+        var userAuthorities = authorities.stream().map(GrantedAuthority::getAuthority).toList();
+        claims.put(AUTHORITIES_KEY, userAuthorities);
     }
 }
