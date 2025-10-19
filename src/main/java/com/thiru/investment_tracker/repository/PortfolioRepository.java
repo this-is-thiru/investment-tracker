@@ -15,19 +15,16 @@ public interface PortfolioRepository extends MongoRepository<AssetEntity, String
 
     List<AssetEntity> findByEmail(String email);
 
-    Optional<AssetEntity> findByEmailAndStockCodeAndTransactionDate(String email, String stockCode,
-                                                                    LocalDate transactionDate);
-
-    Optional<AssetEntity> findByEmailAndStockCodeAndAccountHolderAndTransactionDate(String email, String stockCode,
-                                                                                    String accountHolder, LocalDate transactionDate);
-
     Optional<AssetEntity> findByEmailAndStockCodeAndBrokerNameAndAccountHolderAndTransactionDate(String email,
                                                                                                  String stockCode, BrokerName brokerName, String accountHolder, LocalDate transactionDate);
 
     List<AssetEntity> findByEmailAndStockCodeAndBrokerNameAndAccountHolderOrderByTransactionDate(String email,
                                                                                                  String stockCode, BrokerName brokerName, String accountHolder);
 
-    @Query("{'email': ?0, 'stock_code': ?1, 'broker_name': ?2, 'account_holder': ?3, 'transaction_date': { $lte: ?4 } }")
+    @Query(
+            value = "{ 'email': ?0, 'stock_code': ?1, 'broker_name': ?2, 'account_holder': ?3, 'transaction_date': { $lte: ?4 } }",
+            sort = "{ 'transaction_date': 1 }"
+    )
     List<AssetEntity> findEligibleHoldingsForSell(String email, String stockCode, BrokerName brokerName, String accountHolder, LocalDate transactionDate);
 
     List<AssetEntity> findByStockCodeAndTransactionDateBefore(String stockCode, LocalDate transactionDate);
