@@ -38,6 +38,11 @@ public class PortfolioController {
         return ResponseEntity.ok(portfolioService.addTransaction(UserMail.from(email), assetRequest, new ArrayList<>()));
     }
 
+    @PostMapping("/transaction/v2")
+    public ResponseEntity<String> addTransactionV2(@PathVariable String email, @RequestBody AssetRequest assetRequest) {
+        return ResponseEntity.ok(portfolioService.addTransactionV2(UserMail.from(email), assetRequest, new ArrayList<>()));
+    }
+
     @PostMapping("/upload-transactions")
     public ResponseEntity<String> uploadTransactions(@PathVariable String email,
                                                      @RequestParam("file") MultipartFile file) {

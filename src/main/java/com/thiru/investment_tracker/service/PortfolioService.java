@@ -23,6 +23,7 @@ import com.thiru.investment_tracker.repository.TemporaryTransactionRepository;
 import com.thiru.investment_tracker.service.parser.AssetRequestParser;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.collection.TObjectMapper;
+import com.thiru.investment_tracker.util.math.DoubleUtil;
 import com.thiru.investment_tracker.util.parser.ExcelBuilder;
 import com.thiru.investment_tracker.util.parser.ExcelParser;
 import com.thiru.investment_tracker.util.time.TLocalDate;
@@ -85,6 +86,33 @@ public class PortfolioService {
             }
             case SELL -> {
                 sellStock(userMail, transactionId, assetRequest);
+                yield "Stock sell updated in portfolio and profit and loss updated in profit and loss";
+            }
+        };
+    }
+
+    @Transactional
+    public String addTransactionV2(UserMail userMail, AssetRequest assetRequest, List<String> filteredOutTransactions) {
+        validateAssetRequest(userMail, assetRequest);
+        sanitizeAssetRequest(assetRequest);
+
+        Optional<String> filteredOutTransaction = temporaryTransactionService.filterOutTransaction(userMail, assetRequest);
+        if (filteredOutTransaction.isPresent()) {
+            filteredOutTransactions.add(filteredOutTransaction.get());
+            return "Transaction stored as temporary transaction, needs to perform after corporate action ..!";
+        }
+
+        TransactionType transactionType = assetRequest.getTransactionType();
+        // Add transaction
+        String transactionId = addTransactionInternal(userMail, assetRequest);
+
+        return switch (transactionType) {
+            case BUY -> {
+                buyStockV2(userMail, transactionId, assetRequest);
+                yield "Stock buy added to portfolio";
+            }
+            case SELL -> {
+                sellStockV2(userMail, transactionId, assetRequest);
                 yield "Stock sell updated in portfolio and profit and loss updated in profit and loss";
             }
         };
@@ -198,6 +226,41 @@ public class PortfolioService {
         portfolioRepository.save(assetEntity);
     }
 
+    public void buyStockV2(UserMail userMail, String transactionId, AssetRequest assetRequest) {
+
+        String email = userMail.getEmail();
+        assetRequest.setEmail(email);
+        AssetEntity assetEntity = assetRequest.asAsset();
+        double totalValueOfTransaction = getTotalValue(assetRequest);
+        assetEntity.setTotalValue(totalValueOfTransaction);
+
+        // Update the broker charges entry
+        updateBrokerChargesAndProfitAndLoss(userMail, transactionId, assetRequest);
+
+        assetEntity.getBuyTransactionIds().add(transactionId);
+        portfolioRepository.save(assetEntity);
+    }
+
+    public void sellStockV2(UserMail userMail, String transactionId, AssetRequest assetRequest) {
+
+        String email = userMail.getEmail();
+        String stockCode = assetRequest.getStockCode();
+        BrokerName brokerName = assetRequest.getBrokerName();
+        String accountHolder = assetRequest.getAccountHolder();
+        LocalDate transactionDate = assetRequest.getTransactionDate();
+
+        List<AssetEntity> stockEntities = portfolioRepository.findEligibleHoldingsForSell(email, stockCode, brokerName, accountHolder, transactionDate);
+        validateTransaction(stockEntities, assetRequest);
+        updateQuantityBySavingReportAndProfitAndLoss1(userMail, transactionId, stockEntities, assetRequest);
+
+        List<String> updatedStockEntities = TCollectionUtil.applyMap(stockEntities, asset -> DoubleUtil.equal(0, asset.getQuantity()), AssetEntity::getId);
+        portfolioRepository.saveAll(stockEntities);
+
+        if (!updatedStockEntities.isEmpty()) {
+            portfolioRepository.deleteAllById(updatedStockEntities);
+        }
+    }
+
     public void sellStock(UserMail userMail, String transactionId, AssetRequest assetRequest) {
 
         String email = userMail.getEmail();
@@ -220,10 +283,6 @@ public class PortfolioService {
     }
 
     private static void validateTransaction(List<AssetEntity> stockEntities, AssetRequest assetRequest) {
-        if (stockEntities.isEmpty()) {
-            throw new IllegalArgumentException("Stock not found");
-        }
-
         double existingQuantity = TCollectionUtil.mapToDouble(stockEntities, AssetEntity::getQuantity).sum();
 
         if (existingQuantity < assetRequest.getQuantity()) {

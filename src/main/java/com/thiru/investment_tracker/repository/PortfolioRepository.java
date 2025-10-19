@@ -4,6 +4,7 @@ import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.entity.AssetEntity;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -25,6 +26,9 @@ public interface PortfolioRepository extends MongoRepository<AssetEntity, String
 
     List<AssetEntity> findByEmailAndStockCodeAndBrokerNameAndAccountHolderOrderByTransactionDate(String email,
                                                                                                  String stockCode, BrokerName brokerName, String accountHolder);
+
+    @Query("{'email': ?0, 'stock_code': ?1, 'broker_name': ?2, 'account_holder': ?3, 'transaction_date': { $lte: ?4 } }")
+    List<AssetEntity> findEligibleHoldingsForSell(String email, String stockCode, BrokerName brokerName, String accountHolder, LocalDate transactionDate);
 
     List<AssetEntity> findByStockCodeAndTransactionDateBefore(String stockCode, LocalDate transactionDate);
 
