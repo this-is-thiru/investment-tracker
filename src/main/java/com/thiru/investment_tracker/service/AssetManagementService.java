@@ -8,6 +8,7 @@ import com.thiru.investment_tracker.entity.AssetManagementDetails;
 import com.thiru.investment_tracker.repository.AssetManagementRepository;
 import com.thiru.investment_tracker.util.collection.TObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -17,6 +18,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class AssetManagementService {
     private final AssetManagementRepository assetManagementRepository;
     private final ProfitAndLossService profitAndLossService;
@@ -41,7 +43,7 @@ public class AssetManagementService {
             assetManagementRepository.save(assetManagementDetail);
         }
 
-        System.out.println("Update lastUpdated on and redrive the transactions for: " + idsWithNullLastAmcChargesDate);
+        log.info("Update lastUpdated on and redrive the transactions for: {}", idsWithNullLastAmcChargesDate);
     }
 
     private AssetManagementDetails.AmcChargesEvent imposeAmcCharges(AssetManagementDetails assetManagementDetail, LocalDate fromDate, double quarterlyCharges) {
