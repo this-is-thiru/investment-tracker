@@ -2,8 +2,10 @@ package com.thiru.investment_tracker.controller;
 
 import com.thiru.investment_tracker.dto.*;
 import com.thiru.investment_tracker.dto.enums.HoldingType;
+import com.thiru.investment_tracker.dto.reports.profitloss.ProfitAndLossResponse;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.AssetEntity;
+import com.thiru.investment_tracker.entity.ProfitAndLossEntity;
 import com.thiru.investment_tracker.entity.TransactionEntity;
 import com.thiru.investment_tracker.service.PortfolioService;
 import com.thiru.investment_tracker.service.TemporaryService;
@@ -36,6 +38,11 @@ public class PortfolioController {
         return ResponseEntity.ok(portfolioService.addTransaction(UserMail.from(email), assetRequest, new ArrayList<>()));
     }
 
+    @PostMapping("/transaction/v2")
+    public ResponseEntity<String> addTransactionV2(@PathVariable String email, @RequestBody AssetRequest assetRequest) {
+        return ResponseEntity.ok(portfolioService.addTransactionV2(UserMail.from(email), assetRequest, new ArrayList<>()));
+    }
+
     @PostMapping("/upload-transactions")
     public ResponseEntity<String> uploadTransactions(@PathVariable String email,
                                                      @RequestParam("file") MultipartFile file) {
@@ -52,7 +59,7 @@ public class PortfolioController {
 
     @GetMapping("/profit-and-loss")
     public ResponseEntity<ProfitAndLossResponse> getProfitAndLoss(@PathVariable String email,
-                                                                  @RequestParam String financialYear) {
+                                                                @RequestParam String financialYear) {
         return ResponseEntity.ok(portfolioService.getProfitAndLoss(UserMail.from(email), financialYear));
     }
 
