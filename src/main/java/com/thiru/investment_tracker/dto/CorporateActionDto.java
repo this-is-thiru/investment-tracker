@@ -25,6 +25,7 @@ public class CorporateActionDto implements AuditableResponse {
     private String actionPrice;
     private String ratio;
     private int priority;
+    private boolean isTestCorporateAction = true;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCollectionUtil.DATE_FORMAT)
     private LocalDate exDate;
