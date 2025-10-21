@@ -1,6 +1,11 @@
 package com.thiru.investment_tracker.service;
 
-import com.thiru.investment_tracker.dto.*;
+import com.thiru.investment_tracker.dto.AssetRequest;
+import com.thiru.investment_tracker.dto.AssetResponse;
+import com.thiru.investment_tracker.dto.OrderTimeQuantity;
+import com.thiru.investment_tracker.dto.ProfitAndLossContext;
+import com.thiru.investment_tracker.dto.ProfitAndLossResponse;
+import com.thiru.investment_tracker.dto.ReportContext;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.HoldingType;
@@ -28,7 +33,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -90,8 +103,14 @@ public class PortfolioService {
     @Transactional
     public String uploadTransactions(UserMail userMail, MultipartFile file) {
 
+        List<String> errors = new ArrayList<>();
         AssetRequestParser assetRequestParser = new AssetRequestParser();
-        List<AssetRequest> assetRequests = assetRequestParser.parse(file);
+        List<AssetRequest> assetRequests = assetRequestParser.parse(file, errors);
+
+        if (!errors.isEmpty()) {
+            return "No transaction uploaded. Errors: " + errors;
+        }
+
         List<String> filteredOutTransactions = new ArrayList<>();
         TCollectionUtil.map(assetRequests, assetRequest -> addTransaction(userMail, assetRequest, filteredOutTransactions));
 
@@ -200,7 +219,7 @@ public class PortfolioService {
 
     private static void validateTransaction(List<AssetEntity> stockEntities, AssetRequest assetRequest) {
         if (stockEntities.isEmpty()) {
-            throw new IllegalArgumentException("Stock not found");
+            throw new IllegalArgumentException("Stock not found with code: " + assetRequest.getStockCode());
         }
 
         double existingQuantity = TCollectionUtil.mapToDouble(stockEntities, AssetEntity::getQuantity).sum();

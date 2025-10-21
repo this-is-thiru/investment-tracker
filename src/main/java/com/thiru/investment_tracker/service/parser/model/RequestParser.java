@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface RequestParser<RequestType> {
 
-    List<RequestType> parse(MultipartFile file);
+    List<RequestType> parse(MultipartFile file, List<String> errors);
 
 }
