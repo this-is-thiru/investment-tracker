@@ -53,6 +53,8 @@ public class CorporateActionDto implements AuditableResponse {
         corporateAction.setRatio(ratio);
         corporateAction.setExDate(exDate);
         corporateAction.setRecordDate(recordDate);
+        corporateAction.setPriority(priority);
+        corporateAction.setTestCorporateAction(isTestCorporateAction);
 
         return corporateAction;
     }
