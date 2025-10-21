@@ -32,6 +32,7 @@ public class TemplateController {
 
     @GetMapping("/download-label")
     public ResponseEntity<byte[]> downloadShippingLabel() throws IOException {
+
         // Prepare data
         Context context = new Context();
         ShippingLabel shippingLabel = getShippingData();
