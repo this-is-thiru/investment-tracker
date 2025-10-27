@@ -278,7 +278,7 @@ public class PortfolioService {
 
         validateTransaction(stockEntities, assetRequest);
 
-        updateQuantityBySavingReportAndProfitAndLoss1(userMail, transactionId, stockEntities, assetRequest);
+        updateQuantityBySavingReportAndProfitAndLoss(userMail, transactionId, stockEntities, assetRequest);
 
         List<String> updatedStockEntities = TCollectionUtil.applyMap(stockEntities, asset -> asset.getQuantity() == 0, AssetEntity::getId);
         portfolioRepository.saveAll(stockEntities);
