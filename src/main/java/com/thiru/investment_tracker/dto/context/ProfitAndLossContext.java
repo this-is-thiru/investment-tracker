@@ -1,10 +1,9 @@
-package com.thiru.investment_tracker.dto.reports.profitloss;
+package com.thiru.investment_tracker.dto.context;
 
 import java.time.LocalDate;
 
-import com.thiru.investment_tracker.dto.AssetContext;
-import com.thiru.investment_tracker.dto.AssetMetadata;
-import com.thiru.investment_tracker.dto.AssetRequest;
+import com.thiru.investment_tracker.dto.helper.AssetMetadata;
+import com.thiru.investment_tracker.dto.request.AssetRequest;
 import com.thiru.investment_tracker.entity.AssetEntity;
 
 import lombok.Data;

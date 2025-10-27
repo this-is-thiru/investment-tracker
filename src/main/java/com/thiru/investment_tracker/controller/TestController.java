@@ -1,15 +1,11 @@
 package com.thiru.investment_tracker.controller;
 
-import com.thiru.investment_tracker.dto.AssetRequest;
-import com.thiru.investment_tracker.dto.BulkGetRequest;
-import com.thiru.investment_tracker.dto.ProfitLossDto;
-import com.thiru.investment_tracker.dto.TransactionResponse;
+import com.thiru.investment_tracker.dto.request.AssetRequest;
+import com.thiru.investment_tracker.dto.helper.ProfitLossDto;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.AssetEntity;
 import com.thiru.investment_tracker.service.PortfolioService;
-import com.thiru.investment_tracker.service.TransactionService;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

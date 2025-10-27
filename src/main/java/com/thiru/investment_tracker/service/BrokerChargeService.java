@@ -1,6 +1,6 @@
 package com.thiru.investment_tracker.service;
 
-import com.thiru.investment_tracker.dto.BrokerChargesRequest;
+import com.thiru.investment_tracker.dto.request.BrokerChargesRequest;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.entity.BrokerCharges;
 import com.thiru.investment_tracker.entity.model.BrokerageCharges;

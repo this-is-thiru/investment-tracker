@@ -1,4 +1,4 @@
-package com.thiru.investment_tracker.dto;
+package com.thiru.investment_tracker.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

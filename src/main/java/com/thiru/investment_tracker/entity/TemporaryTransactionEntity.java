@@ -1,6 +1,6 @@
 package com.thiru.investment_tracker.entity;
 
-import com.thiru.investment_tracker.dto.AssetRequest;
+import com.thiru.investment_tracker.dto.request.AssetRequest;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

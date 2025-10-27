@@ -1,5 +1,6 @@
-package com.thiru.investment_tracker.dto;
+package com.thiru.investment_tracker.dto.helper;
 
+import com.thiru.investment_tracker.dto.request.AssetRequest;
 import com.thiru.investment_tracker.entity.AssetEntity;
 
 import java.util.List;

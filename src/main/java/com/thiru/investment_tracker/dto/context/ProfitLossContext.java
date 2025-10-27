@@ -1,6 +1,5 @@
-package com.thiru.investment_tracker.dto.reports.profitloss;
+package com.thiru.investment_tracker.dto.context;
 
-import com.thiru.investment_tracker.dto.context.BuyContext;
 import com.thiru.investment_tracker.dto.enums.AccountType;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;

@@ -1,6 +1,6 @@
 package com.thiru.investment_tracker.service;
 
-import com.thiru.investment_tracker.dto.AssetManagementDetailsRequest;
+import com.thiru.investment_tracker.dto.request.AssetManagementDetailsRequest;
 import com.thiru.investment_tracker.dto.context.AmcChargesContext;
 import com.thiru.investment_tracker.dto.enums.BrokerChargeTransactionType;
 import com.thiru.investment_tracker.dto.user.UserMail;

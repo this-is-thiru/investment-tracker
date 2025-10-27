@@ -1,7 +1,7 @@
 package com.thiru.investment_tracker.controller;
 
-import com.thiru.investment_tracker.dto.AssetManagementDetailsRequest;
-import com.thiru.investment_tracker.dto.BrokerChargesRequest;
+import com.thiru.investment_tracker.dto.request.AssetManagementDetailsRequest;
+import com.thiru.investment_tracker.dto.request.BrokerChargesRequest;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.BrokerCharges;
 import com.thiru.investment_tracker.service.AssetManagementService;

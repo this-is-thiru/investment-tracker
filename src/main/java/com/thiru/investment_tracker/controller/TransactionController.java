@@ -1,7 +1,7 @@
 package com.thiru.investment_tracker.controller;
 
-import com.thiru.investment_tracker.dto.BulkGetRequest;
-import com.thiru.investment_tracker.dto.TransactionResponse;
+import com.thiru.investment_tracker.dto.request.BulkGetRequest;
+import com.thiru.investment_tracker.dto.response.TransactionResponse;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.service.TransactionService;
 import lombok.AllArgsConstructor;

@@ -1,7 +1,7 @@
 package com.thiru.investment_tracker.service;
 
 import com.thiru.investment_tracker.auth.service.UserDetailsImpl;
-import com.thiru.investment_tracker.dto.CorporateActionDto;
+import com.thiru.investment_tracker.dto.helper.CorporateActionDto;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.CorporateActionType;

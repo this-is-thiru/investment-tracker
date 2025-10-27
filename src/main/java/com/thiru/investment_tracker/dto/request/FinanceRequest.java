@@ -1,18 +1,18 @@
-package com.thiru.investment_tracker.dto;
+package com.thiru.investment_tracker.dto.request;
 
+import com.thiru.investment_tracker.dto.enums.CalculationType;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FinanceResponse {
+public class FinanceRequest {
+    private CalculationType calculationType;
     private double principalAmount;
     private double rateOfInterest;
     private int timePeriod;
     private double finalAmount;
-    private int emiAmount;
+    private double emiAmount;
 }

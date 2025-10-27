@@ -1,6 +1,7 @@
-package com.thiru.investment_tracker.dto;
+package com.thiru.investment_tracker.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.thiru.investment_tracker.dto.helper.CorporateActionDto;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.CorporateActionType;

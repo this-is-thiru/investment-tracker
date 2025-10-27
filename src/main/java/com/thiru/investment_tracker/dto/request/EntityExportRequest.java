@@ -1,4 +1,4 @@
-package com.thiru.investment_tracker.dto;
+package com.thiru.investment_tracker.dto.request;
 
 import com.thiru.investment_tracker.entity.query.QueryFilter;
 import lombok.Getter;

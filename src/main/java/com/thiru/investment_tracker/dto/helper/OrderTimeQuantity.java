@@ -1,4 +1,4 @@
-package com.thiru.investment_tracker.dto;
+package com.thiru.investment_tracker.dto.helper;
 
 import com.thiru.investment_tracker.util.time.TLocalDate;
 import lombok.Getter;
