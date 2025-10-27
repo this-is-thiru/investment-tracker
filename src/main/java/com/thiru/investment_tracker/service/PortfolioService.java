@@ -136,8 +136,14 @@ public class PortfolioService {
     @Transactional
     public String uploadTransactions(UserMail userMail, MultipartFile file) {
 
+        List<String> errors = new ArrayList<>();
         AssetRequestParser assetRequestParser = new AssetRequestParser();
-        List<AssetRequest> assetRequests = assetRequestParser.parse(file);
+        List<AssetRequest> assetRequests = assetRequestParser.parse(file, errors);
+
+        if (!errors.isEmpty()) {
+            return "No transaction uploaded. Errors: " + errors;
+        }
+
         List<String> filteredOutTransactions = new ArrayList<>();
         TCollectionUtil.map(assetRequests, assetRequest -> addTransaction(userMail, assetRequest, filteredOutTransactions));
 
@@ -283,6 +289,10 @@ public class PortfolioService {
     }
 
     private static void validateTransaction(List<AssetEntity> stockEntities, AssetRequest assetRequest) {
+        if (stockEntities.isEmpty()) {
+            throw new IllegalArgumentException("Stock not found with code: " + assetRequest.getStockCode());
+        }
+
         double existingQuantity = TCollectionUtil.mapToDouble(stockEntities, AssetEntity::getQuantity).sum();
 
         if (existingQuantity < assetRequest.getQuantity()) {

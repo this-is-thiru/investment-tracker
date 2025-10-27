@@ -22,13 +22,13 @@ public abstract class AbstractRequestParser<RequestType> implements RequestParse
     protected abstract RequestType toRequest(InputRecord inputRecord);
 
     @Override
-    public List<RequestType> parse(MultipartFile file) {
+    public List<RequestType> parse(MultipartFile file, List<String> errors) {
 
         validateFile(file);
 
         // Excel parser
         ExcelParser excelParser = new ExcelParserImpl();
-        InputRecords parsedRecords = excelParser.parse(file, this.simpleDataTypeMap());
+        InputRecords parsedRecords = excelParser.parse(file, this.simpleDataTypeMap(), errors);
         return parseRequests(parsedRecords);
     }
 

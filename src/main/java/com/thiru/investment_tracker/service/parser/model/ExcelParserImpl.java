@@ -4,9 +4,9 @@ import com.thiru.investment_tracker.dto.InputRecord;
 import com.thiru.investment_tracker.dto.InputRecords;
 import com.thiru.investment_tracker.dto.enums.ExcelDataType;
 import com.thiru.investment_tracker.exception.BadRequestException;
-import com.thiru.investment_tracker.util.time.TLocalDate;
 import com.thiru.investment_tracker.util.collection.TOptional;
 import com.thiru.investment_tracker.util.parser.CellDetail;
+import com.thiru.investment_tracker.util.time.TLocalDate;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -16,13 +16,17 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 public class ExcelParserImpl implements ExcelParser {
 
     @Override
-    public InputRecords parse(MultipartFile file, Map<String, ExcelDataType> dataTypeMap) {
+    public InputRecords parse(MultipartFile file, Map<String, ExcelDataType> dataTypeMap, List<String> errors) {
 
         try {
             XSSFWorkbook excelWorkbook = new XSSFWorkbook(file.getInputStream());
@@ -38,7 +42,7 @@ public class ExcelParserImpl implements ExcelParser {
                 } else {
 
                     InputRecord inputRecord = new InputRecord();
-                    Map<String, CellDetail> record = extractRows(row, inputRecords.getHeaders(), dataTypeMap);
+                    Map<String, CellDetail> record = extractRows(rowIndex, row, inputRecords.getHeaders(), dataTypeMap, errors);
                     inputRecord.setRecord(record);
                     inputRecord.setRecordNumber(rowIndex);
 
@@ -64,7 +68,7 @@ public class ExcelParserImpl implements ExcelParser {
         return fileHeaders;
     }
 
-    private static Map<String, CellDetail> extractRows(Row row, List<String> fileHeaders, Map<String, ExcelDataType> dataTypeMap) {
+    private static Map<String, CellDetail> extractRows(int rowIndex, Row row, List<String> fileHeaders, Map<String, ExcelDataType> dataTypeMap, List<String> errors) {
 
         Iterator<Cell> cellIterator = row.cellIterator();
         Map<String, CellDetail> record = new HashMap<>();
@@ -78,6 +82,7 @@ public class ExcelParserImpl implements ExcelParser {
             columnIndex++;
         }
         if (record.size() != fileHeaders.size()) {
+            errors.add("Invalid number of columns in row: " + rowIndex + ", headers count: " + fileHeaders.size() + ", actual count: " + record.size());
             return null;
         }
 
