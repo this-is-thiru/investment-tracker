@@ -2,7 +2,6 @@ package com.thiru.investment_tracker.repository;
 
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.entity.BrokerCharges;
-import com.thiru.investment_tracker.entity.UserBrokerCharges;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 

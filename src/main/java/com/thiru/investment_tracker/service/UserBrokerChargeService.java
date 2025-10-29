@@ -1,6 +1,5 @@
 package com.thiru.investment_tracker.service;
 
-import com.thiru.investment_tracker.dto.context.AmcChargesContext;
 import com.thiru.investment_tracker.dto.context.BrokerChargeContext;
 import com.thiru.investment_tracker.dto.enums.AmcChargeFrequency;
 import com.thiru.investment_tracker.dto.enums.BrokerChargeTransactionType;
@@ -36,28 +35,22 @@ public class UserBrokerChargeService {
             return null;
         }
 
-        UserBrokerCharges brokerCharge = getUserBrokerCharges(userMail, brokerChargeContext, brokerCharges);
+        UserBrokerCharges brokerCharge;
+        if (brokerChargeContext.transactionType() == BrokerChargeTransactionType.AMC_CHARGES) {
+            // TODO: handle this later
+            if (brokerCharges.getAmcChargeFrequency() != AmcChargeFrequency.QUARTERLY) {
+                log.error("Invalid amc charge frequency: {}", brokerCharges.getAmcChargeFrequency());
+                return null;
+            }
+            brokerCharge = getUserBrokerChargesForAmc(userMail, brokerChargeContext, brokerCharges);
+        } else {
+            brokerCharge = getUserBrokerCharges(userMail, brokerChargeContext, brokerCharges);
+        }
         return userBrokerChargesRepository.save(brokerCharge);
     }
 
     public List<UserBrokerCharges> getUserBrokerCharges(UserMail userMail) {
         return userBrokerChargesRepository.findByEmail(userMail.getEmail());
-    }
-
-    public UserBrokerCharges addAmcChargesEntry(UserMail userMail, AmcChargesContext amcChargesContext) {
-        UserBrokerCharges brokerCharge = getUserBrokerCharges(userMail, amcChargesContext);
-        return userBrokerChargesRepository.save(brokerCharge);
-    }
-
-    private UserBrokerCharges getUserBrokerCharges(UserMail userMail, AmcChargesContext amcChargesContext) {
-        UserBrokerCharges userBrokerCharges = new UserBrokerCharges();
-        userBrokerCharges.setEmail(userMail.getEmail());
-        userBrokerCharges.setBrokerName(amcChargesContext.brokerName());
-        userBrokerCharges.setTransactionDate(amcChargesContext.transactionDate());
-        userBrokerCharges.setType(BrokerChargeTransactionType.AMC_CHARGES);
-        userBrokerCharges.setAmcCharges(amcChargesContext.amount());
-        userBrokerCharges.setTaxes(amcChargesContext.taxes());
-        return userBrokerCharges;
     }
 
     private UserBrokerCharges getUserBrokerCharges(UserMail userMail, BrokerChargeContext brokerChargeContext, BrokerCharges brokerCharges) {
@@ -79,6 +72,21 @@ public class UserBrokerChargeService {
 
         // handle amc or account opening charges
 //        setIfAmcOrAccountOpeningCharges(userBrokerCharges, brokerCharges, brokerChargeContext.transactionType());
+        setTaxes(userBrokerCharges, brokerCharges);
+        return userBrokerCharges;
+    }
+
+    public UserBrokerCharges getUserBrokerChargesForAmc(UserMail userMail, BrokerChargeContext brokerChargeContext, BrokerCharges brokerCharges) {
+        UserBrokerCharges userBrokerCharges = new UserBrokerCharges();
+        userBrokerCharges.setEmail(userMail.getEmail());
+        userBrokerCharges.setBrokerName(brokerChargeContext.brokerName());
+        userBrokerCharges.setTransactionDate(brokerChargeContext.transactionDate());
+        userBrokerCharges.setType(BrokerChargeTransactionType.AMC_CHARGES);
+
+        double annualAmcCharges = brokerCharges.getAmcChargesAnnually();
+        double quarterlyCharges = annualAmcCharges / 4;
+        userBrokerCharges.setAmcCharges(quarterlyCharges);
+
         setTaxes(userBrokerCharges, brokerCharges);
         return userBrokerCharges;
     }

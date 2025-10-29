@@ -1,8 +1,8 @@
 package com.thiru.investment_tracker.service;
 
-import com.thiru.investment_tracker.dto.request.AssetManagementDetailsRequest;
-import com.thiru.investment_tracker.dto.context.AmcChargesContext;
+import com.thiru.investment_tracker.dto.context.BrokerChargeContext;
 import com.thiru.investment_tracker.dto.enums.BrokerChargeTransactionType;
+import com.thiru.investment_tracker.dto.request.AssetManagementDetailsRequest;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.AssetManagementDetails;
 import com.thiru.investment_tracker.repository.AssetManagementRepository;
@@ -21,6 +21,7 @@ import java.util.Optional;
 @Log4j2
 public class AssetManagementService {
     private final AssetManagementRepository assetManagementRepository;
+
     private final ProfitAndLossService profitAndLossService;
 
     public void imposeAmcCharges() {
@@ -34,11 +35,9 @@ public class AssetManagementService {
                 idsWithNullLastAmcChargesDate.add(assetManagementDetail.getId());
                 continue;
             }
-            LocalDate toDate = fromDate.plusDays(90);
+            LocalDate toDate = fromDate.plusDays(91);
             assetManagementDetail.setLastAmcChargesDeductedOn(toDate);
-            double annualAmcCharges = assetManagementDetail.getAmcCharges();
-            double quarterlyCharges = annualAmcCharges / 4;
-            var amcChargesEvent = imposeAmcCharges(assetManagementDetail, fromDate, quarterlyCharges);
+            var amcChargesEvent = imposeAmcCharges(assetManagementDetail, fromDate);
             assetManagementDetail.getAmcChargesEvents().add(amcChargesEvent);
             assetManagementRepository.save(assetManagementDetail);
         }
@@ -46,13 +45,15 @@ public class AssetManagementService {
         log.info("Update lastUpdated on and redrive the transactions for: {}", idsWithNullLastAmcChargesDate);
     }
 
-    private AssetManagementDetails.AmcChargesEvent imposeAmcCharges(AssetManagementDetails assetManagementDetail, LocalDate fromDate, double quarterlyCharges) {
-        double taxes = quarterlyCharges * assetManagementDetail.getTaxOnAmcCharges() / 100;
+    private AssetManagementDetails.AmcChargesEvent imposeAmcCharges(AssetManagementDetails assetManagementDetail, LocalDate fromDate) {
+
         LocalDate transactionDate = assetManagementDetail.getLastAmcChargesDeductedOn();
-        AmcChargesContext amcChargesContext = new AmcChargesContext(assetManagementDetail.getBrokerName(), BrokerChargeTransactionType.AMC_CHARGES,
-                transactionDate, quarterlyCharges, taxes);
-        String id = profitAndLossService.updateProfitAndLossWithAmcCharges(UserMail.from(assetManagementDetail.getEmail()), amcChargesContext);
-        return new AssetManagementDetails.AmcChargesEvent(id, transactionDate.plusDays(1), quarterlyCharges, List.of(fromDate, transactionDate));
+        BrokerChargeContext brokerChargeContext = new BrokerChargeContext(null, null, assetManagementDetail.getBrokerName(),
+                BrokerChargeTransactionType.AMC_CHARGES, transactionDate, null, null, 0);
+
+        var userBrokerCharges = profitAndLossService.updateProfitAndLossWithAmcCharges(UserMail.from(assetManagementDetail.getEmail()), brokerChargeContext);
+        double totalAmount = userBrokerCharges.getAmcCharges() + userBrokerCharges.getTaxes();
+        return new AssetManagementDetails.AmcChargesEvent(userBrokerCharges.getId(), transactionDate.plusDays(1), totalAmount, List.of(fromDate, transactionDate));
     }
 
     public void addAssetManagementEntry(UserMail userMail, AssetManagementDetailsRequest request) {

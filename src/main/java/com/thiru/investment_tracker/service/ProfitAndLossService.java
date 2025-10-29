@@ -1,16 +1,15 @@
 package com.thiru.investment_tracker.service;
 
-import com.thiru.investment_tracker.dto.context.AmcChargesContext;
 import com.thiru.investment_tracker.dto.context.BrokerChargeContext;
 import com.thiru.investment_tracker.dto.context.BuyContext;
+import com.thiru.investment_tracker.dto.context.ProfitAndLossContext;
+import com.thiru.investment_tracker.dto.context.ProfitLossContext;
 import com.thiru.investment_tracker.dto.enums.AccountType;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerChargeTransactionType;
 import com.thiru.investment_tracker.dto.enums.CorporateActionType;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
-import com.thiru.investment_tracker.dto.context.ProfitAndLossContext;
 import com.thiru.investment_tracker.dto.reports.profitloss.ProfitAndLossResponse;
-import com.thiru.investment_tracker.dto.context.ProfitLossContext;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.ProfitAndLossEntity;
 import com.thiru.investment_tracker.entity.UserBrokerCharges;
@@ -526,18 +525,18 @@ public class ProfitAndLossService {
         };
     }
 
-    public String updateProfitAndLossWithAmcCharges(UserMail userMail, AmcChargesContext amcChargesContext) {
+    public UserBrokerCharges updateProfitAndLossWithAmcCharges(UserMail userMail, BrokerChargeContext brokerChargeContext) {
 
         String email = userMail.getEmail();
-        String financialYear = sanitizeFinancialYear(amcChargesContext.transactionDate());
+        String financialYear = sanitizeFinancialYear(brokerChargeContext.transactionDate());
 
         Optional<ProfitAndLossEntity> optionalProfitAndLoss = profitAndLossRepository.findByEmailAndFinancialYear(email, financialYear);
         ProfitAndLossEntity profitAndLossEntity = optionalProfitAndLoss.orElse(new ProfitAndLossEntity(email, financialYear));
 
-        UserBrokerCharges userBrokerCharges = userBrokerChargeService.addAmcChargesEntry(userMail, amcChargesContext);
+        UserBrokerCharges userBrokerCharges = userBrokerChargeService.addUserBrokerChargeEntry(userMail, brokerChargeContext);
         updateBrokerChargesReport(profitAndLossEntity, AccountType.SELF, userBrokerCharges);
         profitAndLossRepository.save(profitAndLossEntity);
-        return userBrokerCharges.getId();
+        return userBrokerCharges;
     }
 
     private record InternalContext(double purchaseAmount, double sellAmount,

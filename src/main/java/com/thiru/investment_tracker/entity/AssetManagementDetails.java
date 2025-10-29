@@ -39,12 +39,6 @@ public class AssetManagementDetails implements AuditableEntity {
     @Field("tax_on_account_opening_charges")
     private double taxOnAccountOpeningCharges;
 
-    @Field("amcCharges")
-    private double amcCharges;
-
-    @Field("tax_on_amc_charges")
-    private double taxOnAmcCharges;
-
     @Field("last_amc_charges_deducted_on")
     private LocalDate lastAmcChargesDeductedOn;
 
