@@ -1,6 +1,6 @@
 package com.thiru.investment_tracker.service.parser.model;
 
-import com.thiru.investment_tracker.dto.InputRecords;
+import com.thiru.investment_tracker.dto.helper.InputRecords;
 import com.thiru.investment_tracker.dto.enums.ExcelDataType;
 import org.springframework.web.multipart.MultipartFile;
 

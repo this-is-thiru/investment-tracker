@@ -1,6 +1,6 @@
 package com.thiru.investment_tracker.controller;
 
-import com.thiru.investment_tracker.dto.CorporateActionDto;
+import com.thiru.investment_tracker.dto.helper.CorporateActionDto;
 import com.thiru.investment_tracker.service.CorporateActionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
