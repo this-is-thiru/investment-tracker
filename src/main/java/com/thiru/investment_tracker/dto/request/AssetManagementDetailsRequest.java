@@ -13,8 +13,6 @@ public class AssetManagementDetailsRequest {
     private BrokerName brokerName;
     private double accountOpeningCharges;
     private double taxOnAccountOpeningCharges;
-    private double amcCharges;
-    private double taxOnAmcCharges;
     private LocalDate lastAmcChargesDeductedOn;
     private AmcChargeFrequency amcChargesFrequency;
 }

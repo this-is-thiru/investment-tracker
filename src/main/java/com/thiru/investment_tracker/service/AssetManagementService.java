@@ -1,6 +1,7 @@
 package com.thiru.investment_tracker.service;
 
 import com.thiru.investment_tracker.dto.context.BrokerChargeContext;
+import com.thiru.investment_tracker.dto.enums.AmcChargeFrequency;
 import com.thiru.investment_tracker.dto.enums.BrokerChargeTransactionType;
 import com.thiru.investment_tracker.dto.request.AssetManagementDetailsRequest;
 import com.thiru.investment_tracker.dto.user.UserMail;
@@ -12,7 +13,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,37 +20,52 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Log4j2
 public class AssetManagementService {
-    private final AssetManagementRepository assetManagementRepository;
 
+    private static final int DAYS_CONSIDER_FOR_QUARTERLY_AMC_CHARGES = 91;
+
+    private final AssetManagementRepository assetManagementRepository;
     private final ProfitAndLossService profitAndLossService;
 
     public void imposeAmcCharges() {
         LocalDate today = LocalDate.now();
-        List<AssetManagementDetails> assetManagementDetails = assetManagementRepository.findByLastAmcChargesDeductedOnBefore(today);
+        processEntriesWithQuarterlyFrequency(today);
+        processEntriesWithAnnualFrequency(today);
+    }
 
-        List<String> idsWithNullLastAmcChargesDate = new ArrayList<>();
+    public void processEntriesWithQuarterlyFrequency(LocalDate today) {
+        LocalDate lastDayToConsiderForUpdate = today.minusDays(DAYS_CONSIDER_FOR_QUARTERLY_AMC_CHARGES);
+        var assetManagementDetails = assetManagementRepository.findEntriesToUpdateAmcCharges(AmcChargeFrequency.QUARTERLY, lastDayToConsiderForUpdate);
+
         for (AssetManagementDetails assetManagementDetail : assetManagementDetails) {
             LocalDate fromDate = assetManagementDetail.getLastAmcChargesDeductedOn();
-            if (fromDate == null) {
-                idsWithNullLastAmcChargesDate.add(assetManagementDetail.getId());
-                continue;
-            }
-            LocalDate toDate = fromDate.plusDays(91);
+            LocalDate toDate = fromDate.plusDays(DAYS_CONSIDER_FOR_QUARTERLY_AMC_CHARGES);
             assetManagementDetail.setLastAmcChargesDeductedOn(toDate);
             var amcChargesEvent = imposeAmcCharges(assetManagementDetail, fromDate);
             assetManagementDetail.getAmcChargesEvents().add(amcChargesEvent);
             assetManagementRepository.save(assetManagementDetail);
         }
+    }
 
-        log.info("Update lastUpdated on and redrive the transactions for: {}", idsWithNullLastAmcChargesDate);
+    public void processEntriesWithAnnualFrequency(LocalDate today) {
+        LocalDate lastDayToConsiderForUpdate = today.minusYears(1);
+        var assetManagementDetails = assetManagementRepository.findEntriesToUpdateAmcCharges(AmcChargeFrequency.ANNUALLY, lastDayToConsiderForUpdate);
+
+        for (AssetManagementDetails assetManagementDetail : assetManagementDetails) {
+            LocalDate fromDate = assetManagementDetail.getLastAmcChargesDeductedOn();
+            LocalDate toDate = fromDate.plusYears(1);
+            assetManagementDetail.setLastAmcChargesDeductedOn(toDate);
+            var amcChargesEvent = imposeAmcCharges(assetManagementDetail, fromDate);
+            assetManagementDetail.getAmcChargesEvents().add(amcChargesEvent);
+            assetManagementRepository.save(assetManagementDetail);
+        }
     }
 
     private AssetManagementDetails.AmcChargesEvent imposeAmcCharges(AssetManagementDetails assetManagementDetail, LocalDate fromDate) {
 
         LocalDate transactionDate = assetManagementDetail.getLastAmcChargesDeductedOn();
+
         BrokerChargeContext brokerChargeContext = new BrokerChargeContext(null, null, assetManagementDetail.getBrokerName(),
                 BrokerChargeTransactionType.AMC_CHARGES, transactionDate, null, null, 0);
-
         var userBrokerCharges = profitAndLossService.updateProfitAndLossWithAmcCharges(UserMail.from(assetManagementDetail.getEmail()), brokerChargeContext);
         double totalAmount = userBrokerCharges.getAmcCharges() + userBrokerCharges.getTaxes();
         return new AssetManagementDetails.AmcChargesEvent(userBrokerCharges.getId(), transactionDate.plusDays(1), totalAmount, List.of(fromDate, transactionDate));

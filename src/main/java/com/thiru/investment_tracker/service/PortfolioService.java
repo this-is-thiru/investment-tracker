@@ -1,18 +1,18 @@
 package com.thiru.investment_tracker.service;
 
-import com.thiru.investment_tracker.dto.request.AssetRequest;
-import com.thiru.investment_tracker.dto.response.AssetResponse;
-import com.thiru.investment_tracker.dto.helper.OrderTimeQuantity;
-import com.thiru.investment_tracker.dto.context.ReportContext;
 import com.thiru.investment_tracker.dto.context.BuyContext;
+import com.thiru.investment_tracker.dto.context.ProfitAndLossContext;
+import com.thiru.investment_tracker.dto.context.ProfitLossContext;
+import com.thiru.investment_tracker.dto.context.ReportContext;
 import com.thiru.investment_tracker.dto.enums.AccountType;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.HoldingType;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
-import com.thiru.investment_tracker.dto.context.ProfitAndLossContext;
+import com.thiru.investment_tracker.dto.helper.OrderTimeQuantity;
 import com.thiru.investment_tracker.dto.reports.profitloss.ProfitAndLossResponse;
-import com.thiru.investment_tracker.dto.context.ProfitLossContext;
+import com.thiru.investment_tracker.dto.request.AssetRequest;
+import com.thiru.investment_tracker.dto.response.AssetResponse;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.AssetEntity;
 import com.thiru.investment_tracker.entity.TemporaryTransactionEntity;
@@ -55,14 +55,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PortfolioService {
 
-    private final PortfolioRepository portfolioRepository;
+    private final ReportService reportService;
     private final TransactionService transactionService;
+    private final PortfolioRepository portfolioRepository;
     private final ProfitAndLossService profitAndLossService;
     private final MongoTemplateService mongoTemplateService;
-    private final ReportService reportService;
+    private final UserBrokerChargeService userBrokerChargeService;
     private final TemporaryTransactionService temporaryTransactionService;
     private final TemporaryTransactionRepository temporaryTransactionRepository;
-    private final UserBrokerChargeService userBrokerChargeService;
 
     @Transactional
     public String addTransaction(UserMail userMail, AssetRequest assetRequest, List<String> filteredOutTransactions) {
@@ -124,6 +124,10 @@ public class PortfolioService {
         }
         if (!userMail.getEmail().equals(assetRequest.getEmail())) {
             throw new BadRequestException("Email does not match");
+        }
+
+        if (DoubleUtil.equal(assetRequest.getQuantity(), 0)) {
+            throw new BadRequestException("Invalid Quantity: " + assetRequest.getQuantity());
         }
     }
 
