@@ -1,4 +1,4 @@
-FROM openjdk:25-jdk-slim
+FROM openjdk:25-jdk
 
 # Optional: Set a non-root work directory
 WORKDIR /app
