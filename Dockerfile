@@ -1,8 +1,20 @@
-FROM openjdk:25-jdk-slim
+FROM amazoncorretto:25
+
+# Optional: Set a non-root work directory
+WORKDIR /app
+
+# Expose application port
 EXPOSE 8080
-COPY target/investment-tracker.jar /investment-tracker.jar
+
+# Copy the built jar into the image
+# (COPY is preferred over ADD for local files)
+COPY target/investment-tracker.jar /app/investment-tracker.jar
+
+# Provide a default profile (can be overridden at runtime with -e SPRING_PROFILES_ACTIVE=prod)
 ENV SPRING_PROFILES_ACTIVE=default
-ENTRYPOINT ["java","-jar","/investment-tracker.jar"]
+
+# Start the Spring Boot app; it will read SPRING_PROFILES_ACTIVE automatically
+ENTRYPOINT ["java","-jar","/app/investment-tracker.jar"]
 
 #FROM openjdk:25-jdk-slim
 #EXPOSE 8080
