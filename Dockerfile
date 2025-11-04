@@ -2,7 +2,7 @@ FROM openjdk:25-jdk-slim
 EXPOSE 8080
 COPY target/investment-tracker.jar /investment-tracker.jar
 ENV SPRING_PROFILES_ACTIVE=default
-ENTRYPOINT ["java","-jar","/app/investment-tracker.jar"]
+ENTRYPOINT ["java","-jar","/investment-tracker.jar"]
 
 #FROM openjdk:25-jdk-slim
 #EXPOSE 8080
