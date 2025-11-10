@@ -1,6 +1,6 @@
 package com.thiru.investment_tracker.util.parser;
 
-import com.thiru.investment_tracker.dto.AssetResponse;
+import com.thiru.investment_tracker.dto.response.AssetResponse;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.transaction.ExcelHeaders;
 import lombok.extern.slf4j.Slf4j;

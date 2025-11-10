@@ -1,7 +1,7 @@
 package com.thiru.investment_tracker.service.parser.model;
 
-import com.thiru.investment_tracker.dto.InputRecord;
-import com.thiru.investment_tracker.dto.InputRecords;
+import com.thiru.investment_tracker.dto.helper.InputRecord;
+import com.thiru.investment_tracker.dto.helper.InputRecords;
 import com.thiru.investment_tracker.dto.enums.ExcelDataType;
 import com.thiru.investment_tracker.exception.BadRequestException;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;

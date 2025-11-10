@@ -1,9 +1,9 @@
 package com.thiru.investment_tracker.controller;
 
-import com.thiru.investment_tracker.dto.FinanceRequest;
-import com.thiru.investment_tracker.dto.FinanceResponse;
-import com.thiru.investment_tracker.dto.InterestRateResponse;
-import com.thiru.investment_tracker.dto.StepUpSIPRequest;
+import com.thiru.investment_tracker.dto.request.FinanceRequest;
+import com.thiru.investment_tracker.dto.request.FinanceResponse;
+import com.thiru.investment_tracker.dto.response.InterestRateResponse;
+import com.thiru.investment_tracker.dto.request.StepUpSIPRequest;
 import com.thiru.investment_tracker.service.FinancesService;
 import com.thiru.investment_tracker.service.StepUpSIPCalculator;
 import lombok.AllArgsConstructor;

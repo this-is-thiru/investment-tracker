@@ -1,6 +1,6 @@
 package com.thiru.investment_tracker.service;
 
-import com.thiru.investment_tracker.dto.AssetRequest;
+import com.thiru.investment_tracker.dto.request.AssetRequest;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.CorporateActionType;
 import com.thiru.investment_tracker.dto.user.UserMail;

@@ -1,10 +1,9 @@
 package com.thiru.investment_tracker.entity.model;
 
-import java.time.LocalDate;
-
+import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import lombok.Data;
+import java.time.LocalDate;
 
 @Data
 public class PolicyDetails {
