@@ -4,10 +4,10 @@ server:
 spring:
   application:
     name: investment-tracker
-  data:
-    mongodb:
-      uri: mongodb+srv://pthirumalayadav_db_user:1a8dtlaj5qBH3qR9@it-staging.6fu8nvy.mongodb.net/?retryWrites=true&w=majority
-      database: it-staging
+
+  mongodb:
+    uri: mongodb+srv://pthirumalayadav_db_user:1a8dtlaj5qBH3qR9@it-staging.6fu8nvy.mongodb.net/?retryWrites=true&w=majority
+    database: it-staging
 
 # RabbitMQ configuration
   rabbitmq:
