@@ -27,6 +27,8 @@ FROM eclipse-temurin:25-jdk AS build
 
 WORKDIR /app
 
+RUN apt-get update && apt-get install -y maven
+
 # Copy the pom and source code
 COPY pom.xml .
 COPY src ./src
@@ -35,7 +37,7 @@ COPY src ./src
 RUN mvn clean install -DskipTests
 
 # ---------- Runtime Stage ----------
-FROM eclipse-temurin:21-jdk
+FROM eclipse-temurin:25-jdk
 
 WORKDIR /app
 
