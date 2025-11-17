@@ -8,9 +8,9 @@ import java.util.List;
 
 public class TObjectMapper {
 
-    private static final JsonMapper OBJECT_MAPPER = getObjectMapper();
+    private static final JsonMapper JSON_MAPPER = getJsonMapper();
 
-    private static JsonMapper getObjectMapper() {
+    private static JsonMapper getJsonMapper() {
         return new JsonMapper();
     }
 
@@ -22,8 +22,8 @@ public class TObjectMapper {
         if (StringUtils.isEmpty(content)) {
             return null;
         }
-        CollectionType listType = OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, targetClass);
-        return OBJECT_MAPPER.readValue(content, listType);
+        CollectionType listType = JSON_MAPPER.getTypeFactory().constructCollectionType(List.class, targetClass);
+        return JSON_MAPPER.readValue(content, listType);
     }
 
     public static <T> List<T> readAsList(Object object, Class<T> targetClass) {
@@ -33,18 +33,18 @@ public class TObjectMapper {
         }
 
         String content = writeValueAsString(object);
-        CollectionType listType = OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, targetClass);
-        return OBJECT_MAPPER.readValue(content, listType);
+        CollectionType listType = JSON_MAPPER.getTypeFactory().constructCollectionType(List.class, targetClass);
+        return JSON_MAPPER.readValue(content, listType);
     }
 
     private static <T> T readValue(String content, Class<T> targetClass) {
         if (StringUtils.isEmpty(content)) {
             return null;
         }
-        return OBJECT_MAPPER.readValue(content, targetClass);
+        return JSON_MAPPER.readValue(content, targetClass);
     }
 
     public static String writeValueAsString(Object source) {
-        return OBJECT_MAPPER.writeValueAsString(source);
+        return JSON_MAPPER.writeValueAsString(source);
     }
 }
