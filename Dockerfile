@@ -1,5 +1,5 @@
 # ---------- Build Stage ----------
-FROM maven:3.9.8-eclipse-temurin-25 AS build
+FROM maven:3.9.11-eclipse-temurin-25 AS build
 WORKDIR /app
 
 # Copy the pom and source code
