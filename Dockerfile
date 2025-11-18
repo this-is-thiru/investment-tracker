@@ -1,7 +1,6 @@
 # ---------- Build Stage ----------
-FROM eclipse-temurin:25-jdk AS build
+FROM maven:3.9.11-eclipse-temurin-25 AS build
 WORKDIR /app
-RUN apt-get update && apt-get install -y maven
 
 # Copy the pom and source code
 COPY pom.xml .
@@ -11,12 +10,12 @@ COPY src ./src
 RUN mvn clean install -DskipTests
 
 # ---------- Runtime Stage ----------
-FROM eclipse-temurin:25-jdk
+FROM eclipse-temurin:25-jre-alpine
 WORKDIR /app
 
-# Copy only the jar from the build stage
-COPY --from=build /app/target/investment-tracker.jar investment-tracker.jar
+# Copy the built jar from the build stage
+COPY --from=build /app/target/investment-tracker.jar /app.jar
 
 EXPOSE 8080
 ENV SPRING_PROFILES_ACTIVE=default
-ENTRYPOINT ["java", "-jar", "investment-tracker.jar"]
+ENTRYPOINT ["java", "-jar", "/app.jar"]
