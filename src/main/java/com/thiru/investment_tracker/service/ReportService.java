@@ -1,6 +1,6 @@
 package com.thiru.investment_tracker.service;
 
-import com.thiru.investment_tracker.dto.ReportContext;
+import com.thiru.investment_tracker.dto.context.ReportContext;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.ReportEntity;
@@ -16,7 +16,6 @@ import java.util.List;
 public class ReportService {
 
     private final ReportRepository reportRepository;
-
 
     public void stockReport(UserMail userMail, ReportContext reportContext) {
 

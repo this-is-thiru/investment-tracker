@@ -1,8 +1,8 @@
 package com.thiru.investment_tracker.service;
 
 
-import com.thiru.investment_tracker.dto.FinanceRequest;
-import com.thiru.investment_tracker.dto.FinanceResponse;
+import com.thiru.investment_tracker.dto.request.FinanceRequest;
+import com.thiru.investment_tracker.dto.request.FinanceResponse;
 import com.thiru.investment_tracker.dto.enums.CalculationType;
 import org.springframework.stereotype.Service;
 

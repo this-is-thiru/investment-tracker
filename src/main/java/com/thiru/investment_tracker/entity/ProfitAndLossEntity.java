@@ -4,7 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thiru.investment_tracker.entity.helper.AuditMetadata;
 import com.thiru.investment_tracker.entity.model.AuditableEntity;
 import com.thiru.investment_tracker.entity.model.RealisedProfits;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.MongoId;
@@ -46,5 +50,10 @@ public class ProfitAndLossEntity implements AuditableEntity {
 	public ProfitAndLossEntity(String email) {
 		this.email = email;
 	}
+
+    public ProfitAndLossEntity(String email, String financialYear) {
+        this.email = email;
+        this.financialYear = financialYear;
+    }
 
 }

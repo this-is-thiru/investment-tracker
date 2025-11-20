@@ -1,7 +1,7 @@
 package com.thiru.investment_tracker.service;
 
 import com.thiru.investment_tracker.auth.service.UserDetailsImpl;
-import com.thiru.investment_tracker.dto.CorporateActionDto;
+import com.thiru.investment_tracker.dto.helper.CorporateActionDto;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.CorporateActionType;
@@ -18,7 +18,7 @@ import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.collection.TObjectMapper;
 import com.thiru.investment_tracker.util.time.TLocalDate;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +30,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-@Slf4j
+@Log4j2
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -104,7 +104,7 @@ public class CorporateActionService {
         for (CorporateActionEntity corporateAction : corporateActions) {
             performQuarterlyCorporateAction(email, corporateAction);
         }
-        System.out.println(corporateActions);
+        log.info(corporateActions);
     }
 
     public void performQuarterlyCorporateAction(String email, CorporateActionEntity corporateAction) {
@@ -146,7 +146,7 @@ public class CorporateActionService {
             performPendingCorporateAction(email, corporateAction);
         }
 
-        System.out.println(corporateActions);
+        log.info(corporateActions);
     }
 
     private List<CorporateActionEntity> getCurrentQuarterCorporateActions(LocalDate start, LocalDate transactionDate) {

@@ -1,6 +1,6 @@
 package com.thiru.investment_tracker.service.export.processor;
 
-import com.thiru.investment_tracker.dto.EntityExportRequest;
+import com.thiru.investment_tracker.dto.request.EntityExportRequest;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.TransactionEntity;
 import com.thiru.investment_tracker.helper.file.FileType;

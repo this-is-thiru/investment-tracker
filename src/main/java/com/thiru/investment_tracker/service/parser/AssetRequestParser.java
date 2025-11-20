@@ -1,7 +1,7 @@
 package com.thiru.investment_tracker.service.parser;
 
-import com.thiru.investment_tracker.dto.AssetRequest;
-import com.thiru.investment_tracker.dto.InputRecord;
+import com.thiru.investment_tracker.dto.request.AssetRequest;
+import com.thiru.investment_tracker.dto.helper.InputRecord;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.ExcelDataType;
