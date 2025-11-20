@@ -11,6 +11,8 @@
   * routing key
 ###### Note: binding for exchange is mandatory, based on this only consumer will consume from queue.
 
+## cicd - next: https://www.perplexity.ai/search/docker-build-and-push-to-docke-kJj.IpPcSXWfJ3wpXZ9oHw
+
 
 Resources:
 * https://gist.github.com/conholdate-gists/413f3fdf681361ad1a625a876955689a - excel sheet to combine
