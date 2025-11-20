@@ -14,6 +14,8 @@ public interface AssetManagementRepository extends MongoRepository<AssetManageme
 
     List<AssetManagementDetails> findByLastAmcChargesDeductedOnBefore(LocalDate date);
 
+    List<AssetManagementDetails> findByEmail(String email);
+
     Optional<AssetManagementDetails> findByEmailAndBrokerName(String email, BrokerName brokerName);
 
     @Query("{amc_charges_frequency: ?0, last_amc_charges_deducted_on: {$lte: ?1}}")

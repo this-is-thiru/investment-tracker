@@ -37,6 +37,11 @@ public class BrokerChargesController {
         assetManagementService.addAssetManagementEntry(UserMail.from(email), request);
     }
 
+    @PostMapping("/user/{email}/asset-management-details")
+    public void getAssetManagementDetails(@PathVariable String email) {
+        assetManagementService.getAssetManagementDetails(UserMail.from(email));
+    }
+
     @PostMapping("/amc/impose")
     public void imposeAmcCharges() {
         assetManagementService.imposeAmcCharges();

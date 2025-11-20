@@ -88,4 +88,8 @@ public class AssetManagementService {
         assetManagementDetails.setEmail(userMail.getEmail());
         assetManagementRepository.save(assetManagementDetails);
     }
+
+    public List<AssetManagementDetails> getAssetManagementDetails(UserMail userMail) {
+        return assetManagementRepository.findByEmail(userMail.getEmail());
+    }
 }
