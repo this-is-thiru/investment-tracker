@@ -192,6 +192,8 @@ public class CorporateActionService {
         CorporateActionType action = corporateAction.getType();
         if (Objects.requireNonNull(action) == CorporateActionType.BONUS) {
             processBonusShares(email, corporateAction);
+        } else if (Objects.requireNonNull(action) == CorporateActionType.DEMERGER) {
+            processBonusShares(email, corporateAction);
         } else {
             throw new IllegalArgumentException("Invalid action type" + action);
         }
@@ -388,6 +390,66 @@ public class CorporateActionService {
 
         lastlyPerformedCorporateAction.setActionDate(exDate);
         lastlyPerformedCorporateActionRepo.save(lastlyPerformedCorporateAction);
+    }
+
+    public String processDemergerOfShares(String email, CorporateActionEntity corporateAction) {
+
+        String stockCode = corporateAction.getStockCode();
+        LocalDate recordDate = corporateAction.getRecordDate();
+
+        List<AssetEntity> stockEntities = portfolioService.stocksForCorporateActions(email, stockCode, recordDate);
+        if (stockEntities.isEmpty()) {
+            log.info("No stock found for corporate action: {} for stock: {} on record date: {}", corporateAction.getType(), stockCode, recordDate);
+            updateLastlyPerformedCorporateAction(email, stockCode, corporateAction.getAssetType(), corporateAction.getType(), corporateAction.getExDate());
+            return null;
+        }
+
+        Map<BrokerName, List<AssetEntity>> brokerNameAndStocksMap = TCollectionUtil.groupingBy(stockEntities, AssetEntity::getBrokerName);
+        for (Map.Entry<BrokerName, List<AssetEntity>> entry : brokerNameAndStocksMap.entrySet()) {
+            processDemergerOfShares(email, corporateAction, entry.getKey(), entry.getValue());
+            updateLastlyPerformedCorporateAction(email, stockCode, corporateAction.getAssetType(), corporateAction.getType(), corporateAction.getExDate());
+        }
+
+        return "Success";
+    }
+
+    public void processDemergerOfShares(String email, CorporateActionEntity corporateAction, BrokerName brokerName, List<AssetEntity> stockEntities) {
+
+        String stockCode = corporateAction.getStockCode();
+
+        int totalShares = TCollectionUtil.map(stockEntities, assetEntity -> assetEntity.getQuantity().intValue()).stream().reduce(0, Integer::sum);
+        String[] splitRatio = corporateAction.getRatio().split(":");
+        int numerator = Integer.parseInt(splitRatio[0]);
+        int denominator = Integer.parseInt(splitRatio[1]);
+        int bonusSharesCount = totalShares * numerator / denominator;
+
+        List<String> newTransactionIds = processBonusSharesTxns(email, bonusSharesCount, corporateAction, brokerName, stockEntities);
+        if (newTransactionIds.size() != 1) {
+            log.warn("Demerger of shares txns: {} added for symbol: {} in Broker: {} with multiple transactions", newTransactionIds, stockCode, brokerName);
+            throw new IllegalArgumentException("Multiple transactions added for bonus shares: " + newTransactionIds);
+        }
+
+        // Portfolio stock
+        AssetEntity firstAsset = stockEntities.getFirst();
+        AssetEntity bonusSharesEntity = TObjectMapper.copy(firstAsset, AssetEntity.class);
+        bonusSharesEntity.setId(null);
+        bonusSharesEntity.setQuantity((double) bonusSharesCount);
+        bonusSharesEntity.setPrice(0);
+        bonusSharesEntity.setTotalValue(0);
+        bonusSharesEntity.setTransactionDate(corporateAction.getExDate());
+        bonusSharesEntity.setOrderTimeQuantities(List.of());
+        bonusSharesEntity.setCorporateActionType(CorporateActionType.BONUS);
+        bonusSharesEntity.setBuyTransactionIds(newTransactionIds);
+        stockEntities.add(bonusSharesEntity);
+
+        for (AssetEntity assetEntity : stockEntities) {
+
+            CorporateActionEntity action = TObjectMapper.copy(corporateAction, CorporateActionEntity.class);
+            assetEntity.getCorporateActions().add(action);
+        }
+        portfolioService.saveCorporateActionProcessedStocks(stockEntities);
+
+        log.info("Demerger of shares added for symbol: {} in Broker: {}", stockCode, brokerName);
     }
 
     private static boolean isTestUser() {

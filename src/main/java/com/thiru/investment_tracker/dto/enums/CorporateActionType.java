@@ -10,6 +10,7 @@ public enum CorporateActionType {
     STOCK_SPLIT,
     BUYBACK,
     RIGHTS_ISSUANCE,
+    DEMERGER,
     NAME_OR_SYMBOL_CHANGE;
 
     @JsonIgnore
