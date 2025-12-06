@@ -1,6 +1,6 @@
 package com.thiru.investment_tracker.service;
 
-import com.thiru.investment_tracker.dto.ProfitAndLossContext;
+import com.thiru.investment_tracker.dto.context.ProfitAndLossContext;
 import com.thiru.investment_tracker.dto.ProfitAndLossResponse;
 import com.thiru.investment_tracker.dto.enums.AccountType;
 import com.thiru.investment_tracker.dto.user.UserMail;

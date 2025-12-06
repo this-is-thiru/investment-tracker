@@ -75,7 +75,6 @@ public class AssetExcelWorkbookWriter extends AbstractExcelWorkbookWriter<AssetR
         simpleColumnValueMap.put(STOCK_QUANTITY, AssetResponse::getQuantity);
         simpleColumnValueMap.put(STOCK_TOTAL_QUANTITY, AssetResponse::getTotalQuantity);
         simpleColumnValueMap.put(STOCK_PRICE, AssetResponse::getPrice);
-        simpleColumnValueMap.put(STOCK_TOTAL_VALUE, AssetResponse::getTotalValue);
         simpleColumnValueMap.put(MATURITY_DATE, AssetResponse::getMaturityDate);
         simpleColumnValueMap.put(BROKER_CHARGES, AssetResponse::getBrokerCharges);
         simpleColumnValueMap.put(MISC_CHARGES, AssetResponse::getMiscCharges);
