@@ -1,6 +1,5 @@
 package com.thiru.investment_tracker.service;
 
-import com.thiru.investment_tracker.auth.service.UserDetailsImpl;
 import com.thiru.investment_tracker.dto.CorporateActionDto;
 import com.thiru.investment_tracker.dto.context.DemergedStockContext;
 import com.thiru.investment_tracker.dto.context.DemergerContext;
@@ -22,7 +21,6 @@ import com.thiru.investment_tracker.util.time.TLocalDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -336,7 +334,6 @@ public class CorporateActionService {
         bonusSharesEntity.setId(null);
         bonusSharesEntity.setQuantity((double) bonusSharesCount);
         bonusSharesEntity.setPrice(0);
-        bonusSharesEntity.setTotalValue(0);
         bonusSharesEntity.setTransactionDate(corporateAction.getExDate());
         bonusSharesEntity.setOrderTimeQuantities(List.of());
         bonusSharesEntity.setCorporateActionType(CorporateActionType.BONUS);
@@ -393,7 +390,7 @@ public class CorporateActionService {
         lastlyPerformedCorporateActionRepo.save(lastlyPerformedCorporateAction);
     }
 
-    public String processDemergerOfShares(String email, CorporateActionEntity corporateAction) {
+    public void processDemergerOfShares(String email, CorporateActionEntity corporateAction) {
 
         String stockCode = corporateAction.getStockCode();
         LocalDate recordDate = corporateAction.getRecordDate();
@@ -402,25 +399,23 @@ public class CorporateActionService {
         if (stockEntities.isEmpty()) {
             log.info("No stock found for corporate action: {} for stock: {} on record date: {}", corporateAction.getType(), stockCode, recordDate);
             updateLastlyPerformedCorporateAction(email, stockCode, corporateAction.getAssetType(), corporateAction.getType(), corporateAction.getExDate());
-            return null;
+            return;
         }
 
         Map<BrokerName, List<AssetEntity>> brokerNameAndStocksMap = TCollectionUtil.groupingBy(stockEntities, AssetEntity::getBrokerName);
         for (Map.Entry<BrokerName, List<AssetEntity>> entry : brokerNameAndStocksMap.entrySet()) {
-            processDemergerOfShares(email, corporateAction, entry.getKey(), entry.getValue());
+            processDemergerOfShares(corporateAction, entry.getKey(), entry.getValue());
             updateLastlyPerformedCorporateAction(email, stockCode, corporateAction.getAssetType(), corporateAction.getType(), corporateAction.getExDate());
         }
-
-        return "Success";
     }
 
-    private void processDemergerOfShares(String email, CorporateActionEntity corporateAction, BrokerName brokerName, List<AssetEntity> stockEntities) {
+    private void processDemergerOfShares(CorporateActionEntity corporateAction, BrokerName brokerName, List<AssetEntity> stockEntities) {
 
         String stockCode = corporateAction.getStockCode();
         var demergerDetail = corporateAction.getDemergerDetail();
         String[] demergerRatio = demergerDetail.getDemergerRatio().split(":");
-        int mainStock = Integer.parseInt(demergerRatio[0]);
-        int secondaryStock = Integer.parseInt(demergerRatio[1]);
+        int mainStockRatio = Integer.parseInt(demergerRatio[0]);
+        int secondaryStockRatio = Integer.parseInt(demergerRatio[1]);
 
         String[] demergerPriceRatio = demergerDetail.getDemergerPriceRatio().split(":");
         double mainStockPriceRatio = Double.parseDouble(demergerPriceRatio[0]);
@@ -431,15 +426,15 @@ public class CorporateActionService {
         }
 
         var newDemergerStock = demergerDetail.getDemergerStocks().getFirst();
-        var demergedStockContext = new DemergedStockContext(newDemergerStock.getStockCode(), newDemergerStock.getStockName(), secondaryStockPriceRatio, secondaryStock);
+        var demergedStockContext = new DemergedStockContext(newDemergerStock.getStockCode(), newDemergerStock.getStockName(), secondaryStockPriceRatio, secondaryStockRatio);
 
         List<AssetEntity> finalDemergedStocks = new ArrayList<>();
         for (AssetEntity assetEntity : stockEntities) {
-            var demergerContext = new DemergerContext(demergerDetail.getMainStockCode(), demergerDetail.getMainStockName(), mainStockPriceRatio, mainStock, assetEntity, new ArrayList<>(Collections.singleton(demergedStockContext)));
+            var demergerContext = new DemergerContext(demergerDetail.getMainStockCode(), demergerDetail.getMainStockName(), mainStockPriceRatio, mainStockRatio, assetEntity, new ArrayList<>(Collections.singleton(demergedStockContext)));
             List<AssetEntity> demergedStocks = processDemergerForEachAssetEntry(demergerContext);
 
             CorporateActionEntity action = TObjectMapper.copy(corporateAction, CorporateActionEntity.class);
-            demergedStocks.parallelStream().forEach(a->a.getCorporateActions().add(action));
+            demergedStocks.parallelStream().forEach(a -> a.getCorporateActions().add(action));
             finalDemergedStocks.addAll(demergedStocks);
         }
 
@@ -448,21 +443,21 @@ public class CorporateActionService {
     }
 
     public List<AssetEntity> processDemergerForEachAssetEntry(DemergerContext demergerContext) {
-        double mainStockPrice = demergerContext.pricePercentage();
+        double mainStockPricePercentage = demergerContext.pricePercentage();
         AssetEntity entity = demergerContext.entity();
-        var oldPrice = entity.getPrice();
-        double newPrice = oldPrice * (mainStockPrice / 100);
-        entity.setPrice(newPrice);
-        entity.setStockCode(demergerContext.stockCode());
-        entity.setStockName(demergerContext.stockName());
 
         List<AssetEntity> demergedStocks = new ArrayList<>();
-        demergedStocks.add(entity);
-
         for (var demergerStockContext : demergerContext.demergedStocks()) {
             AssetEntity asNewEntity = asNewEntity(demergerStockContext, entity);
             demergedStocks.add(asNewEntity);
         }
+
+        var oldPrice = entity.getPrice();
+        double newPrice = oldPrice * (mainStockPricePercentage / 100);
+        entity.setPrice(newPrice);
+        entity.setStockCode(demergerContext.stockCode());
+        entity.setStockName(demergerContext.stockName());
+        demergedStocks.add(entity);
 
         return demergedStocks;
     }
@@ -481,8 +476,8 @@ public class CorporateActionService {
 
         newEntity.setStockCode(demergerContext.stockCode());
         newEntity.setStockName(demergerContext.stockName());
-        newEntity.setQuantity(demergerContext.quantityRatio());
-        newEntity.setPrice(demergerContext.pricePercentage());
+        newEntity.setQuantity(demergerContext.quantityRatio() * entity.getQuantity());
+        newEntity.setPrice(demergerContext.pricePercentage() * (entity.getPrice() / 100));
         newEntity.setCorporateActionType(CorporateActionType.DEMERGER);
         return newEntity;
     }

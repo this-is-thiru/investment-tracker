@@ -161,7 +161,7 @@ public class PortfolioService {
             double existingQuantity = assetEntity.getQuantity();
             double newQuantity = existingQuantity + assetRequest.getQuantity();
 
-            double existingTotalValue = assetEntity.getTotalValue();
+            double existingTotalValue = assetEntity.getQuantity() * assetRequest.getPrice();
             double totalValueOfTransaction = getTotalValue(assetRequest);
             double newTotalValue = (existingTotalValue + totalValueOfTransaction);
             double newPrice = newTotalValue / newQuantity;
@@ -172,7 +172,6 @@ public class PortfolioService {
             assetEntity.setMiscCharges(assetRequest.getMiscCharges() + existingMiscCharges);
             assetEntity.setPrice(newPrice);
             assetEntity.setQuantity(newQuantity);
-            assetEntity.setTotalValue(newTotalValue);
 
             OrderTimeQuantity orderTimeQuantity = new OrderTimeQuantity();
             orderTimeQuantity.setOrderExecutionTime(assetRequest.orderExecutionDateTime());
@@ -181,9 +180,6 @@ public class PortfolioService {
             assetRequest.getOrderTimeQuantities().add(orderTimeQuantity);
         } else {
             assetEntity = assetRequest.asAsset();
-            double totalValueOfTransaction = getTotalValue(assetRequest);
-
-            assetEntity.setTotalValue(totalValueOfTransaction);
 
             OrderTimeQuantity orderTimeQuantity = new OrderTimeQuantity();
             orderTimeQuantity.setOrderExecutionTime(assetRequest.orderExecutionDateTime());
@@ -279,14 +275,17 @@ public class PortfolioService {
         AssetResponse assetResponse = TObjectMapper.copy(stockEntities.getFirst(), AssetResponse.class);
 
         double totalValue = 0;
-        double quantity = 0;
+        double totalQuantity = 0;
         double brokerCharges = 0;
         double miscCharges = 0;
         Map<String, Double> transactionDatesMap = new HashMap<>();
 
         for (AssetEntity entity : stockEntities) {
-            totalValue += entity.getTotalValue();
-            quantity += entity.getQuantity();
+            double price = entity.getPrice();
+            double quantity = entity.getQuantity();
+
+            totalValue += (price * quantity);
+            totalQuantity += quantity;
             brokerCharges += entity.getBrokerCharges();
             miscCharges += entity.getMiscCharges();
 
@@ -298,10 +297,10 @@ public class PortfolioService {
             transactionDatesMap.put(TLocalDate.convertToString(entity.getTransactionDate()), latestQuantity);
         }
 
-        assetResponse.setQuantity(quantity);
-        assetResponse.setTotalQuantity(quantity);
+        assetResponse.setQuantity(totalQuantity);
+        assetResponse.setTotalQuantity(totalQuantity);
         assetResponse.setTotalValue(totalValue);
-        assetResponse.setPrice(totalValue / quantity);
+        assetResponse.setPrice(totalValue / totalQuantity);
         assetResponse.setBrokerCharges(brokerCharges);
         assetResponse.setMiscCharges(miscCharges);
         Map<String, Double> transactionQuantities = transactionDatesMap.entrySet().stream()
@@ -333,7 +332,6 @@ public class PortfolioService {
                 profitAndLossContext = ProfitAndLossContext.from(assetEntity, assetRequest, assetQuantity);
 
                 assetEntity.setQuantity(0D);
-                assetEntity.setTotalValue(0);
                 sellQuantity = sellQuantity - assetQuantity;
             } else {
                 reportContext = toReportContext(assetEntity, assetRequest, sellQuantity);
@@ -341,7 +339,6 @@ public class PortfolioService {
 
                 double remainingQuantity = assetQuantity - sellQuantity;
                 assetEntity.setQuantity(remainingQuantity);
-                assetEntity.setTotalValue(remainingQuantity * assetEntity.getPrice());
                 sellQuantity = 0;
             }
 
@@ -359,7 +356,6 @@ public class PortfolioService {
         reportContext.setStockName(assetEntity.getStockName());
         reportContext.setExchangeName(assetEntity.getExchangeName());
         reportContext.setBrokerName(assetEntity.getBrokerName());
-        reportContext.setTotalValue(assetEntity.getTotalValue());
         reportContext.setAssetType(assetEntity.getAssetType());
         reportContext.setPurchasePrice(assetEntity.getPrice());
         reportContext.setPurchaseDate(assetEntity.getTransactionDate());
