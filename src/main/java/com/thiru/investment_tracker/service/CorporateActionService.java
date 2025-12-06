@@ -2,6 +2,8 @@ package com.thiru.investment_tracker.service;
 
 import com.thiru.investment_tracker.auth.service.UserDetailsImpl;
 import com.thiru.investment_tracker.dto.CorporateActionDto;
+import com.thiru.investment_tracker.dto.context.DemergedStockContext;
+import com.thiru.investment_tracker.dto.context.DemergerContext;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.CorporateActionType;
@@ -19,11 +21,15 @@ import com.thiru.investment_tracker.util.collection.TObjectMapper;
 import com.thiru.investment_tracker.util.time.TLocalDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -47,6 +53,7 @@ public class CorporateActionService {
 
 
     public String addCorporateAction(CorporateActionDto actionWrapper) {
+        validateCorporateActionData(actionWrapper);
 
         CorporateActionEntity corporateActionEntity = actionWrapper.getAsEntity();
         List<CorporateActionEntity> actions = corporateActionRepository.findByStockCodeAndRecordDateAndOrderByPriorityAsc(actionWrapper.getStockCode(), actionWrapper.getRecordDate());
@@ -150,13 +157,7 @@ public class CorporateActionService {
     }
 
     private List<CorporateActionEntity> getCurrentQuarterCorporateActions(LocalDate start, LocalDate transactionDate) {
-        var corporateActions = corporateActionRepository.findByTypeInAndRecordDateBetween(CorporateActionType.FILTERABLE_CORPORATE_ACTIONS, start, transactionDate);
-
-        if (isTestUser()) {
-            return corporateActions.stream().filter(CorporateActionEntity::isTestCorporateAction).toList();
-        }
-        return corporateActions.stream().filter(corporateAction -> !corporateAction.isTestCorporateAction())
-                .toList();
+        return corporateActionRepository.findByTypeInAndRecordDateBetween(CorporateActionType.FILTERABLE_CORPORATE_ACTIONS, start, transactionDate);
     }
 
     private boolean skipPendingCorporateAction(String email, CorporateActionEntity corporateAction) {
@@ -193,7 +194,7 @@ public class CorporateActionService {
         if (Objects.requireNonNull(action) == CorporateActionType.BONUS) {
             processBonusShares(email, corporateAction);
         } else if (Objects.requireNonNull(action) == CorporateActionType.DEMERGER) {
-            processBonusShares(email, corporateAction);
+            processDemergerOfShares(email, corporateAction);
         } else {
             throw new IllegalArgumentException("Invalid action type" + action);
         }
@@ -413,46 +414,121 @@ public class CorporateActionService {
         return "Success";
     }
 
-    public void processDemergerOfShares(String email, CorporateActionEntity corporateAction, BrokerName brokerName, List<AssetEntity> stockEntities) {
+    private void processDemergerOfShares(String email, CorporateActionEntity corporateAction, BrokerName brokerName, List<AssetEntity> stockEntities) {
 
         String stockCode = corporateAction.getStockCode();
+        var demergerDetail = corporateAction.getDemergerDetail();
+        String[] demergerRatio = demergerDetail.getDemergerRatio().split(":");
+        int mainStock = Integer.parseInt(demergerRatio[0]);
+        int secondaryStock = Integer.parseInt(demergerRatio[1]);
 
-        int totalShares = TCollectionUtil.map(stockEntities, assetEntity -> assetEntity.getQuantity().intValue()).stream().reduce(0, Integer::sum);
-        String[] splitRatio = corporateAction.getRatio().split(":");
-        int numerator = Integer.parseInt(splitRatio[0]);
-        int denominator = Integer.parseInt(splitRatio[1]);
-        int bonusSharesCount = totalShares * numerator / denominator;
+        String[] demergerPriceRatio = demergerDetail.getDemergerPriceRatio().split(":");
+        double mainStockPriceRatio = Double.parseDouble(demergerPriceRatio[0]);
+        double secondaryStockPriceRatio = Double.parseDouble(demergerPriceRatio[1]);
 
-        List<String> newTransactionIds = processBonusSharesTxns(email, bonusSharesCount, corporateAction, brokerName, stockEntities);
-        if (newTransactionIds.size() != 1) {
-            log.warn("Demerger of shares txns: {} added for symbol: {} in Broker: {} with multiple transactions", newTransactionIds, stockCode, brokerName);
-            throw new IllegalArgumentException("Multiple transactions added for bonus shares: " + newTransactionIds);
+        if (demergerDetail.getDemergerStocks().size() != 1) {
+            throw new IllegalArgumentException("Invalid demerger ratio format");
         }
 
-        // Portfolio stock
-        AssetEntity firstAsset = stockEntities.getFirst();
-        AssetEntity bonusSharesEntity = TObjectMapper.copy(firstAsset, AssetEntity.class);
-        bonusSharesEntity.setId(null);
-        bonusSharesEntity.setQuantity((double) bonusSharesCount);
-        bonusSharesEntity.setPrice(0);
-        bonusSharesEntity.setTotalValue(0);
-        bonusSharesEntity.setTransactionDate(corporateAction.getExDate());
-        bonusSharesEntity.setOrderTimeQuantities(List.of());
-        bonusSharesEntity.setCorporateActionType(CorporateActionType.BONUS);
-        bonusSharesEntity.setBuyTransactionIds(newTransactionIds);
-        stockEntities.add(bonusSharesEntity);
+        var newDemergerStock = demergerDetail.getDemergerStocks().getFirst();
+        var demergedStockContext = new DemergedStockContext(newDemergerStock.getStockCode(), newDemergerStock.getStockName(), secondaryStockPriceRatio, secondaryStock);
 
+        List<AssetEntity> finalDemergedStocks = new ArrayList<>();
         for (AssetEntity assetEntity : stockEntities) {
+            var demergerContext = new DemergerContext(demergerDetail.getMainStockCode(), demergerDetail.getMainStockName(), mainStockPriceRatio, mainStock, assetEntity, new ArrayList<>(Collections.singleton(demergedStockContext)));
+            List<AssetEntity> demergedStocks = processDemergerForEachAssetEntry(demergerContext);
 
             CorporateActionEntity action = TObjectMapper.copy(corporateAction, CorporateActionEntity.class);
-            assetEntity.getCorporateActions().add(action);
+            demergedStocks.parallelStream().forEach(a->a.getCorporateActions().add(action));
+            finalDemergedStocks.addAll(demergedStocks);
         }
-        portfolioService.saveCorporateActionProcessedStocks(stockEntities);
 
+        portfolioService.saveCorporateActionProcessedStocks(finalDemergedStocks);
         log.info("Demerger of shares added for symbol: {} in Broker: {}", stockCode, brokerName);
     }
 
-    private static boolean isTestUser() {
-        return UserDetailsImpl.hasRole("TEST_USER");
+    public List<AssetEntity> processDemergerForEachAssetEntry(DemergerContext demergerContext) {
+        double mainStockPrice = demergerContext.pricePercentage();
+        AssetEntity entity = demergerContext.entity();
+        var oldPrice = entity.getPrice();
+        double newPrice = oldPrice * (mainStockPrice / 100);
+        entity.setPrice(newPrice);
+        entity.setStockCode(demergerContext.stockCode());
+        entity.setStockName(demergerContext.stockName());
+
+        List<AssetEntity> demergedStocks = new ArrayList<>();
+        demergedStocks.add(entity);
+
+        for (var demergerStockContext : demergerContext.demergedStocks()) {
+            AssetEntity asNewEntity = asNewEntity(demergerStockContext, entity);
+            demergedStocks.add(asNewEntity);
+        }
+
+        return demergedStocks;
+    }
+
+    private static AssetEntity asNewEntity(DemergedStockContext demergerContext, AssetEntity entity) {
+        var newEntity = new AssetEntity();
+        newEntity.setEmail(entity.getEmail());
+        newEntity.setExchangeName(entity.getExchangeName());
+        newEntity.setBrokerName(entity.getBrokerName());
+        newEntity.setAssetType(entity.getAssetType());
+        newEntity.setTransactionDate(entity.getTransactionDate());
+        newEntity.setOrderTimeQuantities(entity.getOrderTimeQuantities());
+        newEntity.setAccountType(entity.getAccountType());
+        newEntity.setAccountHolder(entity.getAccountHolder());
+        newEntity.setTransactionType(TransactionType.BUY);
+
+        newEntity.setStockCode(demergerContext.stockCode());
+        newEntity.setStockName(demergerContext.stockName());
+        newEntity.setQuantity(demergerContext.quantityRatio());
+        newEntity.setPrice(demergerContext.pricePercentage());
+        newEntity.setCorporateActionType(CorporateActionType.DEMERGER);
+        return newEntity;
+    }
+
+    private void validateCorporateActionData(CorporateActionDto actionWrapper) {
+        if (actionWrapper == null) {
+            throw new IllegalArgumentException("Corporate action data is missing");
+        }
+        if (StringUtils.isBlank(actionWrapper.getStockCode())) {
+            throw new IllegalArgumentException("Stock code is missing");
+        }
+        if (actionWrapper.getType() == null) {
+            throw new IllegalArgumentException("Invalid corporate action type");
+        }
+        if (actionWrapper.getRecordDate() == null) {
+            throw new IllegalArgumentException("Record date is invalid");
+        }
+        if (actionWrapper.getExDate() == null) {
+            throw new IllegalArgumentException("Ex date is invalid");
+        }
+
+        switch (actionWrapper.getType()) {
+            case DEMERGER -> validateDemergerData(actionWrapper.getDemergerDetail());
+        }
+    }
+
+    private void validateDemergerData(CorporateActionDto.DemergerDetailDto demergerDetail) {
+        if (demergerDetail == null) {
+            throw new IllegalArgumentException("Demerger data is missing");
+        }
+        String demergerRatio = demergerDetail.demergerRatio();
+        String demergerPriceRatio = demergerDetail.demergerPriceRatio();
+        String[] demergerRatios = demergerRatio.split(":");
+        String[] demergerPriceRatios = demergerPriceRatio.split(":");
+
+        // TODO: come to this for uneven ratios
+        if (demergerRatios.length != 2) {
+            throw new IllegalArgumentException("Invalid demerger ratio format");
+        }
+
+        if (demergerRatios.length != demergerDetail.demergerStocks().size() + 1) {
+            throw new IllegalArgumentException("Demerger ratios must have one more element than the number of demerger stocks");
+        }
+
+        if (demergerPriceRatios.length != demergerRatios.length) {
+            throw new IllegalArgumentException("Demerger ratios and price ratios must have the same length");
+        }
     }
 }
