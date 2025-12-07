@@ -19,7 +19,7 @@ import com.thiru.investment_tracker.repository.PortfolioRepository;
 import com.thiru.investment_tracker.repository.TemporaryTransactionRepository;
 import com.thiru.investment_tracker.service.parser.AssetRequestParser;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
-import com.thiru.investment_tracker.util.collection.TObjectMapper;
+import com.thiru.investment_tracker.util.collection.TJsonMapper;
 import com.thiru.investment_tracker.util.parser.ExcelBuilder;
 import com.thiru.investment_tracker.util.parser.ExcelParser;
 import com.thiru.investment_tracker.util.time.TLocalDate;
@@ -243,7 +243,7 @@ public class PortfolioService {
             throw new IllegalArgumentException("Stock not found");
         }
 
-        return TCollectionUtil.map(stockEntities, asset -> TObjectMapper.copy(asset, AssetResponse.class));
+        return TCollectionUtil.map(stockEntities, asset -> TJsonMapper.copy(asset, AssetResponse.class));
     }
 
     public List<AssetResponse> getAllStocks(UserMail userMail) {
@@ -276,7 +276,7 @@ public class PortfolioService {
      * @return the response entity that matches the provided stock code
      */
     private static AssetResponse combineAllDetailsOfEntities(List<AssetEntity> stockEntities) {
-        AssetResponse assetResponse = TObjectMapper.copy(stockEntities.getFirst(), AssetResponse.class);
+        AssetResponse assetResponse = TJsonMapper.copy(stockEntities.getFirst(), AssetResponse.class);
 
         double totalValue = 0;
         double quantity = 0;

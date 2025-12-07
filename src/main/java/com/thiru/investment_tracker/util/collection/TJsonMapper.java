@@ -6,7 +6,7 @@ import tools.jackson.databind.type.CollectionType;
 
 import java.util.List;
 
-public class TObjectMapper {
+public class TJsonMapper {
 
     private static final JsonMapper JSON_MAPPER = getJsonMapper();
 
