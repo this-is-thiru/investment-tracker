@@ -5,7 +5,7 @@ import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.ReportEntity;
 import com.thiru.investment_tracker.repository.ReportRepository;
-import com.thiru.investment_tracker.util.collection.TJsonMapper;
+import com.thiru.investment_tracker.util.collection.TObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +20,7 @@ public class ReportService {
 
     public void stockReport(UserMail userMail, ReportContext reportContext) {
 
-        ReportEntity reportEntity = TJsonMapper.copy(reportContext, ReportEntity.class);
+        ReportEntity reportEntity = TObjectMapper.copy(reportContext, ReportEntity.class);
         reportEntity.setEmail(userMail.getEmail());
 
         reportRepository.save(reportEntity);

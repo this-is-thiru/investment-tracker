@@ -7,7 +7,7 @@ import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.*;
 import com.thiru.investment_tracker.entity.model.*;
 import com.thiru.investment_tracker.repository.ProfitAndLossRepository;
-import com.thiru.investment_tracker.util.collection.TJsonMapper;
+import com.thiru.investment_tracker.util.collection.TObjectMapper;
 import com.thiru.investment_tracker.util.collection.TOptional;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -204,7 +204,7 @@ public class ProfitAndLossService {
 				financialYear);
 		ProfitAndLossEntity profitAndLossEntity = optionalProfitAndLoss.orElse(new ProfitAndLossEntity());
 
-		return TJsonMapper.copy(profitAndLossEntity, ProfitAndLossResponse.class);
+		return TObjectMapper.copy(profitAndLossEntity, ProfitAndLossResponse.class);
 	}
 
 	public void deleteProfitAndLoss(UserMail userMail) {
