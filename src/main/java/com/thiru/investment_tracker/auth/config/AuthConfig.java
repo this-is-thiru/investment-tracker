@@ -40,7 +40,8 @@ public class AuthConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login", "/auth/register", "/helper/**", "/finances/**", "/template/**").permitAll()
-                        .requestMatchers("/auth/**", "/portfolio/**", "/reports/**", "/transactions/**", "/corporate-action/**", "/temporary-transactions/**").authenticated())
+                        .requestMatchers("/auth/**", "/portfolio/**", "/reports/**", "/transactions/**", "/corporate-action/**", "/temporary-transactions/**").authenticated()
+                        .anyRequest().permitAll())
                 .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(Customizer.withDefaults())
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class).build();

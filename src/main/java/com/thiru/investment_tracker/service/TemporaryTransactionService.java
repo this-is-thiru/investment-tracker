@@ -12,7 +12,7 @@ import com.thiru.investment_tracker.repository.LastlyPerformedCorporateActionRep
 import com.thiru.investment_tracker.repository.TemporaryTransactionRepository;
 import com.thiru.investment_tracker.util.collection.TObjectMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +21,7 @@ import java.time.Month;
 import java.util.List;
 import java.util.Optional;
 
-@Slf4j
+@Log4j2
 @Service
 @Transactional
 @RequiredArgsConstructor

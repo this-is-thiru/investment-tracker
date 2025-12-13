@@ -24,7 +24,7 @@ import com.thiru.investment_tracker.util.parser.ExcelBuilder;
 import com.thiru.investment_tracker.util.parser.ExcelParser;
 import com.thiru.investment_tracker.util.time.TLocalDate;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
@@ -45,7 +45,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Slf4j
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class PortfolioService {

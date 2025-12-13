@@ -7,7 +7,7 @@ import com.thiru.investment_tracker.exception.BadRequestException;
 import com.thiru.investment_tracker.util.collection.TOptional;
 import com.thiru.investment_tracker.util.parser.CellDetail;
 import com.thiru.investment_tracker.util.time.TLocalDate;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -22,7 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
+@Log4j2
 public class ExcelParserImpl implements ExcelParser {
 
     @Override
