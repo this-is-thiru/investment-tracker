@@ -4,7 +4,7 @@ import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.query.QueryBuilder;
 import com.thiru.investment_tracker.entity.query.QueryFilter;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Slf4j
+@Log4j2
 @AllArgsConstructor
 @Service
 @Transactional

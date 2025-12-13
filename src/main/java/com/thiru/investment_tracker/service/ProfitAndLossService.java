@@ -4,15 +4,19 @@ import com.thiru.investment_tracker.dto.ProfitAndLossContext;
 import com.thiru.investment_tracker.dto.ProfitAndLossResponse;
 import com.thiru.investment_tracker.dto.enums.AccountType;
 import com.thiru.investment_tracker.dto.user.UserMail;
-import com.thiru.investment_tracker.entity.*;
-import com.thiru.investment_tracker.entity.model.*;
+import com.thiru.investment_tracker.entity.ProfitAndLossEntity;
+import com.thiru.investment_tracker.entity.model.FinancialReport;
+import com.thiru.investment_tracker.entity.model.FortnightReport;
+import com.thiru.investment_tracker.entity.model.MonthlyReport;
+import com.thiru.investment_tracker.entity.model.RealisedProfits;
+import com.thiru.investment_tracker.entity.model.ReportModel;
 import com.thiru.investment_tracker.repository.ProfitAndLossRepository;
 import com.thiru.investment_tracker.util.collection.TObjectMapper;
 import com.thiru.investment_tracker.util.collection.TOptional;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +26,7 @@ import java.time.Month;
 import java.util.Map;
 import java.util.Optional;
 
-@Slf4j
+@Log4j2
 @AllArgsConstructor
 @Service
 @Transactional
