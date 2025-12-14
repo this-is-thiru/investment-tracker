@@ -16,10 +16,10 @@ import com.thiru.investment_tracker.repository.CorporateActionRepository;
 import com.thiru.investment_tracker.repository.LastlyPerformedCorporateActionRepo;
 import com.thiru.investment_tracker.repository.TemporaryTransactionRepository;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
-import com.thiru.investment_tracker.util.collection.TObjectMapper;
+import com.thiru.investment_tracker.util.collection.TJsonMapper;
 import com.thiru.investment_tracker.util.time.TLocalDate;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +34,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-@Slf4j
+@Log4j2
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -97,7 +97,7 @@ public class CorporateActionService {
 
     public List<CorporateActionDto> getCorporateActions(List<String> ids) {
         List<CorporateActionEntity> actions = corporateActionRepository.findAllById(ids);
-        return TCollectionUtil.map(actions, corporateAction -> TObjectMapper.copy(corporateAction, CorporateActionDto.class));
+        return TCollectionUtil.map(actions, corporateAction -> TJsonMapper.copy(corporateAction, CorporateActionDto.class));
     }
 
     public void performQuarterlyCorporateActions(String email, int year, int quarter) {
@@ -199,10 +199,6 @@ public class CorporateActionService {
         log.info("Corporate action: {} noted successfully for stock: {}", action, corporateAction.getStockCode());
     }
 
-    private List<CorporateActionEntity> getNameOrSymbolChangeCorporateActions() {
-        return corporateActionRepository.findByType(CorporateActionType.NAME_OR_SYMBOL_CHANGE);
-    }
-
     @Transactional
     public String performCorporateAction(CorporateActionDto actionWrapper) {
 
@@ -264,9 +260,7 @@ public class CorporateActionService {
         LocalDate recordDate = actionWrapper.getRecordDate();
 
         List<AssetEntity> stockEntities = portfolioService.stocksForCorporateActions(stockCode, recordDate);
-
         for (AssetEntity assetEntity : stockEntities) {
-
             assetEntity.setStockCode(actionWrapper.getToStockCode());
             assetEntity.setStockName(actionWrapper.getToStockName());
             CorporateActionEntity corporateActionDto = actionWrapper.getAsEntity();
@@ -275,9 +269,7 @@ public class CorporateActionService {
         portfolioService.saveCorporateActionProcessedStocks(stockEntities);
 
         List<TransactionEntity> transactionEntities = transactionService.transactionsForCorporateActions(stockCode, recordDate);
-
         for (TransactionEntity transactionEntity : transactionEntities) {
-
             transactionEntity.setStockCode(actionWrapper.getToStockCode());
             transactionEntity.setStockName(actionWrapper.getToStockName());
             CorporateActionEntity corporateActionDto = actionWrapper.getAsEntity();
@@ -298,9 +290,7 @@ public class CorporateActionService {
 
         List<AssetEntity> stockEntities = portfolioService.stocksForCorporateActions(email, stockCode, recordDate);
         if (stockEntities.isEmpty()) {
-            log.info("No stock found for corporate action: {} for stock: {} on record date: {}", corporateAction.getType(), stockCode, recordDate);
-            updateLastlyPerformedCorporateAction(email, stockCode, corporateAction.getAssetType(), corporateAction.getType(), corporateAction.getExDate());
-            return null;
+            handleEmptyAssetsForCorporateAction(email, corporateAction);
         }
 
         Map<BrokerName, List<AssetEntity>> brokerNameAndStocksMap = TCollectionUtil.groupingBy(stockEntities, AssetEntity::getBrokerName);
@@ -313,7 +303,6 @@ public class CorporateActionService {
     }
 
     public void processBonusShares(String email, CorporateActionEntity corporateAction, BrokerName brokerName, List<AssetEntity> stockEntities) {
-
         String stockCode = corporateAction.getStockCode();
 
         int totalShares = TCollectionUtil.map(stockEntities, assetEntity -> assetEntity.getQuantity().intValue()).stream().reduce(0, Integer::sum);
@@ -322,7 +311,7 @@ public class CorporateActionService {
         int denominator = Integer.parseInt(splitRatio[1]);
         int bonusSharesCount = totalShares * numerator / denominator;
 
-        List<String> newTransactionIds = processBonusSharesTxns(email, bonusSharesCount, corporateAction, brokerName, stockEntities);
+        List<String> newTransactionIds = processBonusSharesTxns(email, bonusSharesCount, corporateAction, brokerName);
         if (newTransactionIds.size() != 1) {
             log.warn("Bonus shares txns: {} added for symbol: {} in Broker: {} with multiple transactions", newTransactionIds, stockCode, brokerName);
             throw new IllegalArgumentException("Multiple transactions added for bonus shares: " + newTransactionIds);
@@ -330,7 +319,7 @@ public class CorporateActionService {
 
         // Portfolio stock
         AssetEntity firstAsset = stockEntities.getFirst();
-        AssetEntity bonusSharesEntity = TObjectMapper.copy(firstAsset, AssetEntity.class);
+        AssetEntity bonusSharesEntity = TJsonMapper.copy(firstAsset, AssetEntity.class);
         bonusSharesEntity.setId(null);
         bonusSharesEntity.setQuantity((double) bonusSharesCount);
         bonusSharesEntity.setPrice(0);
@@ -342,7 +331,7 @@ public class CorporateActionService {
 
         for (AssetEntity assetEntity : stockEntities) {
 
-            CorporateActionEntity action = TObjectMapper.copy(corporateAction, CorporateActionEntity.class);
+            CorporateActionEntity action = TJsonMapper.copy(corporateAction, CorporateActionEntity.class);
             assetEntity.getCorporateActions().add(action);
         }
         portfolioService.saveCorporateActionProcessedStocks(stockEntities);
@@ -350,7 +339,7 @@ public class CorporateActionService {
         log.info("Bonus shares: {} added for symbol: {} in Broker: {}", newTransactionIds.getFirst(), stockCode, brokerName);
     }
 
-    public List<String> processBonusSharesTxns(String email, int bonusSharesCount, CorporateActionEntity corporateAction, BrokerName brokerName, List<AssetEntity> stockEntities) {
+    public List<String> processBonusSharesTxns(String email, int bonusSharesCount, CorporateActionEntity corporateAction, BrokerName brokerName) {
 
         String stockCode = corporateAction.getStockCode();
         LocalDate recordDate = corporateAction.getRecordDate();
@@ -360,7 +349,7 @@ public class CorporateActionService {
         List<String> existingTransactionIds = TCollectionUtil.map(transactionEntities, TransactionEntity::getId);
 
         TransactionEntity first = TCollectionUtil.filter(transactionEntities, transaction -> TransactionType.BUY.equals(transaction.getTransactionType())).getFirst();
-        TransactionEntity bonusSharesTransaction = TObjectMapper.copy(first, TransactionEntity.class);
+        TransactionEntity bonusSharesTransaction = TJsonMapper.copy(first, TransactionEntity.class);
         bonusSharesTransaction.setId(null);
         bonusSharesTransaction.setPrice(0);
         bonusSharesTransaction.setQuantity((double) bonusSharesCount);
@@ -370,7 +359,7 @@ public class CorporateActionService {
         transactionEntities.add(bonusSharesTransaction);
 
         for (TransactionEntity transactionEntity : transactionEntities) {
-            CorporateActionEntity action = TObjectMapper.copy(corporateAction, CorporateActionEntity.class);
+            CorporateActionEntity action = TJsonMapper.copy(corporateAction, CorporateActionEntity.class);
             transactionEntity.getCorporateActions().add(action);
         }
         List<String> newTransactionIds = transactionService.saveCorporateActionProcessedTransactions(transactionEntities);
@@ -397,9 +386,7 @@ public class CorporateActionService {
 
         List<AssetEntity> stockEntities = portfolioService.stocksForCorporateActions(email, stockCode, recordDate);
         if (stockEntities.isEmpty()) {
-            log.info("No stock found for corporate action: {} for stock: {} on record date: {}", corporateAction.getType(), stockCode, recordDate);
-            updateLastlyPerformedCorporateAction(email, stockCode, corporateAction.getAssetType(), corporateAction.getType(), corporateAction.getExDate());
-            return;
+            handleEmptyAssetsForCorporateAction(email, corporateAction);
         }
 
         Map<BrokerName, List<AssetEntity>> brokerNameAndStocksMap = TCollectionUtil.groupingBy(stockEntities, AssetEntity::getBrokerName);
@@ -433,7 +420,7 @@ public class CorporateActionService {
             var demergerContext = new DemergerContext(demergerDetail.getMainStockCode(), demergerDetail.getMainStockName(), mainStockPriceRatio, mainStockRatio, assetEntity, new ArrayList<>(Collections.singleton(demergedStockContext)));
             List<AssetEntity> demergedStocks = processDemergerForEachAssetEntry(demergerContext);
 
-            CorporateActionEntity action = TObjectMapper.copy(corporateAction, CorporateActionEntity.class);
+            CorporateActionEntity action = TJsonMapper.copy(corporateAction, CorporateActionEntity.class);
             demergedStocks.parallelStream().forEach(a -> a.getCorporateActions().add(action));
             finalDemergedStocks.addAll(demergedStocks);
         }
@@ -525,5 +512,13 @@ public class CorporateActionService {
         if (demergerPriceRatios.length != demergerRatios.length) {
             throw new IllegalArgumentException("Demerger ratios and price ratios must have the same length");
         }
+    }
+
+    private void handleEmptyAssetsForCorporateAction(String email, CorporateActionEntity corporateAction) {
+        String stockCode = corporateAction.getStockCode();
+        LocalDate recordDate = corporateAction.getRecordDate();
+
+        log.info("No stock found for corporate action: {} for stock: {} on record date: {}", corporateAction.getType(), stockCode, recordDate);
+        updateLastlyPerformedCorporateAction(email, stockCode, corporateAction.getAssetType(), corporateAction.getType(), corporateAction.getExDate());
     }
 }

@@ -1,15 +1,16 @@
 package com.thiru.investment_tracker.exception;
 
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-@Slf4j
+@Log4j2
 @RestControllerAdvice
 public class ControllerAdviser {
 
@@ -35,6 +36,12 @@ public class ControllerAdviser {
     public ResponseEntity<String> handleException(BadCredentialsException ex) {
         log(ex);
         return ResponseEntity.status(401).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<String> handleException(NoResourceFoundException ex) {
+        log(ex);
+        return ResponseEntity.status(404).body(ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)

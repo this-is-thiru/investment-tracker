@@ -9,9 +9,9 @@ import com.thiru.investment_tracker.entity.TransactionEntity;
 import com.thiru.investment_tracker.entity.query.QueryFilter;
 import com.thiru.investment_tracker.repository.TransactionRepository;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
-import com.thiru.investment_tracker.util.collection.TObjectMapper;
+import com.thiru.investment_tracker.util.collection.TJsonMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +19,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-@Slf4j
+@Log4j2
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -77,7 +77,7 @@ public class TransactionService {
 
     public List<TransactionResponse> userTransactions(UserMail userMail, List<QueryFilter> queryFilters) {
         List<TransactionEntity> transactions = getUserTransactions(userMail, queryFilters);
-        return transactions.stream().map(transaction -> TObjectMapper.copy(transaction, TransactionResponse.class)).toList();
+        return transactions.stream().map(transaction -> TJsonMapper.copy(transaction, TransactionResponse.class)).toList();
     }
 
     public List<TransactionEntity> getUserTransactions(UserMail userMail, List<QueryFilter> queryFilters) {
@@ -90,7 +90,7 @@ public class TransactionService {
 
     public List<TransactionResponse> getAllUserTransactions(UserMail userMail) {
         List<TransactionEntity> transactionEntities = transactionRepository.findByEmail(userMail.getEmail());
-        return transactionEntities.stream().map(transaction -> TObjectMapper.copy(transaction, TransactionResponse.class)).toList();
+        return transactionEntities.stream().map(transaction -> TJsonMapper.copy(transaction, TransactionResponse.class)).toList();
     }
 
 

@@ -10,9 +10,9 @@ import com.thiru.investment_tracker.entity.TemporaryTransactionEntity;
 import com.thiru.investment_tracker.repository.CorporateActionRepository;
 import com.thiru.investment_tracker.repository.LastlyPerformedCorporateActionRepo;
 import com.thiru.investment_tracker.repository.TemporaryTransactionRepository;
-import com.thiru.investment_tracker.util.collection.TObjectMapper;
+import com.thiru.investment_tracker.util.collection.TJsonMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +21,7 @@ import java.time.Month;
 import java.util.List;
 import java.util.Optional;
 
-@Slf4j
+@Log4j2
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -37,7 +37,7 @@ public class TemporaryTransactionService {
 
         LocalDate txnDate = assetRequest.getTransactionDate();
         if (anyCorporateActionToPerform(userMail, assetRequest.getStockCode(), txnDate)) {
-            TemporaryTransactionEntity temporaryTransactionEntity = TObjectMapper.copy(assetRequest.asTransaction(), TemporaryTransactionEntity.class);
+            TemporaryTransactionEntity temporaryTransactionEntity = TJsonMapper.copy(assetRequest.asTransaction(), TemporaryTransactionEntity.class);
             temporaryTransactionEntity.setAssetRequest(assetRequest);
             temporaryTransactionEntity.setEmail(userMail.getEmail());
             TemporaryTransactionEntity savedEntity = temporaryTransactionRepository.save(temporaryTransactionEntity);
