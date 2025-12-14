@@ -1,6 +1,6 @@
 package com.thiru.investment_tracker.auth.dto;
 
-import com.thiru.investment_tracker.util.collection.TObjectMapper;
+import com.thiru.investment_tracker.util.collection.TJsonMapper;
 import io.jsonwebtoken.Claims;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -46,7 +46,7 @@ public class AuthHelper {
 
     public static List<GrantedAuthority> getAuthorities(Claims claims) {
 
-        List<String> roles = TObjectMapper.readAsList(claims.get(AUTHORITIES_KEY), String.class);
+        List<String> roles = TJsonMapper.readAsList(claims.get(AUTHORITIES_KEY), String.class);
         return roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
     }
 

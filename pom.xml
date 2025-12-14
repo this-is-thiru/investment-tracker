@@ -68,11 +68,6 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Dependency for serializing/deserializing java.time.* -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-        </dependency>
         <!-- serialization/deserialization end -->
 
         <!--		&lt;!&ndash; Rabbitmq dependencies start &ndash;&gt;-->
