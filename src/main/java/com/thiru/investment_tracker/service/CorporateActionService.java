@@ -15,7 +15,7 @@ import com.thiru.investment_tracker.repository.CorporateActionRepository;
 import com.thiru.investment_tracker.repository.LastlyPerformedCorporateActionRepo;
 import com.thiru.investment_tracker.repository.TemporaryTransactionRepository;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
-import com.thiru.investment_tracker.util.collection.TObjectMapper;
+import com.thiru.investment_tracker.util.collection.TJsonMapper;
 import com.thiru.investment_tracker.util.time.TLocalDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -92,7 +92,7 @@ public class CorporateActionService {
 
     public List<CorporateActionDto> getCorporateActions(List<String> ids) {
         List<CorporateActionEntity> actions = corporateActionRepository.findAllById(ids);
-        return TCollectionUtil.map(actions, corporateAction -> TObjectMapper.copy(corporateAction, CorporateActionDto.class));
+        return TCollectionUtil.map(actions, corporateAction -> TJsonMapper.copy(corporateAction, CorporateActionDto.class));
     }
 
     public void performQuarterlyCorporateActions(String email, int year, int quarter) {
@@ -329,7 +329,7 @@ public class CorporateActionService {
 
         // Portfolio stock
         AssetEntity firstAsset = stockEntities.getFirst();
-        AssetEntity bonusSharesEntity = TObjectMapper.copy(firstAsset, AssetEntity.class);
+        AssetEntity bonusSharesEntity = TJsonMapper.copy(firstAsset, AssetEntity.class);
         bonusSharesEntity.setId(null);
         bonusSharesEntity.setQuantity((double) bonusSharesCount);
         bonusSharesEntity.setPrice(0);
@@ -342,7 +342,7 @@ public class CorporateActionService {
 
         for (AssetEntity assetEntity : stockEntities) {
 
-            CorporateActionEntity action = TObjectMapper.copy(corporateAction, CorporateActionEntity.class);
+            CorporateActionEntity action = TJsonMapper.copy(corporateAction, CorporateActionEntity.class);
             assetEntity.getCorporateActions().add(action);
         }
         portfolioService.saveCorporateActionProcessedStocks(stockEntities);
@@ -360,7 +360,7 @@ public class CorporateActionService {
         List<String> existingTransactionIds = TCollectionUtil.map(transactionEntities, TransactionEntity::getId);
 
         TransactionEntity first = TCollectionUtil.filter(transactionEntities, transaction -> TransactionType.BUY.equals(transaction.getTransactionType())).getFirst();
-        TransactionEntity bonusSharesTransaction = TObjectMapper.copy(first, TransactionEntity.class);
+        TransactionEntity bonusSharesTransaction = TJsonMapper.copy(first, TransactionEntity.class);
         bonusSharesTransaction.setId(null);
         bonusSharesTransaction.setPrice(0);
         bonusSharesTransaction.setQuantity((double) bonusSharesCount);
@@ -370,7 +370,7 @@ public class CorporateActionService {
         transactionEntities.add(bonusSharesTransaction);
 
         for (TransactionEntity transactionEntity : transactionEntities) {
-            CorporateActionEntity action = TObjectMapper.copy(corporateAction, CorporateActionEntity.class);
+            CorporateActionEntity action = TJsonMapper.copy(corporateAction, CorporateActionEntity.class);
             transactionEntity.getCorporateActions().add(action);
         }
         List<String> newTransactionIds = transactionService.saveCorporateActionProcessedTransactions(transactionEntities);

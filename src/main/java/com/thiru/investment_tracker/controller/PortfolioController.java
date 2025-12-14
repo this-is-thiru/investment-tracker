@@ -12,7 +12,7 @@ import com.thiru.investment_tracker.entity.TransactionEntity;
 import com.thiru.investment_tracker.service.PortfolioService;
 import com.thiru.investment_tracker.service.TemporaryService;
 import com.thiru.investment_tracker.service.TransactionService;
-import com.thiru.investment_tracker.util.collection.TObjectMapper;
+import com.thiru.investment_tracker.util.collection.TJsonMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.util.Pair;
@@ -138,7 +138,7 @@ public class PortfolioController {
 
     @PostMapping("/request1")
     public DeleteThisFile testRequest(@RequestBody ProfitAndLossResponse requestEntity) {
-        return TObjectMapper.copy(requestEntity, DeleteThisFile.class);
+        return TJsonMapper.copy(requestEntity, DeleteThisFile.class);
     }
 
     @PostMapping("/request2")
