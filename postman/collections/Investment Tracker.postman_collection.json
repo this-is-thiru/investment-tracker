@@ -1,0 +1,1890 @@
+{
+  "info": {
+    "_postman_id": "5eb496f1-6b13-4a2e-8b93-8ec9187e3fe9",
+    "name": "Investment Tracker",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "47fd762e-ec49-4500-8cbb-dc9fa5a4d2d4",
+                "exec": [
+                  "let res = pm.response;",
+                  "let status = res.code;",
+                  "",
+                  "let body = status!=200? null: res.json();",
+                  "let token = body?.access_token;",
+                  "pm.environment.set('JWT_TOKEN', token);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "id": "9db9dece-32d5-4932-ba09-3b36c9f2fd25",
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "id": "cc646c4f-3ced-4373-ab9e-9a3f5eeacab2",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\":\"{{EMAIL}}\",\n  \"password\": \"{{PASSWORD}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/auth/login",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "This endpoint is used to authenticate a user. Provide the user's email and password in the request body using the variables {{EMAIL}} and {{PASSWORD}}. Upon successful authentication, a JWT token is returned in the response. Use this token for subsequent authenticated requests."
+          },
+          "response": []
+        },
+        {
+          "name": "Register User",
+          "id": "16df9c5a-e174-4e75-a2b7-c4c18cd545f8",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"rajtest@gmail.com\",\r\n  \"password\": \"password\",\r\n  \"role\": \"USER\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/auth/register",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Registers a new user in the system.\n\n**Endpoint:** `POST {{INVESTMENT_TRACKER_SERVICE}}/auth/register`\n\n**Purpose:**\nThis endpoint creates a new user account by accepting user details in the request body. It is used during user onboarding to register a user with the specified credentials and role.\n\n**Request Body Parameters:**\n- `email` (string, required): The user's email address.\n- `password` (string, required): The user's password.\n- `role` (string, required): The role assigned to the user (e.g., 'USER').\n- `username` (string, optional): The user's display name (if supported by the backend).\n\n**Note:**\n- This request is similar to the 'Auth - register' request in the collection and follows the same structure for user registration.\n\n**Example Body:**\n```json\n{\n  \"email\": \"user@example.com\",\n  \"password\": \"yourPassword\",\n  \"role\": \"USER\",\n  \"username\": \"optionalUsername\"\n}\n```\n\nEnsure all required fields are provided. The response will indicate success or failure of the registration process."
+          },
+          "response": []
+        },
+        {
+          "name": "Password | Change",
+          "id": "69f5dff6-b9db-4a86-aef0-ef6c244ce707",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"{{EMAIL}}\",\r\n    \"password\": \"Password\",\r\n    \"newPassword\": \"password\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/auth/user/:email/change/password",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "auth",
+                "user",
+                ":email",
+                "change",
+                "password"
+              ],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "{{EMAIL}}"
+                }
+              ]
+            },
+            "description": "Change the password for a user account identified by email.\n\n**Endpoint Purpose:**\nAllows an authenticated user to change their password using their email address.\n\n**Path Variable:**\n- `email` (string): The user's email address. This must match the email in the request body.\n\n**Request Body (JSON):**\n- `email` (string): The user's email address.\n- `password` (string): The current password.\n- `newPassword` (string): The new password to set.\n\n**Authentication:**\n- Requires a valid JWT token (typically provided in the `Authorization` header as a Bearer token).\n\n**Expected Behavior:**\n- Returns success if the password is changed.\n- Returns an error if authentication fails or if the current password is incorrect."
+          },
+          "response": []
+        },
+        {
+          "name": "Register Test",
+          "id": "7de95930-f3ee-4b81-9797-0710507e6703",
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "password",
+                  "value": "thiru",
+                  "type": "string"
+                },
+                {
+                  "key": "username",
+                  "value": "thiru",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"pthirumalayadav@gmail.com\",\r\n    \"role\": [\"ROLE_ADMIN\"]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/auth/test",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "auth",
+                "test"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "5a8ef341-7365-455d-909d-ce1388a9aa11"
+    },
+    {
+      "name": "Test Req",
+      "item": [
+        {
+          "name": "Req",
+          "id": "87746ce2-c8f8-4ad7-90ce-5cd232e89b8e",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"stockCode\": \"CODE1\",\r\n  \"stockName\": \"stockName_8b1634834167\",\r\n  \"exchangeName\": \"NSE\",\r\n  \"brokerName\": \"UPSTOX\",\r\n  \"price\": 10.1,\r\n  \"quantity\": 10,\r\n  \"totalValue\": 101,\r\n  \"transactionType\": \"BUY\",\r\n  \"transactionDate\": \"2024-05-10\",\r\n  \"maturityDate\": \"2024-05-10\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/portfolio/user/:email/request1",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "portfolio",
+                "user",
+                ":email",
+                "request1"
+              ],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "{{EMAIL}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Req3",
+          "id": "49417d37-cd4a-4e58-93e0-6399d94bfc3c",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"email_7cafef824f2e\",\r\n  \"financialYear\": \"financialYear_7b5a6625aa06\",\r\n  \"isProfit\": false,\r\n  \"realisedProfit\": 0.00,\r\n  \"capitalGains\": {\r\n    \"shortTermCapitalGains\": 0.00,\r\n    \"longTermCapitalGains\": 0.00\r\n  },\r\n  \"unrealisedProfit\": 0.00\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/portfolio/user/:email/request3/hello1",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "portfolio",
+                "user",
+                ":email",
+                "request3",
+                "hello1"
+              ],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "{{EMAIL}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Req - Msg",
+          "id": "65d6013b-f3b3-44e6-813f-f9d273d8712f",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"email_b6ead661a000\",\r\n  \"financialYear\": \"2024-25\",\r\n  \"isProfit\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/portfolio/user/:email/request/test",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "portfolio",
+                "user",
+                ":email",
+                "request",
+                "test"
+              ],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "{{EMAIL}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Template Fields",
+          "id": "dd4170a0-a28a-4713-8a58-f9cd2cf07cfd",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/helper/template/fields",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "helper",
+                "template",
+                "fields"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Transact | New",
+          "id": "24b9f24d-8aff-47c4-a47a-da866a45997e",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transactionId\": \"transactionId_91f2ed8d4349\",\n  \"assetRequest\": {\n    \"stockCode\": \"TESTCODE1\",\n    \"stockName\": \"TESTCODE1 stockName\",\n    \"exchangeName\": \"NSE\",\n    \"brokerName\": \"ZERODHA\",\n    \"assetType\": \"EQUITY\",\n    \"price\": 20.00,\n    \"quantity\": 40.00,\n    \"transactionType\": \"SELL\",\n    \"accountType\": \"SELF\",\n    \"transactionDate\": \"2025-10-23\"\n  },\n  \"stockEntities\": [\n    {\n      \"stockCode\": \"TESTCODE1\",\n      \"stockName\": \"TESTCODE1 stockName\",\n      \"exchangeName\": \"NSE\",\n      \"brokerName\": \"ZERODHA\",\n      \"price\": 10.00,\n      \"quantity\": 10.00,\n      \"assetType\": \"EQUITY\",\n      \"transactionDate\": \"2025-10-01\",\n      \"accountType\": \"SELF\",\n      \"corporateActionType\": \"DIVIDEND\"\n    },\n    {\n      \"stockCode\": \"TESTCODE1\",\n      \"stockName\": \"TESTCODE1 stockName\",\n      \"exchangeName\": \"NSE\",\n      \"brokerName\": \"ZERODHA\",\n      \"price\": 15.00,\n      \"quantity\": 20.00,\n      \"assetType\": \"EQUITY\",\n      \"transactionDate\": \"2025-10-01\",\n      \"accountType\": \"SELF\",\n      \"corporateActionType\": \"DIVIDEND\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/test/user/:email/transact/sell",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "test",
+                "user",
+                ":email",
+                "transact",
+                "sell"
+              ],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "{{EMAIL}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "53fd828e-3e99-421a-9241-e0dcc9b6f110"
+    },
+    {
+      "name": "Complex Filters",
+      "item": [
+        {
+          "name": "Filter",
+          "id": "6cf5fe79-4ce2-4ff6-9dda-22967739faa8",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"filters\": [\r\n        // {\r\n        //     \"filterKey\": \"stock_code\",\r\n        //     \"operation\": \"CONTAINS\",\r\n        //     \"values\": [\"AMARAJABAT\", \"ICICIBANK\", \"GREENPANEL\"],\r\n        //     \"logicalOperation\": \"AND\",\r\n        //     \"expressionLogicalOperation\": \"AND\",\r\n        //     \"allowEmptyOrNull\": false,\r\n        //     \"caseSensitive\": false\r\n        // },\r\n        {\r\n            \"filterKey\": \"transaction_date\",\r\n            \"operation\": \"GREATER_THAN\",\r\n            \"value\": \"2025-10-10\",\r\n            \"logicalOperation\": \"AND\",\r\n            \"expressionLogicalOperation\": \"AND\",\r\n            \"allowEmptyOrNull\": false,\r\n            \"caseSensitive\": false,\r\n            \"isDateField\": true\r\n        }\r\n        // {\r\n        //     \"filterKey\": \"transaction_date\",\r\n        //     \"operation\": \"LESSER_THAN_OR_EQUAL_TO\",\r\n        //     \"value\": \"2024-01-27\",\r\n        //     \"logicalOperation\": \"AND\",\r\n        //     \"expressionLogicalOperation\": \"AND\",\r\n        //     \"allowEmptyOrNull\": false,\r\n        //     \"caseSensitive\": false,\r\n        //     \"isDateField\": true\r\n        // }\r\n    ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/portfolio/user/:email/request2",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "portfolio",
+                "user",
+                ":email",
+                "request2"
+              ],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "{{EMAIL}}"
+                }
+              ]
+            },
+            "description": "**Purpose:**  \nThis request allows you to filter a user's portfolio transactions based on customizable criteria. It is designed to provide flexible querying of transaction records, enabling users to retrieve only the transactions that match specific filters such as transaction date, stock code, and other attributes.\n\n**Endpoint:**  \nPOST `{{INVESTMENT_TRACKER_SERVICE}}/portfolio/user/:email/request2`\n\n**Request Body Structure:**\n\n- The body must be a JSON object containing a `filters` array.\n    \n- Each element in the `filters` array is an object specifying a filter condition.\n    \n\n**Filter Object Fields:**\n\n- `filterKey` (string): The field to filter by (e.g., `transaction_date`, `stock_code`).\n    \n- `operation` (string): The comparison operation (e.g., `GREATER_THAN`, `LESSER_THAN_OR_EQUAL_TO`, `CONTAINS`).\n    \n- `value` or `values`: The value(s) to compare against. Use `value` for single-value filters (e.g., dates), and `values` (array) for multi-value filters (e.g., multiple stock codes).\n    \n- `logicalOperation` (string): Logical operator to combine with other filters (e.g., `AND`, `OR`).\n    \n- `expressionLogicalOperation` (string): Logical operator for nested expressions (usually `AND` or `OR`).\n    \n- `allowEmptyOrNull` (boolean): Whether to allow empty or null values in the filter.\n    \n- `caseSensitive` (boolean): Whether the filter should be case-sensitive.\n    \n- `isDateField` (boolean, optional): Set to `true` if the field is a date (e.g., `transaction_date`).\n    \n\n**Example Request Body:**\n\n``` json\n{\n  \"filters\": [\n    {\n      \"filterKey\": \"transaction_date\",\n      \"operation\": \"GREATER_THAN\",\n      \"value\": \"2024-03-10\",\n      \"logicalOperation\": \"AND\",\n      \"expressionLogicalOperation\": \"AND\",\n      \"allowEmptyOrNull\": false,\n      \"caseSensitive\": false,\n      \"isDateField\": true\n    }\n  ]\n}\n\n ```\n\n**Usage Scenarios:**\n\n- Retrieve all transactions after a specific date.\n    \n- Filter transactions for specific stock codes.\n    \n- Combine multiple filters (e.g., transactions after a date AND for certain stocks).\n    \n\n**Related Requests:**\n\n- See the [Assets more than 1 year](https://request/27168215-234932b6-0524-479c-9e04-42fd76689635) request for an example of filtering assets based on holding period.\n    \n\n**Notes:**\n\n- The available filter keys and operations may depend on the backend implementation.\n    \n- This request is useful for building custom portfolio views, generating reports, or exporting filtered transaction data."
+          },
+          "response": []
+        },
+        {
+          "name": "Assets more than 1 year",
+          "id": "234932b6-0524-479c-9e04-42fd76689635",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"filters\": [\r\n    {\r\n      \"filterKey\": \"transaction_date\",\r\n      \"operation\": \"LESSER_THAN_OR_EQUAL_TO\",\r\n      \"value\": \"2024-12-3\",\r\n      \"logicalOperation\": \"AND\",\r\n      \"expressionLogicalOperation\": \"AND\",\r\n      \"allowEmptyOrNull\": false,\r\n      \"caseSensitive\": false,\r\n      \"isDateField\": true\r\n    }\r\n  ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/portfolio/user/:email/request2",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "portfolio",
+                "user",
+                ":email",
+                "request2"
+              ],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "{{EMAIL}}"
+                }
+              ]
+            },
+            "description": "**Purpose:**  \nThis request retrieves user portfolio transactions where the 'transaction_date' is less than or equal to a specified date. It is used to filter assets that have been held for more than one year, or up to a given date, based on the provided filter criteria.\n\n**Endpoint:**  \nPOST `{{INVESTMENT_TRACKER_SERVICE}}/portfolio/user/:email/request2`\n\n**Required Variables:**\n\n- `email` (path variable): The user's email address. Can be set directly or via the `EMAIL` environment variable.\n    \n- `JWT_TOKEN` (header): Required for authentication. Ensure this variable is set in your environment.\n    \n- `INVESTMENT_TRACKER_SERVICE` (environment variable): The base URL for the investment tracker service.\n    \n\n**Request Body Structure:**  \nThe body must include a `filters` array. Each filter object should follow this schema:\n\n``` json\n{\n  \"filters\": [\n    {\n      \"filterKey\": \"transaction_date\",\n      \"operation\": \"LESSER_THAN_OR_EQUAL_TO\",\n      \"value\": \"YYYY-MM-DD\",\n      \"logicalOperation\": \"AND\",\n      \"expressionLogicalOperation\": \"AND\",\n      \"allowEmptyOrNull\": false,\n      \"caseSensitive\": false,\n      \"isDateField\": true\n    }\n  ]\n}\n\n ```\n\n- `filterKey`: Must be `transaction_date`.\n    \n- `operation`: Use `LESSER_THAN_OR_EQUAL_TO` to filter up to the specified date.\n    \n- `value`: The cutoff date in `YYYY-MM-DD` format.\n    \n- Other fields control logical operations and filter behavior.\n    \n\n**References:**\n\n- [Filter](https://request/27168215-6cf5fe79-4ce2-4ff6-9dda-22967739faa8)\n    \n- [Assets more than 1 year](https://request/27168215-234932b6-0524-479c-9e04-42fd76689635)\n    \n\nThis request is part of the 'Investment Tracker' collection and uses a standardized filter schema for querying portfolio transactions."
+          },
+          "response": []
+        },
+        {
+          "name": "Transactions",
+          "id": "17f65827-a2cc-440c-8ebf-2f39c51286d1",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"filters\": [\r\n    // {\r\n    //   \"filterKey\": \"stock_code\",\r\n    //   \"operation\": \"CONTAINS\",\r\n    //   \"value\": \"SADHNANIQ\",\r\n    //   \"logicalOperation\": \"AND\",\r\n    //   \"expressionLogicalOperation\": \"AND\",\r\n    //   \"allowEmptyOrNull\": false,\r\n    //   \"caseSensitive\": false,\r\n    //   \"isDateField\": false\r\n    // }\r\n    {\r\n      \"filterKey\": \"transaction_date\",\r\n      \"operation\": \"GREATER_THAN_OR_EQUAL_TO\",\r\n      \"value\": \"2025-09-05\",\r\n      \"logicalOperation\": \"AND\",\r\n      \"expressionLogicalOperation\": \"AND\",\r\n      \"allowEmptyOrNull\": false,\r\n      \"caseSensitive\": false,\r\n      \"isDateField\": true\r\n    }\r\n    // {\r\n    //   \"filterKey\": \"transaction_date\",\r\n    //   \"operation\": \"LESSER_THAN\",\r\n    //   \"value\": \"2025-04-01\",\r\n    //   \"logicalOperation\": \"AND\",\r\n    //   \"expressionLogicalOperation\": \"AND\",\r\n    //   \"allowEmptyOrNull\": false,\r\n    //   \"caseSensitive\": false,\r\n    //   \"isDateField\": true\r\n    // }\r\n  ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/transactions/user/:email",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "transactions",
+                "user",
+                ":email"
+              ],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "{{EMAIL}}"
+                }
+              ]
+            },
+            "description": "**Purpose:**\nThis endpoint retrieves a list of transactions for a specific user, allowing advanced filtering based on various criteria. It is useful for fetching transaction history, generating reports, or analyzing user activity.\n\n**Path Variable:**\n- `:email` (required): The email address of the user whose transactions are to be fetched. This should be provided as part of the URL path (e.g., `/transactions/user/john.doe@example.com`).\n\n**Authentication:**\n- Requires a valid JWT token to be included in the `Authorization` header as a Bearer token. Ensure the `JWT_TOKEN` variable is set in your environment.\n\n**Request Body Structure:**\n- The body must be a JSON object containing a `queryFilters` array. Each item in this array is an object specifying a filter condition.\n\n**`queryFilters` Array:**\n- Each filter object supports the following fields:\n  - `filterKey`: The field to filter by (e.g., `transaction_date`, `stock_code`).\n  - `operation`: The comparison operation (e.g., `GREATER_THAN_OR_EQUAL_TO`, `LESSER_THAN`, `CONTAINS`).\n  - `value`: The value to compare against.\n  - `logicalOperation`: Logical operator to combine with other filters (e.g., `AND`, `OR`).\n  - `expressionLogicalOperation`: Used for grouping expressions (typically `AND`).\n  - `allowEmptyOrNull`: Boolean to allow empty/null values.\n  - `caseSensitive`: Boolean for case sensitivity (mainly for string fields).\n  - `isDateField`: Boolean indicating if the field is a date.\n\n**Supported Filter Keys and Operations:**\n- `transaction_date`: Use with operations like `GREATER_THAN_OR_EQUAL_TO`, `LESSER_THAN` for date range filtering.\n- `stock_code`: Use with `CONTAINS` for partial matches.\n- Additional keys/operations may be supported depending on backend implementation.\n\n**Example Request Body:**\n```json\n{\n  \"queryFilters\": [\n    {\n      \"filterKey\": \"transaction_date\",\n      \"operation\": \"GREATER_THAN_OR_EQUAL_TO\",\n      \"value\": \"2025-06-30\",\n      \"logicalOperation\": \"AND\",\n      \"expressionLogicalOperation\": \"AND\",\n      \"allowEmptyOrNull\": false,\n      \"caseSensitive\": false,\n      \"isDateField\": true\n    }\n  ]\n}\n```\n\n**References:**\n- See the [Transations | Filter](request/27168215-1b18427f-7d26-492b-8664-4fe1a937c296) request for additional filtering examples and usage patterns.\n\n**Related Requests:**\n- [Transactions](request/27168215-17f65827-a2cc-440c-8ebf-2f39c51286d1) (this request)\n- [Transations | Filter](request/27168215-1b18427f-7d26-492b-8664-4fe1a937c296)\n"
+          },
+          "response": []
+        }
+      ],
+      "id": "c186a105-4145-4ed0-b33d-713af0aea32a"
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "Buy Stock",
+          "id": "1330fb75-4bf3-4210-93a6-23592b5d1994",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"stockCode\": \"A\",\r\n  \"stockName\": \"ADummy\",\r\n  \"exchangeName\": \"NSE\",\r\n  \"brokerName\": \"ZERODHA\",\r\n  \"price\": 100,\r\n  \"quantity\": 10,\r\n  \"assetType\": \"EQUITY\",\r\n  \"actorName\": \"Thiru\",\r\n  \"transactionType\": \"BUY\",\r\n  \"transactionDate\": \"2025-11-10\",\r\n  \"brokerCharges\": 10,\r\n  \"timeZoneId\": \"IST\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/portfolio/user/:email/transaction",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "portfolio",
+                "user",
+                ":email",
+                "transaction"
+              ],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "{{EMAIL}}"
+                }
+              ]
+            },
+            "description": "**Purpose:**\nThis endpoint records a stock purchase transaction for a specific user in the investment portfolio system.\n\n**HTTP Method:** POST\n\n**Endpoint:** `{{INVESTMENT_TRACKER_SERVICE}}/portfolio/user/:email/transaction`\n\n---\n\n**Path Variable:**\n- `email` (string, required): The email address of the user for whom the transaction is being recorded. Example: `user@example.com`\n\n**Authentication:**\n- Requires a valid JWT token provided in the `Authorization` header as a Bearer token. Use the `JWT_TOKEN` environment variable.\n\n**Request Body (JSON):**\n- `stockCode` (string): The unique code of the stock being purchased. Example: `ASHOKLEYDUMMY`\n- `stockName` (string): The name of the stock. Example: `Dummy Stock`\n- `exchangeName` (string): The stock exchange where the stock is listed. Example: `NSE`\n- `brokerName` (string): The name of the broker facilitating the transaction. Example: `ZERODHA`\n- `price` (number): The price per unit of the stock.\n- `quantity` (integer): The number of stock units purchased.\n- `assetType` (string): The type of asset. Example: `EQUITY`\n- `actorName` (string): The name of the person performing the transaction.\n- `transactionType` (string): The type of transaction. For buying, use `BUY`.\n- `transactionDate` (string, ISO 8601): The date of the transaction. Example: `2025-07-01`\n- `brokerCharges` (number): The charges levied by the broker for the transaction.\n- `timeZoneId` (string): The time zone identifier. Example: `IST`\n\n---\n\n**Example Request:**\n```\nPOST {{INVESTMENT_TRACKER_SERVICE}}/portfolio/user/{{EMAIL}}/transaction\nAuthorization: Bearer {{JWT_TOKEN}}\nContent-Type: application/json\n\n{\n  \"stockCode\": \"ASHOKLEYDUMMY\",\n  \"stockName\": \"Dummy Stock\",\n  \"exchangeName\": \"NSE\",\n  \"brokerName\": \"ZERODHA\",\n  \"price\": 100,\n  \"quantity\": 16,\n  \"assetType\": \"EQUITY\",\n  \"actorName\": \"Thiru\",\n  \"transactionType\": \"BUY\",\n  \"transactionDate\": \"2025-07-01\",\n  \"brokerCharges\": 10,\n  \"timeZoneId\": \"IST\"\n}\n```\n\n---\n\n**Related Endpoints:**\n- [Sell Stock](request/27168215-a367000b-b122-4f00-a84e-9d7cc7a6e642): For recording stock sale transactions.\n\nThis documentation is consistent with related requests such as 'Sell Stock' and 'Buy Stock' for clarity and uniformity."
+          },
+          "response": []
+        },
+        {
+          "name": "Sell Stock",
+          "id": "a367000b-b122-4f00-a84e-9d7cc7a6e642",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"stockCode\": \"A\",\r\n  \"stockName\": \"Dummy Stock\",\r\n  \"exchangeName\": \"NSE\",\r\n  \"brokerName\": \"ZERODHA\",\r\n  \"price\": 1000,\r\n  \"quantity\": 10,\r\n  \"assetType\": \"EQUITY\",\r\n  \"actorName\": \"Thiru\",\r\n  \"transactionType\": \"SELL\",\r\n  \"transactionDate\": \"2025-07-01\",\r\n  \"brokerCharges\": 10,\r\n  \"timeZoneId\": \"IST\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/portfolio/user/:email/transaction",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "portfolio",
+                "user",
+                ":email",
+                "transaction"
+              ],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "{{EMAIL}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Transactions",
+          "id": "af136282-b23e-4f5e-8201-832866d7055d",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/C:/Users/91630/OneDrive/Desktop/files/Income tax Docs/API Testing/Upload-transcations/test-template.xlsx"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/portfolio/user/:email/upload-transactions",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "portfolio",
+                "user",
+                ":email",
+                "upload-transactions"
+              ],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "{{EMAIL}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Sell Stock | V2",
+          "id": "ec71be56-e4a2-4685-8aa4-d0ebe20ff649",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"stockCode\": \"ASHOKLEYDUMMY\",\r\n    \"stockName\": \"Dummy Stock\",\r\n    \"exchangeName\": \"NSE\",\r\n    \"brokerName\": \"ZERODHA\",\r\n    \"price\": 10,\r\n    \"assetType\": \"EQUITY\",\r\n    \"quantity\": 1,\r\n    \"actorName\": \"Thiru\",\r\n    \"transactionType\": \"SELL\",\r\n    \"transactionDate\": \"2025-08-08\",\r\n    \"brokerCharges\": 3\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/portfolio/user/:email/transaction/v2",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "portfolio",
+                "user",
+                ":email",
+                "transaction",
+                "v2"
+              ],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "{{EMAIL}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Template | Download",
+          "id": "4dc6f674-78b5-47e1-b3ba-75e05eefa018",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "https://localhost",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/helper/template",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "helper",
+                "template"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "All Transactions",
+          "id": "8abca8f1-20ad-4448-a578-58f548613446",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"stockCode\": \"CODE1\",\r\n  \"stockName\": \"stockName_8b1634834167\",\r\n  \"exchangeName\": \"NSE\",\r\n  \"brokerName\": \"UPSTOX\",\r\n  \"price\": 10.1,\r\n  \"quantity\": 10,\r\n  \"totalValue\": 101,\r\n  \"transactionType\": \"BUY\",\r\n  \"transactionDate\": \"11-05-2024\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/portfolio/user/:email/all/transactions",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "portfolio",
+                "user",
+                ":email",
+                "all",
+                "transactions"
+              ],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "pthirumalayadav@gmail.com"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "User Txns",
+          "id": "e26e8f61-c511-42d4-b3a2-f881cc6ca958",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"stockCode\": \"CODE1\",\r\n  \"stockName\": \"stockName_8b1634834167\",\r\n  \"exchangeName\": \"NSE\",\r\n  \"brokerName\": \"UPSTOX\",\r\n  \"price\": 10.1,\r\n  \"quantity\": 10,\r\n  \"totalValue\": 101,\r\n  \"transactionType\": \"BUY\",\r\n  \"transactionDate\": \"11-05-2024\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/transactions/user/:email",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "transactions",
+                "user",
+                ":email"
+              ],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "rajtest@gmail.com"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "691d1a7b-a47e-47b3-bb8a-e2e7a2362f55"
+    },
+    {
+      "name": "Temp | Transactions",
+      "item": [
+        {
+          "name": "Temp Txns | All",
+          "id": "294f3307-40c1-48f3-a8ce-6c1e496fcedb",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/temporary-transactions/user/:email/all",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "temporary-transactions",
+                "user",
+                ":email",
+                "all"
+              ],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "{{EMAIL}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Temp Txns | Redrive",
+          "id": "88413146-8a4d-4d98-ad21-2bcc3c27a896",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/temporary-transactions/user/:email/redrive",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "temporary-transactions",
+                "user",
+                ":email",
+                "redrive"
+              ],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "{{EMAIL}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "10a1cd2d-7196-4325-9d5b-b60e1b6732d5"
+    },
+    {
+      "name": "P & L",
+      "item": [
+        {
+          "name": "Profit & Loss",
+          "id": "5b09c57b-1abe-46d7-8c7c-e85328b732fa",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/portfolio/user/:email/profit-and-loss?financialYear=2025-2026",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "portfolio",
+                "user",
+                ":email",
+                "profit-and-loss"
+              ],
+              "query": [
+                {
+                  "key": "financialYear",
+                  "value": "2025-2026"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "{{EMAIL}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "02179004-e3e6-4932-babb-4b69fc038d50"
+    },
+    {
+      "name": "Portfolio",
+      "item": [
+        {
+          "name": "Get Stock Quantity",
+          "id": "a486a211-c63b-43e2-8b4e-b54335668021",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/portfolio/user/:email/stock/:stockCode/all",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "portfolio",
+                "user",
+                ":email",
+                "stock",
+                ":stockCode",
+                "all"
+              ],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "{{EMAIL}}"
+                },
+                {
+                  "key": "stockCode",
+                  "value": "A"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Portfolio Stocks",
+          "id": "8ed3b85d-4c17-45a9-8db4-abbc9b800bf6",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/portfolio/user/:email/stocks/all",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "portfolio",
+                "user",
+                ":email",
+                "stocks",
+                "all"
+              ],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "{{EMAIL}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Long | Short term",
+          "id": "e6d64004-574b-450f-8aa7-95815c6abe92",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/portfolio/user/:email/assets/holding/SHORT_TERM",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "portfolio",
+                "user",
+                ":email",
+                "assets",
+                "holding",
+                "SHORT_TERM"
+              ],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "{{EMAIL}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Long | Short term | Download",
+          "id": "5d1c7069-ffce-4cbb-9528-52441c1ab22a",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{JWT_TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/portfolio/user/:email/assets/holding/LONG_TERM/excel",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "portfolio",
+                "user",
+                ":email",
+                "assets",
+                "holding",
+                "LONG_TERM",
+                "excel"
+              ],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "{{EMAIL}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Download | Portfolio",
+          "id": "a85af287-830e-416a-920f-1e4a7bf54071",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"entityName\": \"assets\",\n  \"emailAddresses\": [\n    \"{{EMAIL}}\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/portfolio/user/:email/stocks/download",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "portfolio",
+                "user",
+                ":email",
+                "stocks",
+                "download"
+              ],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "{{EMAIL}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Export | Stocks - Long/Short",
+          "id": "0afead4c-089a-49ad-bfe5-6af0e09f114e",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"entityName\": \"assets\",\n  \"emailAddresses\": [\n    \"{{EMAIL}}\"\n  ],\n  \"filters\": [\n    {\n      \"filterKey\": \"transaction_date\",\n      \"operation\": \"GREATER_THAN\",\n      \"value\": \"2024-06-22\",\n      \"values\": null,\n      \"logicalOperation\": null,\n      \"expressionLogicalOperation\": null,\n      \"allowEmptyOrNull\": null,\n      \"caseSensitive\": null,\n      \"isDateField\": true\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/portfolio/user/:email/stocks/download",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "portfolio",
+                "user",
+                ":email",
+                "stocks",
+                "download"
+              ],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "{{EMAIL}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Download | Transaction",
+          "id": "52802ded-e86d-4207-9ba9-c7910a1c083a",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"entityName\": \"transactions\",\n  \"emailAddresses\": [\n    \"{{EMAIL}}\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/portfolio/user/:email/stocks/download",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "portfolio",
+                "user",
+                ":email",
+                "stocks",
+                "download"
+              ],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "{{EMAIL}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "5891dd5d-8694-41ed-810d-93e74d1333b2"
+    },
+    {
+      "name": "Reports",
+      "item": [],
+      "id": "63968e15-1878-47f1-ba94-1d20b2d84334"
+    },
+    {
+      "name": "Corporate Actions",
+      "item": [
+        {
+          "name": "Add | CA",
+          "id": "6db84424-dbbe-4f63-958d-4991209fe2d0",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stockCode\": \"A\",\n  \"stockName\": \"ADummy\",\n  \"type\": \"BONUS\",\n  \"description\": \"description\",\n  \"ratio\": \"1:1\",\n  \"exDate\": \"2025-12-03\",\n  \"recordDate\": \"2025-12-03\",\n  \"priority\": 0,\n  \"isTestCorporateAction\": false\n}\n\n// {\n//   \"stockCode\": \"ASHOKLEY\",\n//   \"stockName\": \"ASHOK LEYLAND\",\n//   \"type\": \"BONUS\",\n//   \"description\": \"description\",\n//   \"ratio\": \"1:1\",\n//   \"exDate\": \"2025-07-17\",\n//   \"recordDate\": \"2025-07-17\",\n//   \"priority\": 0,\n//   \"isTestCorporateAction\": false\n// }\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/corporate-action/add",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "corporate-action",
+                "add"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CA | Perform",
+          "id": "7d6bce2b-40ad-4640-b833-4819517128de",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/corporate-action/user/:email/perform/OCTOBER/2025",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "corporate-action",
+                "user",
+                ":email",
+                "perform",
+                "OCTOBER",
+                "2025"
+              ],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "{{EMAIL}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CA by Id",
+          "id": "3d34b3fa-af4a-4a18-8891-8cf4408356fe",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stockCode\": \"DUMMY\",\n  \"stockName\": \"Dummy stock\",\n  \"type\": \"STOCK_SPLIT\",\n  \"description\": \"description\",\n  \"ratio\": \"1:2\",\n  \"exDate\": \"2024-10-27\",\n  \"recordDate\": \"2024-10-27\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/corporate-action/:id",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "corporate-action",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CA | All",
+          "id": "2b1dc43a-894f-4d0d-99dd-0a9f9e7dd8b5",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stockCode\": \"DUMMY\",\n  \"stockName\": \"Dummy stock\",\n  \"type\": \"STOCK_SPLIT\",\n  \"description\": \"description\",\n  \"ratio\": \"1:2\",\n  \"exDate\": \"2024-10-27\",\n  \"recordDate\": \"2024-10-27\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/corporate-action/all",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "corporate-action",
+                "all"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CA | Del",
+          "id": "2327cb7b-a98c-436c-9e80-11ea9df8cd71",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stockCode\": \"DUMMY\",\n  \"stockName\": \"Dummy stock\",\n  \"type\": \"STOCK_SPLIT\",\n  \"description\": \"description\",\n  \"ratio\": \"1:2\",\n  \"exDate\": \"2024-10-27\",\n  \"recordDate\": \"2024-10-27\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/corporate-action/delete/:id",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "corporate-action",
+                "delete",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "6885c5756ca0fdffee9cb549"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Stock Split",
+          "id": "5a1bdc7b-75dc-4458-90e1-5d54576ced4d",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"action\": \"STOCK_SPLIT\",\n    \"stockCode\": \"RELIANCE\",\n    \"splitRatio\": \"2:1\",\n    \"recordDate\": \"2024-10-28\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/portfolio/user/:email/stocks/perform/corporate-action",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "portfolio",
+                "user",
+                ":email",
+                "stocks",
+                "perform",
+                "corporate-action"
+              ],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "{{EMAIL}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Stock Split Copy",
+          "id": "f3fe3e2e-8dbf-4758-85f0-7f7f841e54be",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"action\": \"STOCK_SPLIT\",\n    \"stockCode\": \"RELIANCE\",\n    \"splitRatio\": \"2:1\",\n    \"recordDate\": \"2024-10-28\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/corporate-action/list?ids=6885ce86a14230c33e85bc82, 6885ce86a14230c33e85bc82",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "corporate-action",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "ids",
+                  "value": "6885ce86a14230c33e85bc82, 6885ce86a14230c33e85bc82"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update priority",
+          "id": "16d528a0-0526-4735-8ad8-4d00dbc3edf4",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"action\": \"STOCK_SPLIT\",\n    \"stockCode\": \"RELIANCE\",\n    \"splitRatio\": \"2:1\",\n    \"recordDate\": \"2024-10-28\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/corporate-action/update/priority/:id/:priority",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "corporate-action",
+                "update",
+                "priority",
+                ":id",
+                ":priority"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "6885ce86a14230c33e85bc82"
+                },
+                {
+                  "key": "priority",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Test",
+          "id": "0a4e6397-7aad-44ed-af9b-9caf5af125f5",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stockCode\": \"DUMMY\",\n  \"stockName\": \"Dummy stock\",\n  \"type\": \"BONUS\",\n  \"description\": \"description\",\n  \"ratio\": \"1:2\",\n  \"exDate\": \"2025-03-27\",\n  \"recordDate\": \"2025-07-28\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/corporate-action/perform/test",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "corporate-action",
+                "perform",
+                "test"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Rename Symbol",
+          "id": "a52eebe4-4421-411e-87b4-15e7a3cd69f9",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stockCode\": \"ICICIBANK3\",\n  \"stockName\": \"ICICI Bank Ltd\",\n  \"toStockCode\": \"ICICIBANK\",\n  \"toStockName\": \"ICICI Bank Ltd\",\n  \"type\": \"NAME_OR_SYMBOL_CHANGE\",\n  \"description\": \"Setting the to default\",\n  \"actionPrice\": \"actionPrice_d0b714a54f55\",\n  \"ratio\": \"ratio_caf24b98b0aa\",\n  \"exDate\": \"2025-05-27\",\n  \"recordDate\": \"2025-05-23\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/corporate-action/perform",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "corporate-action",
+                "perform"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "02919945-3153-4e65-8644-037a5f87b4b5"
+    },
+    {
+      "name": "Broker Charges",
+      "item": [
+        {
+          "name": "Add | BC",
+          "id": "f45e4816-46da-4a79-9a41-7a4caa07e1b9",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"brokerName\": \"ZERODHA\",\n  \"startDate\": \"2024-10-01\",\n  \"status\": \"ACTIVE\",\n  \"accountOpeningCharges\": 0.00,\n  \"amcChargesAnnually\": 300.00,\n  \"brokerageCharges\": {\n    \"brokerage\": 0.00,\n    \"brokerageCharges\": 0.00,\n    \"brokerageAggregator\": \"MIN\",\n    \"minimumBrokerage\": 0.00,\n    \"maximumBrokerage\": 0.00\n  },\n  \"dpChargesPerScrip\": 13.00,\n  \"stt\": 0.00,\n  \"sebiCharges\": 0.00,\n  \"stampDuty\": 0.00,\n  \"gstApplicableDescription\": \"18-dp_charges,18-amc_charges\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/broker-charges/add",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "broker-charges",
+                "add"
+              ]
+            },
+            "description": "**Summary:**\nAdds a new broker charge configuration for a specified broker.\n\n**HTTP Method & URL:**\nPOST {{INVESTMENT_TRACKER_SERVICE}}/broker-charges/add\n\n**Required Parameters:**\n- brokerName (string): Name of the broker (e.g., \"ZERODHA\")\n- startDate (string, date): Start date for the charges (e.g., \"2024-10-01\")\n- status (string): Status of the broker charges (e.g., \"ACTIVE\")\n- accountOpeningCharges (number): Account opening charges\n- amcChargesAnnually (number): Annual maintenance charges\n- brokerageCharges (object):\n    - brokerage (number)\n    - brokerageCharges (number)\n    - brokerageAggregator (string): Aggregation type (e.g., \"MIN\")\n    - minimumBrokerage (number)\n    - maximumBrokerage (number)\n- dpChargesPerScrip (number): DP charges per scrip\n- stt (number): Securities Transaction Tax\n- sebiCharges (number): SEBI charges\n- stampDuty (number): Stamp duty\n- gstApplicableDescription (string): GST details (e.g., \"18-dp_charges,18-amc_charges\")\n\n**Example Request Body:**\n```json\n{\"brokerName\":\"ZERODHA\",\"startDate\":\"2024-10-01\",\"status\":\"ACTIVE\",\"accountOpeningCharges\":0,\"amcChargesAnnually\":300,\"brokerageCharges\":{\"brokerage\":0,\"brokerageCharges\":0,\"brokerageAggregator\":\"MIN\",\"minimumBrokerage\":0,\"maximumBrokerage\":0},\"dpChargesPerScrip\":13,\"stt\":0,\"sebiCharges\":0,\"stampDuty\":0,\"gstApplicableDescription\":\"18-dp_charges,18-amc_charges\"}\n```\n\n**Example Response:**\n- 200 OK: Returns the created broker charge object or a success message.\n- 400 Bad Request: Invalid input data.\n\n**Authentication:**\nBearer token required in header: `Authorization: Bearer {{JWT_TOKEN}}`\n\n**Notes:**\n- Ensure all required fields are provided.\n- Only users with appropriate permissions can add broker charges.\n\n[Reference: Add | BC](request/27168215-f45e4816-46da-4a79-9a41-7a4caa07e1b9)"
+          },
+          "response": []
+        },
+        {
+          "name": "User broker charges",
+          "id": "4c5f87be-3817-4030-8929-c9b84e3751dc",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"brokerName\": \"ZERODHA\",\n  \"startDate\": \"2024-10-01\",\n  \"status\": \"ACTIVE\",\n  \"accountOpeningCharges\": 0.00,\n  \"amcChargesAnnually\": 300.00,\n  \"brokerageCharges\": {\n    \"brokerage\": 0.00,\n    \"brokerageCharges\": 0.00,\n    \"brokerageAggregator\": \"MIN\",\n    \"minimumBrokerage\": 0.00,\n    \"maximumBrokerage\": 0.00\n  },\n  \"dpChargesPerScrip\": 13.00,\n  \"stt\": 0.00,\n  \"sebiCharges\": 0.00,\n  \"stampDuty\": 0.00,\n  \"gstApplicableDescription\": \"18-dp_charges,18-amc_charges\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/user-broker-charges/user/:email/all",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "user-broker-charges",
+                "user",
+                ":email",
+                "all"
+              ],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "{{EMAIL}}"
+                }
+              ]
+            },
+            "description": "**Purpose:**\nThis endpoint retrieves all broker charges associated with a specific user, identified by their email address. It is typically used to fetch a comprehensive list of broker-related charges for a user in the investment tracking system.\n\n**Endpoint:**\n`GET {{INVESTMENT_TRACKER_SERVICE}}/user-broker-charges/user/:email/all`\n\n**Path Variable:**\n- `email` (required): The email address of the user whose broker charges are to be fetched. This should be provided as part of the URL path. The value is typically supplied via the `EMAIL` environment variable (i.e., `{{EMAIL}}`).\n\n**Authentication:**\n- This request requires authentication. The JWT token should be provided in the request headers, typically using the `Authorization: Bearer {{JWT_TOKEN}}` header. The `JWT_TOKEN` is expected to be set as an environment variable.\n\n**Environment Variables:**\n- `INVESTMENT_TRACKER_SERVICE`: The base URL for the investment tracker service.\n- `JWT_TOKEN`: The authentication token for API access.\n- `EMAIL`: The user's email address to be used as the path variable.\n\n**Request Body:**\n- This is a GET request and does not require a request body. Any body content present will be ignored by the server.\n\n**Usage Notes:**\n- Ensure that all required environment variables are set before sending the request.\n- The response will contain a list of broker charges for the specified user."
+          },
+          "response": []
+        },
+        {
+          "name": "Add | Asset Management Details",
+          "id": "d1de2582-636c-46f2-af50-45ceba468a03",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@gmail.com\",\n  \"dematAccountId\": \"demat_account_id_1\",\n  \"brokerName\": \"ZERODHA\",\n  \"accountOpeningCharges\": 0.00,\n  \"taxOnAccountOpeningCharges\": 0.00,\n  \"amcCharges\": 300.00,\n  \"taxOnAmcCharges\": 18,\n  \"lastAmcChargesDeductedOn\": \"2025-10-04\",\n  \"amcChargesFrequency\": \"QUARTERLY\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/broker-charges/user/:email/add/asset-management-detail",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "broker-charges",
+                "user",
+                ":email",
+                "add",
+                "asset-management-detail"
+              ],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "test@gmail.com"
+                }
+              ]
+            },
+            "description": "Adds asset management details for a specific user identified by their email address. This endpoint is used to record or update information related to a user's asset management account with a broker.\n\n**Purpose:**\n- Adds or updates asset management details for a user in the system.\n\n**Required Path Variable:**\n- `email` (string): The user's email address. This must be provided in the URL path.\n\n**Required Body Fields:**\n- `email` (string): The user's email address (should match the path variable).\n- `dematAccountId` (string): Unique identifier for the user's demat account.\n- `brokerName` (string): Name of the broker (e.g., ZERODHA).\n- `accountOpeningCharges` (number): Charges for opening the account.\n- `taxOnAccountOpeningCharges` (number): Tax applied to account opening charges.\n- `amcCharges` (number): Annual Maintenance Charges (AMC).\n- `taxOnAmcCharges` (number): Tax applied to AMC charges.\n- `lastAmcChargesDeductedOn` (string, date): Date when AMC charges were last deducted (format: YYYY-MM-DD).\n- `amcChargesFrequency` (string): Frequency of AMC charges (e.g., QUARTERLY).\n\n**Authentication:**\n- Requires a valid JWT token in the request headers (typically as `Authorization: Bearer <token>`).\n\n**Notes:**\n- Ensure all required fields are provided in the request body.\n- The `email` in the body should match the path variable for consistency.\n- Only authenticated users can access this endpoint."
+          },
+          "response": []
+        },
+        {
+          "name": "AMC impose",
+          "id": "89000b33-965b-4f89-9825-fbbc9bd89ce3",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/broker-charges/amc/impose",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "broker-charges",
+                "amc",
+                "impose"
+              ]
+            },
+            "description": "Imposes Annual Maintenance Charges (AMC) for a broker account.\n\nPurpose:\nThis endpoint is used to trigger the imposition of AMC charges for users/accounts managed by the investment tracker service.\n\nExpected Input:\n- Method: POST\n- URL: {{INVESTMENT_TRACKER_SERVICE}}/broker-charges/amc/impose\n- Headers: Typically requires authentication (e.g., JWT_TOKEN in headers or as a bearer token)\n- Body: No request body is required for this endpoint.\n\nOutput:\n- Returns a response indicating the success or failure of the AMC imposition process. The response may include details about the accounts affected and the status of the operation.\n\nUse this endpoint to initiate AMC charges for all eligible accounts as per the broker's policy."
+          },
+          "response": []
+        },
+        {
+          "name": "BC by Id",
+          "id": "1cfe9316-b221-4473-b527-88e053f71c0c",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stockCode\": \"DUMMY\",\n  \"stockName\": \"Dummy stock\",\n  \"type\": \"STOCK_SPLIT\",\n  \"description\": \"description\",\n  \"ratio\": \"1:2\",\n  \"exDate\": \"2024-10-27\",\n  \"recordDate\": \"2024-10-27\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{INVESTMENT_TRACKER_SERVICE}}/broker-charges/:id",
+              "host": [
+                "{{INVESTMENT_TRACKER_SERVICE}}"
+              ],
+              "path": [
+                "broker-charges",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "691f28d02b0a8d428eb77168"
+                }
+              ]
+            },
+            "description": "Retrieves broker charge details for a specific record by its unique ID.\n\n- **Endpoint:** `GET {{INVESTMENT_TRACKER_SERVICE}}/broker-charges/:id`\n- **Path Variable:** `id` (required) — The unique identifier of the broker charge record to retrieve.\n- **Authentication:** Requires a valid `JWT_TOKEN`.\n\nUse this endpoint to fetch detailed information about broker charges associated with the provided ID. Ensure that the `id` path variable is set and authentication is provided via the `JWT_TOKEN` variable."
+          },
+          "response": []
+        }
+      ],
+      "id": "7dab4e41-4a6a-449f-b331-426173e28522"
+    },
+    {
+      "name": "Finance",
+      "item": [
+        {
+          "name": "Emi",
+          "id": "a83c05d7-4356-40a9-9b8d-655a761c6032",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n          \"calculationType\": \"EMI\",\n          \"principalAmount\": 100000,\n          \"rateOfInterest\": 12,\n          \"timePeriod\": 20,\n          \"finalAmount\": 0,\n          \"emiAmount\": 0\n        }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/finances/calculate",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "finances",
+                "calculate"
+              ]
+            },
+            "description": "Generated from cURL: curl -X POST --location \"http://localhost:8080/finances/calculate\" \\\n    -H \"Content-Type: application/json\" \\\n    -d '{\n          \"calculationType\": \"EMI\",\n          \"principalAmount\": 100000,\n          \"rateOfInterest\": 12,\n          \"timePeriod\": 20,\n          \"finalAmount\": 0,\n          \"emiAmount\": 0\n        }'"
+          },
+          "response": []
+        },
+        {
+          "name": "Total amount",
+          "id": "4fe4cc22-5dce-4292-b74c-1467caa98e36",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n          \"calculationType\": \"TOTAL_AMOUNT\",\n          \"principalAmount\": 100000,\n          \"rateOfInterest\": 12,\n          \"timePeriod\": 20,\n          \"finalAmount\": 0,\n          \"emiAmount\": 0\n        }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/finances/calculate",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "finances",
+                "calculate"
+              ]
+            },
+            "description": "Generated from cURL: curl -X POST --location \"http://localhost:8080/finances/calculate\" \\\n    -H \"Content-Type: application/json\" \\\n    -d '{\n          \"calculationType\": \"EMI\",\n          \"principalAmount\": 100000,\n          \"rateOfInterest\": 12,\n          \"timePeriod\": 20,\n          \"finalAmount\": 0,\n          \"emiAmount\": 0\n        }'"
+          },
+          "response": []
+        },
+        {
+          "name": "Sip",
+          "id": "86125a2e-2b3c-4b98-a39c-661874c72f60",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"initialAmount\": 5000,\n    \"stepUpRate\": 0.01,\n    \"stepUpFrequency\": \"1\",\n    \"months\": 24,\n    \"targetAmount\": 142000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/finances/interest-rate",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "finances",
+                "interest-rate"
+              ]
+            },
+            "description": "Generated from cURL: curl -X POST --location \"http://localhost:8080/finances/interest-rate\" \\\n    -H \"Content-Type: application/json\" \\\n    -d '{\n          \"initialAmount\": 5000,\n          \"stepUpRate\": 10,\n          \"stepUpFrequency\": \"MONTHLY\",\n          \"months\": 24,\n          \"targetAmount\": 120000\n        }'"
+          },
+          "response": []
+        }
+      ],
+      "id": "1607c2cc-7390-4650-a8b7-ee0892c5c718"
+    },
+    {
+      "name": "Clear User Records",
+      "id": "ccf6b870-c4a1-4a3c-a8fc-301bd1667cf7",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{INVESTMENT_TRACKER_SERVICE}}/portfolio/user/:email/clear/all",
+          "host": [
+            "{{INVESTMENT_TRACKER_SERVICE}}"
+          ],
+          "path": [
+            "portfolio",
+            "user",
+            ":email",
+            "clear",
+            "all"
+          ],
+          "variable": [
+            {
+              "key": "email",
+              "value": "{{EMAIL}}"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update",
+      "id": "f35f610d-168c-4f2d-98d2-b546190a7a4e",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{INVESTMENT_TRACKER_SERVICE}}/portfolio/user/:email/update",
+          "host": [
+            "{{INVESTMENT_TRACKER_SERVICE}}"
+          ],
+          "path": [
+            "portfolio",
+            "user",
+            ":email",
+            "update"
+          ],
+          "variable": [
+            {
+              "key": "email",
+              "value": "{{EMAIL}}"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{JWT_TOKEN}}",
+        "type": "string"
+      }
+    ]
+  }
+}
