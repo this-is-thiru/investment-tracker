@@ -16,3 +16,6 @@
 
 Resources:
 * https://gist.github.com/conholdate-gists/413f3fdf681361ad1a625a876955689a - excel sheet to combine
+
+Stock market resources:
+https://www.advisorkhoj.com/
