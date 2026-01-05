@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 @Log4j2
 @Service
@@ -41,7 +40,7 @@ import java.util.Set;
 public class CorporateActionService {
 
     private static final int ONE = 1;
-    private static final Set<Month> QUARTER_START_MONTHS = Set.of(Month.JANUARY, Month.APRIL, Month.JULY, Month.OCTOBER);
+    private static final List<Month> QUARTER_START_MONTHS = List.of(Month.JANUARY, Month.APRIL, Month.JULY, Month.OCTOBER);
 
     private final PortfolioService portfolioService;
     private final TransactionService transactionService;
@@ -141,7 +140,13 @@ public class CorporateActionService {
         }
 
         LocalDate fromDate = LocalDate.of(year, quarterStart, ONE);
-        LocalDate toDate = TLocalDate.today();
+        LocalDate toDate;
+        if (Month.OCTOBER == quarterStart) {
+            toDate = LocalDate.of(year + 1, quarterStart.plus(3), ONE).minusDays(ONE);
+        } else {
+            toDate = LocalDate.of(year, quarterStart.plus(3), ONE).minusDays(ONE);
+        }
+
         List<CorporateActionEntity> corporateActions = getCurrentQuarterCorporateActions(fromDate, toDate);
 
         for (CorporateActionEntity corporateAction : corporateActions) {
@@ -177,8 +182,7 @@ public class CorporateActionService {
         AssetType assetType = corporateAction.getAssetType();
         LocalDate recordDate = corporateAction.getRecordDate();
 
-        Optional<LastlyPerformedCorporateAction> lastlyPerformedCA = lastlyPerformedCorporateActionRepo
-                .findByEmailAndStockCodeAndAssetTypeAndActionType(email, stockCode, assetType, corporateActionType);
+        var lastlyPerformedCA = lastlyPerformedCorporateActionRepo.findByEmailAndStockCodeAndAssetTypeAndActionType(email, stockCode, assetType, corporateActionType);
 
         if (lastlyPerformedCA.isPresent()) {
             LastlyPerformedCorporateAction lastlyPerformedCorporateAction = lastlyPerformedCA.get();
@@ -189,13 +193,14 @@ public class CorporateActionService {
         }
 
         CorporateActionType action = corporateAction.getType();
-        if (Objects.requireNonNull(action) == CorporateActionType.BONUS) {
-            processBonusShares(email, corporateAction);
-        } else if (Objects.requireNonNull(action) == CorporateActionType.DEMERGER) {
-            processDemergerOfShares(email, corporateAction);
-        } else {
-            throw new IllegalArgumentException("Invalid action type" + action);
+
+        switch (action) {
+            case BONUS -> processBonusShares(email, corporateAction);
+            case DEMERGER -> processDemergerOfShares(email, corporateAction);
+            case STOCK_SPLIT -> processStockSplit(email, corporateAction);
+            default -> throw new IllegalArgumentException("Invalid action type" + action);
         }
+
         log.info("Corporate action: {} noted successfully for stock: {}", action, corporateAction.getStockCode());
     }
 
@@ -387,6 +392,7 @@ public class CorporateActionService {
         List<AssetEntity> stockEntities = portfolioService.stocksForCorporateActions(email, stockCode, recordDate);
         if (stockEntities.isEmpty()) {
             handleEmptyAssetsForCorporateAction(email, corporateAction);
+            return;
         }
 
         Map<BrokerName, List<AssetEntity>> brokerNameAndStocksMap = TCollectionUtil.groupingBy(stockEntities, AssetEntity::getBrokerName);
@@ -394,6 +400,79 @@ public class CorporateActionService {
             processDemergerOfShares(corporateAction, entry.getKey(), entry.getValue());
             updateLastlyPerformedCorporateAction(email, stockCode, corporateAction.getAssetType(), corporateAction.getType(), corporateAction.getExDate());
         }
+    }
+
+    public void processStockSplit(String email, CorporateActionEntity corporateAction) {
+
+        String stockCode = corporateAction.getStockCode();
+        LocalDate recordDate = corporateAction.getRecordDate();
+
+        List<AssetEntity> stockEntities = portfolioService.stocksForCorporateActions(email, stockCode, recordDate);
+        if (stockEntities.isEmpty()) {
+            handleEmptyAssetsForCorporateAction(email, corporateAction);
+            return;
+        }
+
+        Map<BrokerName, List<AssetEntity>> brokerNameAndStocksMap = TCollectionUtil.groupingBy(stockEntities, AssetEntity::getBrokerName);
+        for (Map.Entry<BrokerName, List<AssetEntity>> entry : brokerNameAndStocksMap.entrySet()) {
+            processStockSplit(corporateAction, entry.getKey(), entry.getValue());
+            updateLastlyPerformedCorporateAction(email, stockCode, corporateAction.getAssetType(), corporateAction.getType(), corporateAction.getExDate());
+        }
+    }
+
+    private void processStockSplit(CorporateActionEntity corporateAction, BrokerName brokerName, List<AssetEntity> stockEntities) {
+
+        String stockCode = corporateAction.getStockCode();
+
+        int totalShares = TCollectionUtil.map(stockEntities, assetEntity -> assetEntity.getQuantity().intValue()).stream().reduce(0, Integer::sum);
+        String[] splitRatio = corporateAction.getRatio().split(":");
+        int numerator = Integer.parseInt(splitRatio[0]);
+        int denominator = Integer.parseInt(splitRatio[1]);
+        int bonusSharesCount = totalShares * numerator / denominator;
+//
+//        String[] demergerPriceRatio = demergerDetail.getDemergerPriceRatio().split(":");
+//        double mainStockPriceRatio = Double.parseDouble(demergerPriceRatio[0]);
+//        double secondaryStockPriceRatio = Double.parseDouble(demergerPriceRatio[1]);
+//
+//        if (demergerDetail.getDemergerStocks().size() != 1) {
+//            throw new IllegalArgumentException("Invalid demerger ratio format");
+//        }
+//
+//        var newDemergerStock = demergerDetail.getDemergerStocks().getFirst();
+//        var demergedStockContext = new DemergedStockContext(newDemergerStock.getStockCode(), newDemergerStock.getStockName(), secondaryStockPriceRatio, secondaryStockRatio);
+//
+//        List<AssetEntity> finalDemergedStocks = new ArrayList<>();
+//        for (AssetEntity assetEntity : stockEntities) {
+//            var demergerContext = new DemergerContext(demergerDetail.getMainStockCode(), demergerDetail.getMainStockName(), mainStockPriceRatio, mainStockRatio, assetEntity, new ArrayList<>(Collections.singleton(demergedStockContext)));
+//            List<AssetEntity> demergedStocks = processStockSplitForEachAssetEntry(demergerContext);
+//
+//            CorporateActionEntity action = TJsonMapper.copy(corporateAction, CorporateActionEntity.class);
+//            demergedStocks.parallelStream().forEach(a -> a.getCorporateActions().add(action));
+//            finalDemergedStocks.addAll(demergedStocks);
+//        }
+//
+//        portfolioService.saveCorporateActionProcessedStocks(finalDemergedStocks);
+//        log.info("Demerger of shares added for symbol: {} in Broker: {}", stockCode, brokerName);
+    }
+
+    public List<AssetEntity> processStockSplitForEachAssetEntry(DemergerContext demergerContext) {
+//        double mainStockPricePercentage = demergerContext.pricePercentage();
+//        AssetEntity entity = demergerContext.entity();
+//
+//        List<AssetEntity> demergedStocks = new ArrayList<>();
+//        for (var demergerStockContext : demergerContext.demergedStocks()) {
+//            AssetEntity asNewEntity = asNewEntity(demergerStockContext, entity);
+//            demergedStocks.add(asNewEntity);
+//        }
+//
+//        var oldPrice = entity.getPrice();
+//        double newPrice = oldPrice * (mainStockPricePercentage / 100);
+//        entity.setPrice(newPrice);
+//        entity.setStockCode(demergerContext.stockCode());
+//        entity.setStockName(demergerContext.stockName());
+//        demergedStocks.add(entity);
+//
+        return null;
     }
 
     private void processDemergerOfShares(CorporateActionEntity corporateAction, BrokerName brokerName, List<AssetEntity> stockEntities) {

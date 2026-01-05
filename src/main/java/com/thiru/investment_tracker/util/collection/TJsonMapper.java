@@ -49,7 +49,6 @@ public class TJsonMapper {
     }
 
     public static String writeValueAsString(Object source) {
-        System.out.println(JSON_MAPPER.writeValueAsString(source));
         return JSON_MAPPER.writeValueAsString(source);
     }
 }
