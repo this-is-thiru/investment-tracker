@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>JSON Diff Viewer</title>
+
+    <!-- REQUIRED CSS -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/jsondiffpatch/public/formatters-styles/html.css">
+
+    <style>
+        body { font-family: Arial; margin: 20px; }
+    </style>
+</head>
+
+<body>
+
+<h2>JSON Diff Viewer</h2>
+
+<!-- DEBUG RAW JSON -->
+<pre id="rawL" th:text="${leftJson}"></pre>
+<pre id="rawR" th:text="${rightJson}"></pre>
+
+<!-- SAFE JSON -->
+<script type="application/json" id="left-json" th:text="${leftJson}"></script>
+<script type="application/json" id="right-json" th:text="${rightJson}"></script>
+
+<div id="diff"></div>
+
+<!-- CORE -->
+<script src="https://cdn.jsdelivr.net/npm/jsondiffpatch/dist/jsondiffpatch.umd.js"></script>
+
+<!-- HTML FORMATTER (REQUIRED) -->
+<script src="https://cdn.jsdelivr.net/npm/jsondiffpatch/public/formatters/html.js"></script>
+
+<script>
+    console.log("Loading diff…");
+
+    const left = JSON.parse(document.getElementById("left-json").textContent);
+    const right = JSON.parse(document.getElementById("right-json").textContent);
+
+    console.log("LEFT", left);
+    console.log("RIGHT", right);
+
+    const diffpatch = jsondiffpatch.create({
+        arrays: { detectMove: true },
+        textDiff: { minLength: 1 }
+    });
+
+    const delta = diffpatch.diff(left, right);
+
+    console.log("DELTA", delta);
+
+    const el = document.getElementById("diff");
+
+    if (!delta) {
+        el.innerHTML = "<b>No differences found</b>";
+    } else {
+        el.innerHTML = jsondiffpatch.formatters.html.format(delta, left);
+        jsondiffpatch.formatters.html.hideUnchanged();
+    }
+</script>
+
+</body>
+</html>

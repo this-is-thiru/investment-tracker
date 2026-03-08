@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Audit Diff</title>
+    <style>
+        body { font-family: Arial; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ccc; padding: 8px; }
+        th { background: #f5f5f5; }
+        .changed { background: #fff8e1; }
+    </style>
+</head>
+<body>
+
+<h2>Changes for ID: <span th:text="${id}"></span></h2>
+<h4>Version [[${v1}]] → [[${v2}]]</h4>
+
+<table>
+    <thead>
+    <tr>
+        <th>Entity</th>
+        <th>Path</th>
+        <th>Field</th>
+        <th>Old Value</th>
+        <th>New Value</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr th:each="c : ${changes}" class="changed">
+        <td th:text="${c.entityId()}"></td>
+        <td th:text="${c.path()}"></td>
+        <td th:text="${c.field()}"></td>
+        <td th:text="${c.oldValue()}"></td>
+        <td th:text="${c.newValue()}"></td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
