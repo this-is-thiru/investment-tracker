@@ -1,6 +1,6 @@
 package com.thiru.investment_tracker.auth.config;
 
-import io.micrometer.common.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
