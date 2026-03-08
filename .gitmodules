@@ -1,0 +1,3 @@
+[submodule "api-collection"]
+	path = api-collection
+	url = git@github.com:this-is-thiru/investment-tracker_api-collection.git
