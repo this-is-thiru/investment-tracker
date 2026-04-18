@@ -1,14 +1,13 @@
 package com.thiru.investment_tracker.util.time;
 
-import io.micrometer.common.lang.NonNull;
+
+import org.jspecify.annotations.NonNull;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 public class TLocalTime {
-
-    public static final String DEFAULT_TIME_FORMAT = "hh:mm a";
 
     public static LocalTime toLocalTime(@NonNull String time, @NonNull String pattern) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);

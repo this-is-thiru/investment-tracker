@@ -51,7 +51,7 @@ public class CorporateActionService {
         CorporateActionEntity corporateActionEntity = actionWrapper.getAsEntity();
         List<CorporateActionEntity> actions = corporateActionRepository.findByStockCodeAndRecordDateAndOrderByPriorityAsc(actionWrapper.getStockCode(), actionWrapper.getRecordDate());
         CorporateActionEntity actionWithSamePriority = TCollectionUtil.findFirst(actions, action -> action.getPriority() == corporateActionEntity.getPriority());
-        CorporateActionEntity actionForSameStock = TCollectionUtil.findFirst(actions, action -> action.getStockCode().equals(corporateActionEntity.getStockCode()));
+        CorporateActionEntity actionForSameStock = TCollectionUtil.findFirst(actions, action -> action.getType() == corporateActionEntity.getType());
 
         if (actionForSameStock != null) {
             throw new IllegalArgumentException("Corporate actions is already present id: " + actionWithSamePriority.getId());
