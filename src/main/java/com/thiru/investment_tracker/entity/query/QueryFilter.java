@@ -4,13 +4,17 @@ import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.AssetEntity;
 import com.thiru.investment_tracker.exception.BadRequestException;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class QueryFilter {
 
     private String filterKey;
