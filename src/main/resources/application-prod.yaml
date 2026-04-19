@@ -9,8 +9,6 @@ spring:
     uri: mongodb+srv://pthirumalayadav:pthirumalayadav@cluster0.x6trgen.mongodb.net/?retryWrites=true&w=majority
     database: Cluster0
 
-# RabbitMQ configuration
-  rabbitmq:
-    username: ejcdabas
-    password: GAP558hOcfxjgBiTSM2dFifoXYxt57Rx
-    addresses: amqps://ejcdabas:GAP558hOcfxjgBiTSM2dFifoXYxt57Rx@prawn-01.rmq.cloudamqp.com/ejcdabas
+app:
+  security:
+    key-secret: 80DC002A54B59ACF5F198D0A8D644EEE992C04FFBCF947DAAA90AA7DFDDA2A05

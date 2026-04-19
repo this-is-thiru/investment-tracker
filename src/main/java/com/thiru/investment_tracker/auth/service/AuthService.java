@@ -1,5 +1,6 @@
 package com.thiru.investment_tracker.auth.service;
 
+import com.thiru.investment_tracker.auth.config.SecurityConfig;
 import com.thiru.investment_tracker.auth.entity.UserDetail;
 import com.thiru.investment_tracker.auth.dto.AuthHelper;
 import com.thiru.investment_tracker.auth.dto.LoginResponse;
@@ -24,6 +25,7 @@ public class AuthService {
 
     private final UserDetailsRepository userDetailsRepo;
     private final PasswordEncoder passwordEncoder;
+    private final SecurityConfig securityConfig;
 
     public String addUser(RegistrationRequest request) {
 
@@ -63,11 +65,6 @@ public class AuthService {
         userDetailsRepo.save(userEntity);
         return "user with username " + request.getEmail() + " added to system";
     }
-
-    /**
-     * <a href="https://www.grc.com/passwords.htm">Token Website</a>
-     */
-    final private static String SECRET = "80DC002A54B59ACF5F198D0A8D644EEE992C04FFBCF947DAAA90AA7DFDDA2A05";
 
     public Claims extractAllClaims(String authToken) {
         try {
@@ -146,7 +143,7 @@ public class AuthService {
 
     private SecretKey getSignInKey() {
         byte[] bytes = Base64.getDecoder()
-                .decode(SECRET);
+                .decode(securityConfig.keySecret());
         return new SecretKeySpec(bytes, "HmacSHA256");
     }
 }
