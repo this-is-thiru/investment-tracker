@@ -1,12 +1,16 @@
 package com.thiru.investment_tracker.auth.service;
 
 import com.thiru.investment_tracker.auth.config.SecurityConfig;
-import com.thiru.investment_tracker.auth.entity.UserDetail;
 import com.thiru.investment_tracker.auth.dto.AuthHelper;
 import com.thiru.investment_tracker.auth.dto.LoginResponse;
 import com.thiru.investment_tracker.auth.dto.RegistrationRequest;
+import com.thiru.investment_tracker.auth.entity.UserDetail;
 import com.thiru.investment_tracker.auth.repository.UserDetailsRepository;
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.Authentication;
@@ -16,7 +20,12 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import java.util.*;
+import java.util.Base64;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 @Log4j2
 @Service
