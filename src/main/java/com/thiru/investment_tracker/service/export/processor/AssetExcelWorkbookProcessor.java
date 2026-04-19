@@ -24,7 +24,7 @@ public class AssetExcelWorkbookProcessor extends AbstractExcelWorkbookProcessor<
     public AssetExcelWorkbookProcessor(UserMail userMail, EntityExportRequest exportRequest, PortfolioService portfolioService) {
         super(userMail, ASSET_EXCEL_FILE_NAME, FILE_TYPE);
         this.columnFields = exportRequest.getSelectedColumns();
-        this.queryFilters = exportRequest.getFilters();
+        this.queryFilters = exportRequest.getQueryFilters();
         this.portfolioService = portfolioService;
     }
 

@@ -7,6 +7,8 @@ import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.ExcelDataType;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.service.parser.model.AbstractRequestParser;
+import com.thiru.investment_tracker.service.parser.model.AssetRequestParserImpl;
+import com.thiru.investment_tracker.service.parser.model.ExcelParser;
 import com.thiru.investment_tracker.util.collection.TOptional;
 import com.thiru.investment_tracker.util.parser.CellDetail;
 import com.thiru.investment_tracker.util.transaction.ExcelHeaders;
@@ -17,6 +19,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AssetRequestParser extends AbstractRequestParser<AssetRequest> {
+
+    private final String quarter;
+    public AssetRequestParser(String quarter) {
+        this.quarter = quarter;
+    }
 
     @Override
     protected Map<String, ExcelDataType> simpleDataTypeMap() {
@@ -172,5 +179,10 @@ assetRequest.setTransactionType(TransactionType.valueOf(transactionType));
             case EQUITY, BOND, MUTUAL_FUND, FD, INSURANCE -> null;
             case GOLD_BOND -> maturityDate != null ? maturityDate : transactionDate.plusYears(8);
         };
+    }
+
+    @Override
+    public ExcelParser getExcelParser() {
+        return new AssetRequestParserImpl(quarter);
     }
 }

@@ -101,10 +101,10 @@ public class PortfolioService {
     }
 
     @Transactional
-    public String uploadTransactions(UserMail userMail, MultipartFile file) {
+    public String uploadTransactions(UserMail userMail, String quarter, MultipartFile file) {
 
         List<String> errors = new ArrayList<>();
-        AssetRequestParser assetRequestParser = new AssetRequestParser();
+        AssetRequestParser assetRequestParser = new AssetRequestParser(quarter);
         List<AssetRequest> assetRequests = assetRequestParser.parse(file, errors);
 
         if (!errors.isEmpty()) {

@@ -23,14 +23,23 @@ import java.util.List;
 import java.util.Map;
 
 @Log4j2
-public class ExcelParserImpl implements ExcelParser {
+public class AssetRequestParserImpl implements ExcelParser {
+
+    private static final List<String> ALLOWED_QUARTERS = List.of("Q1", "Q2", "Q3", "Q4");
+
+    private final String quarter;
+
+    public AssetRequestParserImpl(String quarter) {
+        this.quarter = quarter;
+    }
 
     @Override
     public InputRecords parse(MultipartFile file, Map<String, ExcelDataType> dataTypeMap, List<String> errors) {
 
         try {
             XSSFWorkbook excelWorkbook = new XSSFWorkbook(file.getInputStream());
-            XSSFSheet transactionsSheet = excelWorkbook.getSheetAt(0);
+            var sheetIndex = sheetIndex(quarter);
+            XSSFSheet transactionsSheet = excelWorkbook.getSheetAt(sheetIndex);
 
             InputRecords inputRecords = new InputRecords();
 
@@ -111,5 +120,13 @@ public class ExcelParserImpl implements ExcelParser {
             log.error("Error while parsing excel file error: {}, cellHeader: {}", e, cellHeader);
             throw new BadRequestException(e.getMessage());
         }
+    }
+
+    private static int sheetIndex(String quarter) {
+        if (quarter == null || !ALLOWED_QUARTERS.contains(quarter)) {
+            throw new BadRequestException("Invalid quarter: " + quarter + ", Allowed quarters: " + ALLOWED_QUARTERS);
+        }
+
+        return ALLOWED_QUARTERS.indexOf(quarter);
     }
 }

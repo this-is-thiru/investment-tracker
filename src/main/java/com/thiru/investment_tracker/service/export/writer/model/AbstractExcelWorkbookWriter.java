@@ -1,6 +1,7 @@
 package com.thiru.investment_tracker.service.export.writer.model;
 
 import com.thiru.investment_tracker.entity.model.AuditableEntity;
+import com.thiru.investment_tracker.exception.BadRequestException;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -61,7 +62,12 @@ public abstract class AbstractExcelWorkbookWriter<EntityType extends AuditableEn
 
     protected void cellPopulator(Cell cell, String columnField, EntityType entityType) {
 
-        Object data = this.simpleColumnValueMap().get(columnField).apply(entityType);
+        var fieldExtractor = this.simpleColumnValueMap().get(columnField);
+        if (fieldExtractor == null) {
+            throw new BadRequestException("Column " + columnField + " not found");
+        }
+
+        Object data = fieldExtractor.apply(entityType);
         if (data == null) {
             return;
         }

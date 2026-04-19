@@ -47,9 +47,9 @@ public class PortfolioController {
     }
 
     @PostMapping("/upload-transactions")
-    public String uploadTransactions(@PathVariable String email,
+    public String uploadTransactions(@PathVariable String email, @RequestParam("quarter") String quarter,
                                                      @RequestParam("file") MultipartFile file) {
-        return portfolioService.uploadTransactions(UserMail.from(email), file);
+        return portfolioService.uploadTransactions(UserMail.from(email), quarter, file);
     }
 
     // @PostMapping("/insurance")
