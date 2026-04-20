@@ -1,6 +1,7 @@
 package com.thiru.investment_tracker.controller;
 
 import com.thiru.investment_tracker.dto.CorporateActionDto;
+import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.CorporateActionEntity;
 import com.thiru.investment_tracker.service.CorporateActionService;
@@ -75,7 +76,10 @@ public class CorporateActionController {
     @PutMapping("/perform/test")
     public ResponseEntity<Boolean> anyCorporateActionToPerform(@RequestBody CorporateActionDto request) {
 
-        boolean message = temporaryTransactionService.anyCorporateActionToPerform(UserMail.from("test"), request.getStockCode(), request.getRecordDate());
+        boolean message = false;
+        for (BrokerName brokerName : BrokerName.values()) {
+            message = temporaryTransactionService.anyCorporateActionToPerform(UserMail.from("test"), request.getStockCode(), request.getRecordDate(), brokerName);
+        }
         return ResponseEntity.ok(message);
     }
 }

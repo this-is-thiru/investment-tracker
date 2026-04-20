@@ -10,7 +10,6 @@ import com.thiru.investment_tracker.entity.CorporateActionEntity;
 import com.thiru.investment_tracker.entity.model.DemergerDetail;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import lombok.Data;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -63,6 +62,9 @@ public class CorporateActionDto implements AuditableResponse {
     }
 
     private DemergerDetail toDemergerDetail() {
+        if (demergerDetail == null) {
+            return null;
+        }
         var demergerStocks = demergerDetail.demergerStocks().stream().map(CorporateActionDto::toDemergerStock).toList();
 
         DemergerDetail detail = new DemergerDetail();
