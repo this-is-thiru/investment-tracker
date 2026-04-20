@@ -567,6 +567,7 @@ public class CorporateActionService {
 
         switch (actionWrapper.getType()) {
             case DEMERGER -> validateDemergerData(actionWrapper.getDemergerDetail());
+            case BONUS -> validateBonusData(actionWrapper);
         }
     }
 
@@ -590,6 +591,13 @@ public class CorporateActionService {
 
         if (demergerPriceRatios.length != demergerRatios.length) {
             throw new IllegalArgumentException("Demerger ratios and price ratios must have the same length");
+        }
+    }
+
+    private void validateBonusData(CorporateActionDto corporateActionDto) {
+        String[] splitRatio = corporateActionDto.getRatio().split(":");
+        if (splitRatio.length != 2) {
+            throw new IllegalArgumentException("Invalid bonus ratio format");
         }
     }
 
