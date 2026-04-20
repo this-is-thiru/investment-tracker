@@ -1,10 +1,10 @@
 package com.thiru.investment_tracker.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.CorporateActionType;
 import com.thiru.investment_tracker.entity.helper.AuditMetadata;
 import com.thiru.investment_tracker.entity.model.AuditableEntity;
+import com.thiru.investment_tracker.entity.model.DemergerDetail;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -48,8 +48,8 @@ public class CorporateActionEntity implements AuditableEntity {
     private String ratio;
     @Field("date")
     private LocalDate date;
-    @Field("is_test_corporate_action")
-    private boolean isTestCorporateAction = true;
+    @Field("demerger_detail")
+    private DemergerDetail demergerDetail;
 
     @Field("audit_metadata")
     @Setter(value = AccessLevel.NONE)

@@ -10,6 +10,7 @@ public enum CorporateActionType {
     STOCK_SPLIT,
     BUYBACK,
     RIGHTS_ISSUANCE,
+    DEMERGER,
     NAME_OR_SYMBOL_CHANGE;
 
     @JsonIgnore
@@ -17,6 +18,6 @@ public enum CorporateActionType {
 
     @JsonIgnore
     private static List<CorporateActionType> filterableCorporateActions() {
-        return List.of(CorporateActionType.BONUS, CorporateActionType.STOCK_SPLIT, CorporateActionType.RIGHTS_ISSUANCE, CorporateActionType.BUYBACK);
+        return List.of(BONUS, STOCK_SPLIT, RIGHTS_ISSUANCE, BUYBACK, DEMERGER);
     }
 }

@@ -9,6 +9,7 @@ import com.thiru.investment_tracker.service.PortfolioService;
 import com.thiru.investment_tracker.service.export.processor.model.AbstractExcelWorkbookProcessor;
 import com.thiru.investment_tracker.service.export.writer.AssetExcelWorkbookWriter;
 import com.thiru.investment_tracker.service.export.writer.model.ExcelWorkbookWriter;
+import org.springframework.core.env.Environment;
 
 import java.util.List;
 
@@ -21,10 +22,10 @@ public class AssetExcelWorkbookProcessor extends AbstractExcelWorkbookProcessor<
     private final List<String> columnFields;
     private final List<QueryFilter> queryFilters;
 
-    public AssetExcelWorkbookProcessor(UserMail userMail, EntityExportRequest exportRequest, PortfolioService portfolioService) {
-        super(userMail, ASSET_EXCEL_FILE_NAME, FILE_TYPE);
+    public AssetExcelWorkbookProcessor(UserMail userMail, EntityExportRequest exportRequest, PortfolioService portfolioService, Environment env) {
+        super(userMail, ASSET_EXCEL_FILE_NAME, FILE_TYPE, env);
         this.columnFields = exportRequest.getSelectedColumns();
-        this.queryFilters = exportRequest.getFilters();
+        this.queryFilters = exportRequest.getQueryFilters();
         this.portfolioService = portfolioService;
     }
 
