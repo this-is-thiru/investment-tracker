@@ -18,7 +18,6 @@ import com.thiru.investment_tracker.repository.LastlyPerformedCorporateActionRep
 import com.thiru.investment_tracker.repository.TemporaryTransactionRepository;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.collection.TJsonMapper;
-import com.thiru.investment_tracker.util.time.TLocalDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -31,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 @Log4j2
@@ -100,29 +98,6 @@ public class CorporateActionService {
         return TCollectionUtil.map(actions, corporateAction -> TJsonMapper.copy(corporateAction, CorporateActionDto.class));
     }
 
-    public void performQuarterlyCorporateActions(String email, int year, int quarter) {
-
-        Month quarterStart = TLocalDate.firstMonthOfQuarter(quarter);
-        LocalDate fromDate = LocalDate.of(year, quarterStart, ONE);
-        LocalDate toDate = LocalDate.of(year, quarterStart.plus(3), ONE).minusDays(ONE);
-        List<CorporateActionEntity> corporateActions = corporateActionRepository.findByTypeInAndRecordDateBetween(CorporateActionType.FILTERABLE_CORPORATE_ACTIONS, fromDate, toDate);
-        for (CorporateActionEntity corporateAction : corporateActions) {
-            performQuarterlyCorporateAction(email, corporateAction);
-        }
-        System.out.println(corporateActions);
-    }
-
-    public void performQuarterlyCorporateAction(String email, CorporateActionEntity corporateAction) {
-
-        CorporateActionType action = corporateAction.getType();
-        if (Objects.requireNonNull(action) == CorporateActionType.BONUS) {
-            processBonusShares(email, corporateAction);
-        } else {
-            throw new IllegalArgumentException("Invalid action type" + action);
-        }
-        log.info("Quarterly corporate action: {} noted successfully for stock: {}", action, corporateAction.getStockCode());
-    }
-
     @Transactional
     public void deleteCorporateActions(String id) {
         corporateActionRepository.deleteById(id);
@@ -139,11 +114,13 @@ public class CorporateActionService {
         }
 
         if (actionPerformDto.brokerName() != null) {
+            log.info("Performing corporate actions for broker: {}, for CA: {}", actionPerformDto.brokerName(), actionPerformDto);
             performPendingCorporateActions(email, actionPerformDto, actionPerformDto.brokerName());
             return;
         }
 
         for (BrokerName value : BrokerName.values()) {
+            log.info("Performing corporate actions for all brokers for CA: {}", actionPerformDto);
             performPendingCorporateActions(email, actionPerformDto, value);
         }
     }
@@ -203,7 +180,7 @@ public class CorporateActionService {
         if (lastlyPerformedCA.isPresent()) {
             LastlyPerformedCorporateAction lastlyPerformedCorporateAction = lastlyPerformedCA.get();
             if (lastlyPerformedCorporateAction.getActionDate().isAfter(corporateAction.getRecordDate().minusDays(ONE))) {
-                log.warn("Corporate action: {} for stock: {} is already performed with record date: {}", corporateActionType, stockCode, recordDate);
+                log.warn("Corporate action: {} for stock: {}, and broker: {} is already performed with record date: {}", corporateActionType, stockCode, brokerName, recordDate);
                 return;
             }
         }
@@ -211,9 +188,9 @@ public class CorporateActionService {
         CorporateActionType action = corporateAction.getType();
 
         switch (action) {
-            case BONUS -> processBonusShares(email, corporateAction);
-            case DEMERGER -> processDemergerOfShares(email, corporateAction);
-            case STOCK_SPLIT -> processStockSplit(email, corporateAction);
+            case BONUS -> processBonusShares(email, corporateAction, brokerName);
+            case DEMERGER -> processDemergerOfShares(email, corporateAction, brokerName);
+            case STOCK_SPLIT -> processStockSplit(email, corporateAction, brokerName);
             default -> throw new IllegalArgumentException("Invalid action type" + action);
         }
 
@@ -300,11 +277,7 @@ public class CorporateActionService {
         log.info("Processed name or symbol change for stock: {} to: {}", stockCode, actionWrapper.getToStockCode());
     }
 
-    public String processBonusShares(String email, CorporateActionDto actionWrapper) {
-        return processBonusShares(email, actionWrapper.getAsEntity());
-    }
-
-    public String processBonusShares(String email, CorporateActionEntity corporateAction) {
+    public void processBonusShares(String email, CorporateActionEntity corporateAction, BrokerName brokerName) {
 
         String stockCode = corporateAction.getStockCode();
         LocalDate recordDate = corporateAction.getRecordDate();
@@ -316,11 +289,14 @@ public class CorporateActionService {
 
         Map<BrokerName, List<AssetEntity>> brokerNameAndStocksMap = TCollectionUtil.groupingBy(stockEntities, AssetEntity::getBrokerName);
         for (Map.Entry<BrokerName, List<AssetEntity>> entry : brokerNameAndStocksMap.entrySet()) {
+            if (!brokerName.equals(entry.getKey())) {
+                log.info("CA skipping for broker name {} and stock {}", entry.getKey(), stockCode);
+                return;
+            }
             processBonusShares(email, corporateAction, entry.getKey(), entry.getValue());
             updateLastlyPerformedCorporateAction(email, stockCode, corporateAction.getAssetType(), corporateAction.getType(), corporateAction.getExDate(), entry.getKey());
         }
 
-        return "Success";
     }
 
     public void processBonusShares(String email, CorporateActionEntity corporateAction, BrokerName brokerName, List<AssetEntity> stockEntities) {
@@ -394,13 +370,13 @@ public class CorporateActionService {
         Optional<LastlyPerformedCorporateAction> lpcaOptional = lastlyPerformedCorporateActionRepo
                 .findLastPerformedCA(email, stockCode, assetType, actionType, brokerName);
         LastlyPerformedCorporateAction lastlyPerformedCorporateAction = lpcaOptional.orElse(LastlyPerformedCorporateAction.builder()
-                .email(email).stockCode(stockCode).assetType(assetType).actionType(actionType).actionDate(exDate).build());
+                .email(email).stockCode(stockCode).assetType(assetType).actionType(actionType).brokerName(brokerName).actionDate(exDate).build());
 
         lastlyPerformedCorporateAction.setActionDate(exDate);
         lastlyPerformedCorporateActionRepo.save(lastlyPerformedCorporateAction);
     }
 
-    public void processDemergerOfShares(String email, CorporateActionEntity corporateAction) {
+    public void processDemergerOfShares(String email, CorporateActionEntity corporateAction, BrokerName brokerName) {
 
         String stockCode = corporateAction.getStockCode();
         LocalDate recordDate = corporateAction.getRecordDate();
@@ -413,12 +389,16 @@ public class CorporateActionService {
 
         Map<BrokerName, List<AssetEntity>> brokerNameAndStocksMap = TCollectionUtil.groupingBy(stockEntities, AssetEntity::getBrokerName);
         for (Map.Entry<BrokerName, List<AssetEntity>> entry : brokerNameAndStocksMap.entrySet()) {
+            if (!brokerName.equals(entry.getKey())) {
+                log.info("CA skipping for broker name {} and stock {}", entry.getKey(), stockCode);
+                return;
+            }
             processDemergerOfShares(corporateAction, entry.getKey(), entry.getValue());
             updateLastlyPerformedCorporateAction(email, stockCode, corporateAction.getAssetType(), corporateAction.getType(), corporateAction.getExDate(), entry.getKey());
         }
     }
 
-    public void processStockSplit(String email, CorporateActionEntity corporateAction) {
+    public void processStockSplit(String email, CorporateActionEntity corporateAction, BrokerName brokerName) {
 
         String stockCode = corporateAction.getStockCode();
         LocalDate recordDate = corporateAction.getRecordDate();
@@ -431,6 +411,10 @@ public class CorporateActionService {
 
         Map<BrokerName, List<AssetEntity>> brokerNameAndStocksMap = TCollectionUtil.groupingBy(stockEntities, AssetEntity::getBrokerName);
         for (Map.Entry<BrokerName, List<AssetEntity>> entry : brokerNameAndStocksMap.entrySet()) {
+            if (!brokerName.equals(entry.getKey())) {
+                log.info("CA skipping for broker name {} and stock {}", entry.getKey(), stockCode);
+                return;
+            }
             processStockSplit(corporateAction, entry.getKey(), entry.getValue());
             updateLastlyPerformedCorporateAction(email, stockCode, corporateAction.getAssetType(), corporateAction.getType(), corporateAction.getExDate(), entry.getKey());
         }
