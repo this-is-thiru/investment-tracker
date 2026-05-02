@@ -284,14 +284,14 @@ public class CorporateActionService {
 
         List<AssetEntity> stockEntities = portfolioService.stocksForCorporateActions(email, stockCode, recordDate);
         if (stockEntities.isEmpty()) {
-            handleEmptyAssetsForCorporateAction(email, corporateAction);
+            handleEmptyAssetsForCorporateAction(email, corporateAction, brokerName);
         }
 
         Map<BrokerName, List<AssetEntity>> brokerNameAndStocksMap = TCollectionUtil.groupingBy(stockEntities, AssetEntity::getBrokerName);
         for (Map.Entry<BrokerName, List<AssetEntity>> entry : brokerNameAndStocksMap.entrySet()) {
             if (!brokerName.equals(entry.getKey())) {
                 log.info("CA skipping for broker name {} and stock {}", entry.getKey(), stockCode);
-                return;
+                continue;
             }
             processBonusShares(email, corporateAction, entry.getKey(), entry.getValue());
             updateLastlyPerformedCorporateAction(email, stockCode, corporateAction.getAssetType(), corporateAction.getType(), corporateAction.getExDate(), entry.getKey());
@@ -383,7 +383,7 @@ public class CorporateActionService {
 
         List<AssetEntity> stockEntities = portfolioService.stocksForCorporateActions(email, stockCode, recordDate);
         if (stockEntities.isEmpty()) {
-            handleEmptyAssetsForCorporateAction(email, corporateAction);
+            handleEmptyAssetsForCorporateAction(email, corporateAction, brokerName);
             return;
         }
 
@@ -391,7 +391,7 @@ public class CorporateActionService {
         for (Map.Entry<BrokerName, List<AssetEntity>> entry : brokerNameAndStocksMap.entrySet()) {
             if (!brokerName.equals(entry.getKey())) {
                 log.info("CA skipping for broker name {} and stock {}", entry.getKey(), stockCode);
-                return;
+                continue;
             }
             processDemergerOfShares(corporateAction, entry.getKey(), entry.getValue());
             updateLastlyPerformedCorporateAction(email, stockCode, corporateAction.getAssetType(), corporateAction.getType(), corporateAction.getExDate(), entry.getKey());
@@ -405,7 +405,7 @@ public class CorporateActionService {
 
         List<AssetEntity> stockEntities = portfolioService.stocksForCorporateActions(email, stockCode, recordDate);
         if (stockEntities.isEmpty()) {
-            handleEmptyAssetsForCorporateAction(email, corporateAction);
+            handleEmptyAssetsForCorporateAction(email, corporateAction, brokerName);
             return;
         }
 
@@ -413,7 +413,7 @@ public class CorporateActionService {
         for (Map.Entry<BrokerName, List<AssetEntity>> entry : brokerNameAndStocksMap.entrySet()) {
             if (!brokerName.equals(entry.getKey())) {
                 log.info("CA skipping for broker name {} and stock {}", entry.getKey(), stockCode);
-                return;
+                continue;
             }
             processStockSplit(corporateAction, entry.getKey(), entry.getValue());
             updateLastlyPerformedCorporateAction(email, stockCode, corporateAction.getAssetType(), corporateAction.getType(), corporateAction.getExDate(), entry.getKey());
@@ -601,13 +601,11 @@ public class CorporateActionService {
         }
     }
 
-    private void handleEmptyAssetsForCorporateAction(String email, CorporateActionEntity corporateAction) {
+    private void handleEmptyAssetsForCorporateAction(String email, CorporateActionEntity corporateAction, BrokerName brokerName) {
         String stockCode = corporateAction.getStockCode();
         LocalDate recordDate = corporateAction.getRecordDate();
 
         log.info("No stock found for corporate action: {} for stock: {} on record date: {}", corporateAction.getType(), stockCode, recordDate);
-        for (BrokerName brokerName : BrokerName.values()) {
-            updateLastlyPerformedCorporateAction(email, stockCode, corporateAction.getAssetType(), corporateAction.getType(), corporateAction.getExDate(), brokerName);
-        }
+        updateLastlyPerformedCorporateAction(email, stockCode, corporateAction.getAssetType(), corporateAction.getType(), corporateAction.getExDate(), brokerName);
     }
 }

@@ -117,7 +117,7 @@ public class PortfolioService {
         if (!filteredOutTransactions.isEmpty()) {
             return String.format("Filtered out transactions: %s", filteredOutTransactions);
         }
-        return "All transactions uploaded successfully";
+        return "All transactions uploaded successfully from: " + file.getOriginalFilename() + ", quarter: " + quarter;
     }
 
     @Transactional
