@@ -6,7 +6,7 @@ spring:
     name: investment-tracker
 
   mongodb:
-    uri: mongodb+srv://pthirumalayadav_db_user:1a8dtlaj5qBH3qR9@it-staging.6fu8nvy.mongodb.net/?retryWrites=true&w=majority
+    uri: mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@it-staging.6fu8nvy.mongodb.net/?retryWrites=true&w=majority
     database: it-staging
 
 app:
