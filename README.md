@@ -1,4 +1,5 @@
 ## Testing End points:
+* Creds: https://docs.google.com/spreadsheets/d/1vGR0cNH-iKQRCh6lXcdEvWB8UblX8qq7ezon45R24ic/edit?usp=sharing
 * http://instance-url/auth/login
   * eg: http://16.16.187.252:8080/auth/login (ACS)
 
