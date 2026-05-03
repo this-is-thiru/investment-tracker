@@ -161,7 +161,7 @@ public class PortfolioService {
             double existingQuantity = assetEntity.getQuantity();
             double newQuantity = existingQuantity + assetRequest.getQuantity();
 
-            double existingTotalValue = assetEntity.getQuantity() * assetRequest.getPrice();
+            double existingTotalValue = assetEntity.getQuantity() * assetEntity.getPrice();
             double totalValueOfTransaction = getTotalValue(assetRequest);
             double newTotalValue = (existingTotalValue + totalValueOfTransaction);
             double newPrice = newTotalValue / newQuantity;
