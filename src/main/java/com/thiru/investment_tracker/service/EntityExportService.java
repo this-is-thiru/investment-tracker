@@ -8,12 +8,14 @@ import com.thiru.investment_tracker.service.export.processor.TransactionExcelWor
 import com.thiru.investment_tracker.service.export.processor.TransactionUploadTemplateProcessor;
 import com.thiru.investment_tracker.service.export.processor.model.ExcelWorkbookProcessor;
 import lombok.AllArgsConstructor;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 @Component
 @AllArgsConstructor
 public class EntityExportService {
 
+    private final Environment env;
     private final PortfolioService portfolioService;
     private final TransactionService transactionService;
 
@@ -28,17 +30,17 @@ public class EntityExportService {
     }
 
     private FileStream portfolioExport(UserMail userMail, EntityExportRequest exportRequest) {
-        ExcelWorkbookProcessor processor = new AssetExcelWorkbookProcessor(userMail, exportRequest, portfolioService);
+        ExcelWorkbookProcessor processor = new AssetExcelWorkbookProcessor(userMail, exportRequest, portfolioService, env);
         return processor.fileStream();
     }
 
     private FileStream transactionExport(UserMail userMail, EntityExportRequest exportRequest) {
-        ExcelWorkbookProcessor processor = new TransactionExcelWorkbookProcessor(userMail, exportRequest, transactionService);
+        ExcelWorkbookProcessor processor = new TransactionExcelWorkbookProcessor(userMail, exportRequest, transactionService, env);
         return processor.fileStream();
     }
 
     private FileStream transactionTemplate(UserMail userMail, EntityExportRequest exportRequest) {
-        ExcelWorkbookProcessor processor = new TransactionUploadTemplateProcessor(userMail, exportRequest.getSelectedColumns());
+        ExcelWorkbookProcessor processor = new TransactionUploadTemplateProcessor(userMail, exportRequest.getSelectedColumns(), env);
         return processor.fileStream();
     }
 }

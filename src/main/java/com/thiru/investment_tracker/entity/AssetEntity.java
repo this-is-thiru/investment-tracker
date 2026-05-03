@@ -49,9 +49,6 @@ public class AssetEntity implements AuditableEntity {
     @Field("quantity")
     private Double quantity;
 
-    @Field("total_value")
-    private double totalValue;
-
     @Field(name = "asset_type", targetType = FieldType.STRING)
     private AssetType assetType;
 

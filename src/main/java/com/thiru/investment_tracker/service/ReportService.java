@@ -1,6 +1,6 @@
 package com.thiru.investment_tracker.service;
 
-import com.thiru.investment_tracker.dto.ReportContext;
+import com.thiru.investment_tracker.dto.context.ReportContext;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.ReportEntity;

@@ -99,7 +99,6 @@ public class AssetRequest implements AssetEntityProtoType, TransactionEntityProt
         assetEntity.setBrokerName(brokerName);
         assetEntity.setPrice(price);
         assetEntity.setQuantity(quantity);
-        assetEntity.setTotalValue(price * quantity);
         assetEntity.setBrokerCharges(brokerCharges);
         assetEntity.setMiscCharges(miscCharges);
         assetEntity.setAssetType(assetType);

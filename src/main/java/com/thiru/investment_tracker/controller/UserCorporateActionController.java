@@ -1,10 +1,14 @@
 package com.thiru.investment_tracker.controller;
 
-import com.thiru.investment_tracker.dto.CorporateActionDto;
+import com.thiru.investment_tracker.dto.CorporateActionPerformDto;
 import com.thiru.investment_tracker.service.CorporateActionService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RequestMapping("/corporate-action/user/{email}")
@@ -13,22 +17,10 @@ public class UserCorporateActionController {
 
     private final CorporateActionService corporateActionService;
 
-    @PutMapping("/perform/{month}/{year}")
-    public void performCorporateActions(@PathVariable String email, @PathVariable String month, @PathVariable int year) {
-        corporateActionService.performPendingCorporateActions(email, month, year);
-    }
-
-    @PutMapping("/perform/bonus")
-    public ResponseEntity<String> updateCorporateActionBonus(@PathVariable String email, @RequestBody CorporateActionDto corporateActionRequest) {
-
-        String message = corporateActionService.processBonusShares(email, corporateActionRequest);
-        return ResponseEntity.ok(message);
-    }
-
-    @GetMapping("/perform/test/{year}/{quarter}")
-    public ResponseEntity<Boolean> updateCorporateActionBonus(@PathVariable String email, @PathVariable int year, @PathVariable int quarter) {
-
-        corporateActionService.performQuarterlyCorporateActions(email, year, quarter);
-        return ResponseEntity.ok(true);
+    @PutMapping("/perform")
+    public CorporateActionPerformDto performCorporateActions(@PathVariable String email, @RequestBody CorporateActionPerformDto actionPerformDto,
+                                        @RequestParam(value = "allBrokers", required = false, defaultValue = "false") boolean allBrokers) {
+        corporateActionService.performPendingCorporateActions(email, actionPerformDto, allBrokers);
+        return actionPerformDto;
     }
 }
