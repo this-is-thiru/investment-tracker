@@ -12,13 +12,13 @@ import java.time.LocalDateTime;
 @Setter
 public class AuditMetadataDto extends AuditMetadata {
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TLocalDateTime.COMPLETE_DATE_TIME_FORMAT)
+    @JsonFormat(pattern = TLocalDateTime.COMPLETE_DATE_TIME_FORMAT)
     @Override
     public LocalDateTime getUpdatedAt() {
         return super.getUpdatedAt();
     }
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TLocalDateTime.COMPLETE_DATE_TIME_FORMAT)
+    @JsonFormat(pattern = TLocalDateTime.COMPLETE_DATE_TIME_FORMAT)
     @Override
     public LocalDateTime getCreatedAt() {
         return super.getCreatedAt();

@@ -9,6 +9,7 @@ import io.micrometer.common.util.StringUtils;
 import java.io.IOException;
 import java.util.List;
 
+@Deprecated
 public class TObjectMapper {
 
     private static final ObjectMapper OBJECT_MAPPER = getObjectMapper();

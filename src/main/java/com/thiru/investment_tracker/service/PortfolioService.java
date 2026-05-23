@@ -22,13 +22,13 @@ import com.thiru.investment_tracker.repository.PortfolioRepository;
 import com.thiru.investment_tracker.repository.TemporaryTransactionRepository;
 import com.thiru.investment_tracker.service.parser.AssetRequestParser;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
-import com.thiru.investment_tracker.util.collection.TObjectMapper;
+import com.thiru.investment_tracker.util.collection.TJsonMapper;
 import com.thiru.investment_tracker.util.math.DoubleUtil;
 import com.thiru.investment_tracker.util.parser.ExcelBuilder;
 import com.thiru.investment_tracker.util.parser.ExcelParser;
 import com.thiru.investment_tracker.util.time.TLocalDate;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
@@ -50,7 +50,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Slf4j
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class PortfolioService {
@@ -138,10 +138,10 @@ public class PortfolioService {
     }
 
     @Transactional
-    public String uploadTransactions(UserMail userMail, MultipartFile file) {
+    public String uploadTransactions(UserMail userMail, String quarter, MultipartFile file) {
 
         List<String> errors = new ArrayList<>();
-        AssetRequestParser assetRequestParser = new AssetRequestParser();
+        AssetRequestParser assetRequestParser = new AssetRequestParser(quarter);
         List<AssetRequest> assetRequests = assetRequestParser.parse(file, errors);
 
         if (!errors.isEmpty()) {
@@ -154,7 +154,7 @@ public class PortfolioService {
         if (!filteredOutTransactions.isEmpty()) {
             return String.format("Filtered out transactions: %s", filteredOutTransactions);
         }
-        return "All transactions uploaded successfully";
+        return "All transactions uploaded successfully from: " + file.getOriginalFilename() + ", quarter: " + quarter;
     }
 
     @Transactional
@@ -198,7 +198,7 @@ public class PortfolioService {
             double existingQuantity = assetEntity.getQuantity();
             double newQuantity = existingQuantity + assetRequest.getQuantity();
 
-            double existingTotalValue = assetEntity.getTotalValue();
+            double existingTotalValue = assetEntity.getQuantity() * assetEntity.getPrice();
             double totalValueOfTransaction = getTotalValue(assetRequest);
             double newTotalValue = (existingTotalValue + totalValueOfTransaction);
             double newPrice = newTotalValue / newQuantity;
@@ -209,7 +209,6 @@ public class PortfolioService {
             assetEntity.setMiscCharges(assetRequest.getMiscCharges() + existingMiscCharges);
             assetEntity.setPrice(newPrice);
             assetEntity.setQuantity(newQuantity);
-            assetEntity.setTotalValue(newTotalValue);
 
             OrderTimeQuantity orderTimeQuantity = new OrderTimeQuantity();
             orderTimeQuantity.setOrderExecutionTime(assetRequest.orderExecutionDateTime());
@@ -218,9 +217,6 @@ public class PortfolioService {
             assetRequest.getOrderTimeQuantities().add(orderTimeQuantity);
         } else {
             assetEntity = assetRequest.asAsset();
-            double totalValueOfTransaction = getTotalValue(assetRequest);
-
-            assetEntity.setTotalValue(totalValueOfTransaction);
 
             OrderTimeQuantity orderTimeQuantity = new OrderTimeQuantity();
             orderTimeQuantity.setOrderExecutionTime(assetRequest.orderExecutionDateTime());
@@ -242,7 +238,7 @@ public class PortfolioService {
         assetRequest.setEmail(email);
         AssetEntity assetEntity = assetRequest.asAsset();
         double totalValueOfTransaction = getTotalValue(assetRequest);
-        assetEntity.setTotalValue(totalValueOfTransaction);
+//        assetEntity.setTotalValue(totalValueOfTransaction);
 
         // Update the broker charges entry
         updateBrokerChargesAndProfitAndLoss(userMail, transactionId, assetRequest);
@@ -318,7 +314,7 @@ public class PortfolioService {
             throw new IllegalArgumentException("Stock not found");
         }
 
-        return TCollectionUtil.map(stockEntities, asset -> TObjectMapper.copy(asset, AssetResponse.class));
+        return TCollectionUtil.map(stockEntities, asset -> TJsonMapper.copy(asset, AssetResponse.class));
     }
 
     public List<AssetResponse> getAllStocks(UserMail userMail) {
@@ -351,17 +347,20 @@ public class PortfolioService {
      * @return the response entity that matches the provided stock code
      */
     private static AssetResponse combineAllDetailsOfEntities(List<AssetEntity> stockEntities) {
-        AssetResponse assetResponse = TObjectMapper.copy(stockEntities.getFirst(), AssetResponse.class);
+        AssetResponse assetResponse = TJsonMapper.copy(stockEntities.getFirst(), AssetResponse.class);
 
         double totalValue = 0;
-        double quantity = 0;
+        double totalQuantity = 0;
         double brokerCharges = 0;
         double miscCharges = 0;
         Map<String, Double> transactionDatesMap = new HashMap<>();
 
         for (AssetEntity entity : stockEntities) {
-            totalValue += entity.getTotalValue();
-            quantity += entity.getQuantity();
+            double price = entity.getPrice();
+            double quantity = entity.getQuantity();
+
+            totalValue += (price * quantity);
+            totalQuantity += quantity;
             brokerCharges += entity.getBrokerCharges();
             miscCharges += entity.getMiscCharges();
 
@@ -373,10 +372,10 @@ public class PortfolioService {
             transactionDatesMap.put(TLocalDate.convertToString(entity.getTransactionDate()), latestQuantity);
         }
 
-        assetResponse.setQuantity(quantity);
-        assetResponse.setTotalQuantity(quantity);
+        assetResponse.setQuantity(totalQuantity);
+        assetResponse.setTotalQuantity(totalQuantity);
         assetResponse.setTotalValue(totalValue);
-        assetResponse.setPrice(totalValue / quantity);
+        assetResponse.setPrice(totalValue / totalQuantity);
         assetResponse.setBrokerCharges(brokerCharges);
         assetResponse.setMiscCharges(miscCharges);
         Map<String, Double> transactionQuantities = transactionDatesMap.entrySet().stream()
@@ -409,7 +408,6 @@ public class PortfolioService {
                 profitAndLossContext = ProfitAndLossContext.from(assetEntity, assetRequest, assetQuantity);
 
                 assetEntity.setQuantity(0D);
-                assetEntity.setTotalValue(0);
                 sellQuantity = sellQuantity - assetQuantity;
             } else {
                 reportContext = toReportContext(assetEntity, assetRequest, sellQuantity);
@@ -417,7 +415,6 @@ public class PortfolioService {
 
                 double remainingQuantity = assetQuantity - sellQuantity;
                 assetEntity.setQuantity(remainingQuantity);
-                assetEntity.setTotalValue(remainingQuantity * assetEntity.getPrice());
                 sellQuantity = 0;
             }
 
@@ -447,14 +444,14 @@ public class PortfolioService {
                 buyContexts.add(new BuyContext(assetEntity.getQuantity(), assetEntity.getTransactionDate(), assetEntity.getPrice()));
 
                 assetEntity.setQuantity(0D);
-                assetEntity.setTotalValue(0);
+//                assetEntity.setTotalValue(0);
                 sellQuantity = sellQuantity - assetQuantity;
             } else {
                 buyContexts.add(new BuyContext(sellQuantity, assetEntity.getTransactionDate(), assetEntity.getPrice()));
 
                 double remainingQuantity = assetQuantity - sellQuantity;
                 assetEntity.setQuantity(remainingQuantity);
-                assetEntity.setTotalValue(remainingQuantity * assetEntity.getPrice());
+//                assetEntity.setTotalValue(remainingQuantity * assetEntity.getPrice());
                 sellQuantity = 0;
             }
         }
@@ -485,7 +482,6 @@ public class PortfolioService {
         reportContext.setStockName(assetEntity.getStockName());
         reportContext.setExchangeName(assetEntity.getExchangeName());
         reportContext.setBrokerName(assetEntity.getBrokerName());
-        reportContext.setTotalValue(assetEntity.getTotalValue());
         reportContext.setAssetType(assetEntity.getAssetType());
         reportContext.setPurchasePrice(assetEntity.getPrice());
         reportContext.setPurchaseDate(assetEntity.getTransactionDate());

@@ -13,5 +13,5 @@ public class EntityExportRequest {
     private String entityName;
     private List<String> emailAddresses = new ArrayList<>();
     private List<String> selectedColumns = new ArrayList<>();
-    private List<QueryFilter> filters = new ArrayList<>();
+    private List<QueryFilter> queryFilters = new ArrayList<>();
 }

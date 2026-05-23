@@ -9,6 +9,7 @@ import com.thiru.investment_tracker.helper.file.FileType;
 import com.thiru.investment_tracker.service.export.processor.model.AbstractExcelWorkbookProcessor;
 import com.thiru.investment_tracker.service.export.writer.TransactionUploadTemplateWriter;
 import com.thiru.investment_tracker.service.export.writer.model.ExcelWorkbookWriter;
+import org.springframework.core.env.Environment;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,8 +21,8 @@ public class TransactionUploadTemplateProcessor extends AbstractExcelWorkbookPro
 
     private final List<String> columnFields;
 
-    public TransactionUploadTemplateProcessor(UserMail userMail, List<String> columnFields) {
-        super(userMail, ASSET_EXCEL_FILE_NAME, FILE_TYPE);
+    public TransactionUploadTemplateProcessor(UserMail userMail, List<String> columnFields, Environment env) {
+        super(userMail, ASSET_EXCEL_FILE_NAME, FILE_TYPE, env);
         this.columnFields = columnFields;
     }
 

@@ -8,6 +8,7 @@ import com.thiru.investment_tracker.service.TransactionService;
 import com.thiru.investment_tracker.service.export.processor.model.AbstractExcelWorkbookProcessor;
 import com.thiru.investment_tracker.service.export.writer.TransactionExcelWorkbookWriter;
 import com.thiru.investment_tracker.service.export.writer.model.ExcelWorkbookWriter;
+import org.springframework.core.env.Environment;
 
 import java.util.List;
 
@@ -19,8 +20,8 @@ public class TransactionExcelWorkbookProcessor extends AbstractExcelWorkbookProc
     private final TransactionService transactionService;
     private final List<String> columnFields;
 
-    public TransactionExcelWorkbookProcessor(UserMail userMail, EntityExportRequest exportRequest, TransactionService transactionService) {
-        super(userMail, ASSET_EXCEL_FILE_NAME, FILE_TYPE);
+    public TransactionExcelWorkbookProcessor(UserMail userMail, EntityExportRequest exportRequest, TransactionService transactionService, Environment env) {
+        super(userMail, ASSET_EXCEL_FILE_NAME, FILE_TYPE, env);
         this.columnFields = exportRequest.getSelectedColumns();
         this.transactionService = transactionService;
     }

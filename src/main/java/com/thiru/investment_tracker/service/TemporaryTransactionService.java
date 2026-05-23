@@ -2,6 +2,7 @@ package com.thiru.investment_tracker.service;
 
 import com.thiru.investment_tracker.dto.request.AssetRequest;
 import com.thiru.investment_tracker.dto.enums.AssetType;
+import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.CorporateActionType;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.CorporateActionEntity;
@@ -10,9 +11,9 @@ import com.thiru.investment_tracker.entity.TemporaryTransactionEntity;
 import com.thiru.investment_tracker.repository.CorporateActionRepository;
 import com.thiru.investment_tracker.repository.LastlyPerformedCorporateActionRepo;
 import com.thiru.investment_tracker.repository.TemporaryTransactionRepository;
-import com.thiru.investment_tracker.util.collection.TObjectMapper;
+import com.thiru.investment_tracker.util.collection.TJsonMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +22,7 @@ import java.time.Month;
 import java.util.List;
 import java.util.Optional;
 
-@Slf4j
+@Log4j2
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -36,8 +37,8 @@ public class TemporaryTransactionService {
     public Optional<String> filterOutTransaction(UserMail userMail, AssetRequest assetRequest) {
 
         LocalDate txnDate = assetRequest.getTransactionDate();
-        if (anyCorporateActionToPerform(userMail, assetRequest.getStockCode(), txnDate)) {
-            TemporaryTransactionEntity temporaryTransactionEntity = TObjectMapper.copy(assetRequest.asTransaction(), TemporaryTransactionEntity.class);
+        if (anyCorporateActionToPerform(userMail, assetRequest.getStockCode(), txnDate, assetRequest.getBrokerName())) {
+            TemporaryTransactionEntity temporaryTransactionEntity = TJsonMapper.copy(assetRequest.asTransaction(), TemporaryTransactionEntity.class);
             temporaryTransactionEntity.setAssetRequest(assetRequest);
             temporaryTransactionEntity.setEmail(userMail.getEmail());
             TemporaryTransactionEntity savedEntity = temporaryTransactionRepository.save(temporaryTransactionEntity);
@@ -52,16 +53,16 @@ public class TemporaryTransactionService {
 
     public boolean filterOutTransaction(UserMail userMail, TemporaryTransactionEntity temporaryTransaction) {
         LocalDate txnDate = temporaryTransaction.getTransactionDate();
-        return anyCorporateActionToPerform(userMail, temporaryTransaction.getStockCode(), txnDate);
+        return anyCorporateActionToPerform(userMail, temporaryTransaction.getStockCode(), txnDate, temporaryTransaction.getBrokerName());
     }
 
-    public boolean anyCorporateActionToPerform(UserMail userMail, String stockCode, LocalDate txnDate) {
+    public boolean anyCorporateActionToPerform(UserMail userMail, String stockCode, LocalDate txnDate, BrokerName brokerName) {
 
         LocalDate quarterStart = getQuarterStart(txnDate);
         List<CorporateActionEntity> corporateActions = corporateActionRepository.findByStockCodeAndTypeInAndRecordDateBetween(stockCode, CorporateActionType.FILTERABLE_CORPORATE_ACTIONS, quarterStart, txnDate);
 
         for (CorporateActionEntity corporateAction : corporateActions) {
-            if (isCorporateActionToPerform(userMail, corporateAction)) {
+            if (isCorporateActionToPerform(userMail, corporateAction, brokerName)) {
                 return true;
             }
         }
@@ -69,14 +70,14 @@ public class TemporaryTransactionService {
         return false;
     }
 
-    public boolean isCorporateActionToPerform(UserMail userMail, CorporateActionEntity corporateAction) {
+    public boolean isCorporateActionToPerform(UserMail userMail, CorporateActionEntity corporateAction, BrokerName brokerName) {
 
         String stockCode = corporateAction.getStockCode();
         CorporateActionType actionType = corporateAction.getType();
         AssetType assetType = corporateAction.getAssetType();
 
         Optional<LastlyPerformedCorporateAction> lastlyPerformedActionOptional = lastlyPerformedCorporateActionRepo
-                .findByEmailAndStockCodeAndAssetTypeAndActionType(userMail.getEmail(), stockCode, assetType, actionType);
+                .findLastPerformedCA(userMail.getEmail(), stockCode, assetType, actionType, brokerName);
         Optional<LocalDate> nextDayOfActionDay = lastlyPerformedActionOptional.map(lpa->lpa.getActionDate().plusDays(1));
 
         if (nextDayOfActionDay.isPresent() && corporateAction.getRecordDate().isBefore(nextDayOfActionDay.get())) {

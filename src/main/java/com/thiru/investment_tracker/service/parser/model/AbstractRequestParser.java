@@ -27,7 +27,7 @@ public abstract class AbstractRequestParser<RequestType> implements RequestParse
         validateFile(file);
 
         // Excel parser
-        ExcelParser excelParser = new ExcelParserImpl();
+        ExcelParser excelParser = this.getExcelParser();
         InputRecords parsedRecords = excelParser.parse(file, this.simpleDataTypeMap(), errors);
         return parseRequests(parsedRecords);
     }

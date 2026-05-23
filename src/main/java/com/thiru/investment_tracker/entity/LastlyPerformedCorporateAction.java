@@ -2,6 +2,7 @@ package com.thiru.investment_tracker.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thiru.investment_tracker.dto.enums.AssetType;
+import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.CorporateActionType;
 import com.thiru.investment_tracker.entity.helper.AuditMetadata;
 import com.thiru.investment_tracker.entity.model.AuditableEntity;
@@ -28,10 +29,21 @@ public class LastlyPerformedCorporateAction implements AuditableEntity {
     private String id;
 
     private String email;
+
+    @Field("stock_code")
     private String stockCode;
+
+    @Field("asset_type")
     private AssetType assetType;
+
+    @Field("action_type")
     private CorporateActionType actionType;
+
+    @Field("action_date")
     private LocalDate actionDate;
+
+    @Field("broker_name")
+    private BrokerName brokerName;
 
     @Field("audit_metadata")
     @Setter(value = AccessLevel.NONE)

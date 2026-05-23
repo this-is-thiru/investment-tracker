@@ -36,7 +36,8 @@ public class AuthConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login", "/auth/register", "/helper/**", "/finances/**", "/template/**").permitAll()
                         .requestMatchers("/auth/**", "/portfolio/**", "/reports/**", "/transactions/**", "/corporate-action/**",
-                                "/temporary-transactions/**", "/broker-charges/**", "/user-broker-charges/**", "/test/**").authenticated())
+                                "/temporary-transactions/**", "/broker-charges/**", "/user-broker-charges/**", "/test/**").authenticated()
+                        .anyRequest().permitAll())
                 .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(Customizer.withDefaults())
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class).build();

@@ -1,5 +1,6 @@
 package com.thiru.investment_tracker.service;
 
+import com.thiru.investment_tracker.dto.context.ProfitAndLossContext;
 import com.thiru.investment_tracker.dto.context.BrokerChargeContext;
 import com.thiru.investment_tracker.dto.context.BuyContext;
 import com.thiru.investment_tracker.dto.context.ProfitAndLossContext;
@@ -12,6 +13,12 @@ import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.dto.reports.profitloss.ProfitAndLossResponse;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.ProfitAndLossEntity;
+import com.thiru.investment_tracker.entity.model.FinancialReport;
+import com.thiru.investment_tracker.entity.model.FortnightReport;
+import com.thiru.investment_tracker.entity.model.MonthlyReport;
+import com.thiru.investment_tracker.entity.model.RealisedProfits;
+import com.thiru.investment_tracker.entity.model.ReportModel;
+import com.thiru.investment_tracker.entity.ProfitAndLossEntity;
 import com.thiru.investment_tracker.entity.UserBrokerCharges;
 import com.thiru.investment_tracker.entity.model.BrokerChargesReport;
 import com.thiru.investment_tracker.entity.model.FinancialReport;
@@ -22,12 +29,12 @@ import com.thiru.investment_tracker.entity.model.RealisedProfits;
 import com.thiru.investment_tracker.entity.model.ReportModel;
 import com.thiru.investment_tracker.entity.model.YearlyBrokerCharges;
 import com.thiru.investment_tracker.repository.ProfitAndLossRepository;
-import com.thiru.investment_tracker.util.collection.TObjectMapper;
+import com.thiru.investment_tracker.util.collection.TJsonMapper;
 import com.thiru.investment_tracker.util.collection.TOptional;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,7 +44,7 @@ import java.time.Month;
 import java.util.Map;
 import java.util.Optional;
 
-@Slf4j
+@Log4j2
 @AllArgsConstructor
 @Service
 @Transactional
@@ -245,8 +252,9 @@ public class ProfitAndLossService {
                 financialYear);
         ProfitAndLossEntity profitAndLossEntity = optionalProfitAndLoss.orElse(new ProfitAndLossEntity());
 
-        return TObjectMapper.safeCopy(profitAndLossEntity, ProfitAndLossResponse.class);
-    }
+        // TODO: modify to safe
+		return TJsonMapper.copy(profitAndLossEntity, ProfitAndLossResponse.class);
+	}
 
     public void deleteProfitAndLoss(UserMail userMail) {
         profitAndLossRepository.deleteByEmail(userMail.getEmail());

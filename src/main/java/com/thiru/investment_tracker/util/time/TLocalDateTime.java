@@ -11,7 +11,7 @@ import java.util.Locale;
 
 public class TLocalDateTime {
 
-    public static final String COMPLETE_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss:SSS'Z'";
+    public static final String COMPLETE_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
 
     public static LocalDateTime now() {
         ZonedDateTime zonedDateTime = ZonedDateTime.now(ZoneId.of("UTC"));

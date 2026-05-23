@@ -1,4 +1,5 @@
 ## Testing End points:
+* Creds: https://docs.google.com/spreadsheets/d/1vGR0cNH-iKQRCh6lXcdEvWB8UblX8qq7ezon45R24ic/edit?usp=sharing
 * http://instance-url/auth/login
   * eg: http://16.16.187.252:8080/auth/login (ACS)
 
@@ -16,3 +17,6 @@
 
 Resources:
 * https://gist.github.com/conholdate-gists/413f3fdf681361ad1a625a876955689a - excel sheet to combine
+
+Stock market resources:
+https://www.advisorkhoj.com/

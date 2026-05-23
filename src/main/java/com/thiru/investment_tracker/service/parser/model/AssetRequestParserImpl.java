@@ -7,7 +7,7 @@ import com.thiru.investment_tracker.exception.BadRequestException;
 import com.thiru.investment_tracker.util.collection.TOptional;
 import com.thiru.investment_tracker.util.parser.CellDetail;
 import com.thiru.investment_tracker.util.time.TLocalDate;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -22,15 +22,24 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
-public class ExcelParserImpl implements ExcelParser {
+@Log4j2
+public class AssetRequestParserImpl implements ExcelParser {
+
+    private static final List<String> ALLOWED_QUARTERS = List.of("Q1", "Q2", "Q3", "Q4");
+
+    private final String quarter;
+
+    public AssetRequestParserImpl(String quarter) {
+        this.quarter = quarter;
+    }
 
     @Override
     public InputRecords parse(MultipartFile file, Map<String, ExcelDataType> dataTypeMap, List<String> errors) {
 
         try {
             XSSFWorkbook excelWorkbook = new XSSFWorkbook(file.getInputStream());
-            XSSFSheet transactionsSheet = excelWorkbook.getSheetAt(0);
+            var sheetIndex = sheetIndex(quarter);
+            XSSFSheet transactionsSheet = excelWorkbook.getSheetAt(sheetIndex);
 
             InputRecords inputRecords = new InputRecords();
 
@@ -111,5 +120,13 @@ public class ExcelParserImpl implements ExcelParser {
             log.error("Error while parsing excel file error: {}, cellHeader: {}", e, cellHeader);
             throw new BadRequestException(e.getMessage());
         }
+    }
+
+    private static int sheetIndex(String quarter) {
+        if (quarter == null || !ALLOWED_QUARTERS.contains(quarter)) {
+            throw new BadRequestException("Invalid quarter: " + quarter + ", Allowed quarters: " + ALLOWED_QUARTERS);
+        }
+
+        return ALLOWED_QUARTERS.indexOf(quarter);
     }
 }
