@@ -253,7 +253,7 @@ public class ProfitAndLossService {
         ProfitAndLossEntity profitAndLossEntity = optionalProfitAndLoss.orElse(new ProfitAndLossEntity());
 
         // TODO: modify to safe
-		return TJsonMapper.copy(profitAndLossEntity, ProfitAndLossResponse.class);
+		return TJsonMapper.safeCopy(profitAndLossEntity, ProfitAndLossResponse.class);
 	}
 
     public void deleteProfitAndLoss(UserMail userMail) {

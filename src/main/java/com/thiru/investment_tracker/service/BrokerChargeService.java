@@ -6,7 +6,7 @@ import com.thiru.investment_tracker.entity.BrokerCharges;
 import com.thiru.investment_tracker.entity.model.BrokerageCharges;
 import com.thiru.investment_tracker.exception.BadRequestException;
 import com.thiru.investment_tracker.repository.BrokerChargesRepository;
-import com.thiru.investment_tracker.util.collection.TObjectMapper;
+import com.thiru.investment_tracker.util.collection.TJsonMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -70,7 +70,7 @@ public class BrokerChargeService {
         brokerCharges.setStatus(brokerChargesRequest.getStatus());
         brokerCharges.setAccountOpeningCharges(brokerChargesRequest.getAccountOpeningCharges());
         brokerCharges.setAmcChargesAnnually(brokerChargesRequest.getAmcChargesAnnually());
-        brokerCharges.setBrokerageCharges(TObjectMapper.copy(brokerChargesRequest.getBrokerageCharges(), BrokerageCharges.class));
+        brokerCharges.setBrokerageCharges(TJsonMapper.copy(brokerChargesRequest.getBrokerageCharges(), BrokerageCharges.class));
         brokerCharges.setDpChargesPerScrip(brokerChargesRequest.getDpChargesPerScrip());
         brokerCharges.setStt(brokerChargesRequest.getStt());
         brokerCharges.setGstApplicableDescription(brokerChargesRequest.getGstApplicableDescription());

@@ -7,7 +7,7 @@ import com.thiru.investment_tracker.dto.request.AssetManagementDetailsRequest;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.AssetManagementDetails;
 import com.thiru.investment_tracker.repository.AssetManagementRepository;
-import com.thiru.investment_tracker.util.collection.TObjectMapper;
+import com.thiru.investment_tracker.util.collection.TJsonMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -78,13 +78,13 @@ public class AssetManagementService {
         Optional<AssetManagementDetails> assetManagementDetailsOpt = assetManagementRepository.findByEmailAndBrokerName(userMail.getEmail(), request.getBrokerName());
         if (assetManagementDetailsOpt.isPresent()) {
             String existingId = assetManagementDetailsOpt.get().getId();
-            AssetManagementDetails assetManagementDetails = TObjectMapper.safeCopy(request, AssetManagementDetails.class);
+            AssetManagementDetails assetManagementDetails = TJsonMapper.safeCopy(request, AssetManagementDetails.class);
             assetManagementDetails.setEmail(userMail.getEmail());
             assetManagementDetails.setId(existingId);
             assetManagementRepository.save(assetManagementDetails);
             return;
         }
-        AssetManagementDetails assetManagementDetails = TObjectMapper.safeCopy(request, AssetManagementDetails.class);
+        AssetManagementDetails assetManagementDetails = TJsonMapper.safeCopy(request, AssetManagementDetails.class);
         assetManagementDetails.setEmail(userMail.getEmail());
         assetManagementRepository.save(assetManagementDetails);
     }
