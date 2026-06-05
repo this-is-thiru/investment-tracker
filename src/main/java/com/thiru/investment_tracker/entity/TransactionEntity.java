@@ -2,6 +2,7 @@ package com.thiru.investment_tracker.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.thiru.investment_tracker.dto.AssetRequest;
 import com.thiru.investment_tracker.dto.CorporateActionDto;
 import com.thiru.investment_tracker.dto.enums.*;
 import com.thiru.investment_tracker.entity.helper.AuditMetadata;
@@ -9,6 +10,7 @@ import com.thiru.investment_tracker.entity.model.AuditableEntity;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.time.TLocalDate;
 import lombok.*;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
@@ -96,6 +98,16 @@ public class TransactionEntity implements AuditableEntity {
 
 	@Field("corporate_actions")
 	List<CorporateActionEntity> corporateActions = new ArrayList<>();
+
+	@Indexed(unique = true, sparse = true)
+	@Field("source_temp_transaction_id")
+	private String sourceTempTransactionId;
+
+	@Field("status")
+	private TransactionStatus status;
+
+	@Field("asset_request")
+	private AssetRequest assetRequest;
 
 	@Field("audit_metadata")
 	@Setter(value = AccessLevel.NONE)
