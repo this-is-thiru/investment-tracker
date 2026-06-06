@@ -32,16 +32,11 @@ public abstract class AbstractIntegrationTest {
     private static final int JWT_EXPIRATION_SECONDS = 60 * 30;
 
     @Container
-    static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0") {
-        @Override
-        public String getConnectionString() {
-            return super.getConnectionString() + "&replicaSet=rs0";
-        }
-    };
+    static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0");
 
     @DynamicPropertySource
     static void mongoProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.data.mongodb.uri", mongoDBContainer::getConnectionString);
+        registry.add("spring.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
         registry.add("app.mongodb.transactions-enabled", () -> "true");
     }
 
