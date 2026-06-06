@@ -71,6 +71,10 @@ public class PortfolioService {
         if (temporaryTransactionService.hasTemporaryTransactions(userMail)) {
             throw new BadRequestException("There are pending temporary transactions. Please redrive them before adding a new transaction.");
         }
+        return processTransaction(userMail, assetRequest, filteredOutTransactions);
+    }
+
+    private String processTransaction(UserMail userMail, AssetRequest assetRequest, List<String> filteredOutTransactions) {
         sanitizeAssetRequest(assetRequest);
 
         String filteredOutTransactionId = temporaryTransactionService.filterOutTransaction(userMail, assetRequest);
@@ -130,7 +134,7 @@ public class PortfolioService {
         }
 
         List<String> filteredOutTransactions = new ArrayList<>();
-        TCollectionUtil.map(assetRequests, assetRequest -> addTransaction(userMail, assetRequest, filteredOutTransactions));
+        TCollectionUtil.map(assetRequests, assetRequest -> processTransaction(userMail, assetRequest, filteredOutTransactions));
 
         if (!filteredOutTransactions.isEmpty()) {
             return String.format("Filtered out transactions: %s", filteredOutTransactions);
@@ -170,7 +174,7 @@ public class PortfolioService {
                 log.info("Redriving transaction: {}", tempTxn.getId());
                 List<String> itemFiltered = new ArrayList<>();
                 assetRequest.setTempTransactionId(tempTxn.getId());
-                addTransaction(userMail, assetRequest, itemFiltered);
+                processTransaction(userMail, assetRequest, itemFiltered);
 
                 if (!itemFiltered.isEmpty()) {
                     // Transaction was re-filtered during redrive; a new temp record was created.
