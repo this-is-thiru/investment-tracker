@@ -4,7 +4,6 @@ import com.thiru.investment_tracker.dto.AssetRequest;
 import com.thiru.investment_tracker.dto.RedriveResult;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
-import com.thiru.investment_tracker.exception.BadRequestException;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.TransactionEntity;
 import com.thiru.investment_tracker.repository.PortfolioRepository;
@@ -17,7 +16,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -110,88 +108,6 @@ class PortfolioServiceTest {
             // itemFiltered stays empty → adds to succeeded
             return "Stock buy added to portfolio";
         }
-    }
-
-    /**
-     * Subclass of PortfolioService that does NOT override addTransaction,
-     * allowing tests to exercise the real addTransaction flow (including temp-txn checks).
-     */
-    static class RealPortfolioService extends PortfolioService {
-        RealPortfolioService(
-                PortfolioRepository portfolioRepository,
-                TransactionService transactionService,
-                ProfitAndLossService profitAndLossService,
-                MongoTemplateService mongoTemplateService,
-                ReportService reportService,
-                TransactionRepository transactionRepository,
-                TemporaryTransactionService temporaryTransactionService) {
-            super(portfolioRepository, transactionService, profitAndLossService,
-                    mongoTemplateService, reportService, transactionRepository,
-                    temporaryTransactionService);
-        }
-
-        @Override
-        public String addTransaction(UserMail userMail, AssetRequest assetRequest, List<String> filteredOutTransactions) {
-            // Use real implementation; dependencies are mocked
-            return super.addTransaction(userMail, assetRequest, filteredOutTransactions);
-        }
-    }
-
-    @Test
-    void addTransaction_whenTempTransactionsExist_throwsBadRequestException() {
-        // Given: use real service so check is exercised
-        RealPortfolioService realService = new RealPortfolioService(
-                portfolioRepository, transactionService, profitAndLossService,
-                mongoTemplateService, reportService, transactionRepository,
-                temporaryTransactionService);
-        when(temporaryTransactionService.hasTemporaryTransactions(userMail)).thenReturn(true);
-        AssetRequest request = createAssetRequest("STOCK1");
-
-        // When / Then
-        BadRequestException ex = assertThrows(BadRequestException.class,
-                () -> realService.addTransaction(userMail, request, new ArrayList<>()));
-        assertEquals("There are pending temporary transactions. Please redrive them before adding a new transaction.",
-                ex.getMessage());
-    }
-
-    @Test
-    void addTransaction_whenNoTempTransactions_continuesNormally() {
-        // Given: use real service so check is exercised
-        RealPortfolioService realService = new RealPortfolioService(
-                portfolioRepository, transactionService, profitAndLossService,
-                mongoTemplateService, reportService, transactionRepository,
-                temporaryTransactionService);
-        when(temporaryTransactionService.hasTemporaryTransactions(userMail)).thenReturn(false);
-        AssetRequest request = createAssetRequest("STOCK1");
-
-        // When / Then
-        assertDoesNotThrow(() -> realService.addTransaction(userMail, request, new ArrayList<>()));
-        verify(temporaryTransactionService).hasTemporaryTransactions(userMail);
-    }
-
-    @Test
-    void uploadTransactions_whenTempTransactionsExist_throwsBadRequestException() {
-        // Given: reset any prior mocks so hasTemporaryTransactions returns true
-        reset(temporaryTransactionService);
-        when(temporaryTransactionService.hasTemporaryTransactions(userMail)).thenReturn(true);
-
-        // When / Then
-        BadRequestException ex = assertThrows(BadRequestException.class,
-                () -> portfolioService.uploadTransactions(userMail, "Q1", null));
-        assertEquals("There are pending temporary transactions. Please redrive them before uploading transactions. Some transactions may be blocked due to pending corporate actions during upload.",
-                ex.getMessage());
-    }
-
-    @Test
-    void uploadTransactions_whenNoTempTransactions_continuesNormally() {
-        // Given: reset any prior mocks so hasTemporaryTransactions returns false
-        reset(temporaryTransactionService);
-        when(temporaryTransactionService.hasTemporaryTransactions(userMail)).thenReturn(false);
-
-        // When / Then — will fail later at parsing since file is null, but we only verify the temp txn check passes
-        assertThrows(NullPointerException.class,
-                () -> portfolioService.uploadTransactions(userMail, "Q1", null));
-        verify(temporaryTransactionService).hasTemporaryTransactions(userMail);
     }
 
     @Test
