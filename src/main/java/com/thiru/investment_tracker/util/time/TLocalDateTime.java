@@ -51,7 +51,7 @@ public class TLocalDateTime {
         return toZonedDateTime.toLocalDateTime();
     }
 
-    public static String format(@NonNull LocalDateTime localDateTime, @NonNull String pattern) {
+    public static String format(LocalDateTime localDateTime, String pattern) {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern, Locale.US);
         return localDateTime.format(formatter);
