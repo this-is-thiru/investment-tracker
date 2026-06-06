@@ -51,5 +51,6 @@ public class TransactionResponse {
     private LocalDate transactionDate;
 
     List<CorporateActionDto> corporateActions = new ArrayList<>();
+    private String sourceTempTransactionId;
     private AuditMetadataDto auditMetadata;
 }

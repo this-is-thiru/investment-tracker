@@ -3,20 +3,22 @@ package com.thiru.investment_tracker.service;
 import com.thiru.investment_tracker.dto.AssetRequest;
 import com.thiru.investment_tracker.dto.AssetResponse;
 import com.thiru.investment_tracker.dto.OrderTimeQuantity;
+import com.thiru.investment_tracker.dto.RedriveResult;
 import com.thiru.investment_tracker.dto.context.ProfitAndLossContext;
 import com.thiru.investment_tracker.dto.ProfitAndLossResponse;
 import com.thiru.investment_tracker.dto.context.ReportContext;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.HoldingType;
+import com.thiru.investment_tracker.dto.enums.TransactionStatus;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.AssetEntity;
-import com.thiru.investment_tracker.entity.TemporaryTransactionEntity;
+import com.thiru.investment_tracker.entity.TransactionEntity;
 import com.thiru.investment_tracker.entity.query.QueryFilter;
 import com.thiru.investment_tracker.exception.BadRequestException;
 import com.thiru.investment_tracker.repository.PortfolioRepository;
-import com.thiru.investment_tracker.repository.TemporaryTransactionRepository;
+import com.thiru.investment_tracker.repository.TransactionRepository;
 import com.thiru.investment_tracker.service.parser.AssetRequestParser;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.collection.TJsonMapper;
@@ -55,17 +57,22 @@ public class PortfolioService {
     private final ProfitAndLossService profitAndLossService;
     private final MongoTemplateService mongoTemplateService;
     private final ReportService reportService;
+    private final TransactionRepository transactionRepository;
     private final TemporaryTransactionService temporaryTransactionService;
-    private final TemporaryTransactionRepository temporaryTransactionRepository;
 
+    /**
+     * Multi-document write: creates a TransactionEntity and, for BUY/SELL, also
+     * upserts an AssetEntity. Safe only when MongoDB replica set +
+     * {@code app.mongodb.transactions-enabled=true} is set.
+     */
     @Transactional
     public String addTransaction(UserMail userMail, AssetRequest assetRequest, List<String> filteredOutTransactions) {
         validateAssetRequest(userMail, assetRequest);
         sanitizeAssetRequest(assetRequest);
 
-        Optional<String> filteredOutTransaction = temporaryTransactionService.filterOutTransaction(userMail, assetRequest);
-        if (filteredOutTransaction.isPresent()) {
-            filteredOutTransactions.add(filteredOutTransaction.get());
+        String filteredOutTransactionId = temporaryTransactionService.filterOutTransaction(userMail, assetRequest);
+        if (filteredOutTransactionId != null) {
+            filteredOutTransactions.add(filteredOutTransactionId);
             return "Transaction stored as temporary transaction, needs to perform after corporate action ..!";
         }
 
@@ -100,6 +107,11 @@ public class PortfolioService {
         }
     }
 
+    /**
+     * Batch multi-document write: parses a spreadsheet and calls addTransaction
+     * for each row. Safe only when MongoDB replica set +
+     * {@code app.mongodb.transactions-enabled=true} is set.
+     */
     @Transactional
     public String uploadTransactions(UserMail userMail, String quarter, MultipartFile file) {
 
@@ -120,29 +132,87 @@ public class PortfolioService {
         return "All transactions uploaded successfully from: " + file.getOriginalFilename() + ", quarter: " + quarter;
     }
 
+    /**
+     * Reads all TEMPORARY transactions for a user and re-processes them.
+     * Per-item try/catch (Chunk 1) makes this resilient to individual failures;
+     * the @{@link Transactional} annotation is a best-effort wrapper.
+     */
     @Transactional
-    public String redriveTemporaryTransactions(UserMail userMail) {
+    public RedriveResult redriveTemporaryTransactions(UserMail userMail) {
 
-        List<TemporaryTransactionEntity> userTemporaryTransactions = temporaryTransactionRepository.findByEmail(userMail.getEmail());
-        List<String> filteredOutTransactions = new ArrayList<>();
+        List<TransactionEntity> userTemporaryTransactions = temporaryTransactionService.getAllTemporaryTransactions(userMail);
 
-        List<String> redrivenTransactions = new ArrayList<>();
-        for (TemporaryTransactionEntity temporaryTransaction : userTemporaryTransactions) {
-            if (!temporaryTransactionService.filterOutTransaction(userMail, temporaryTransaction)) {
-                log.info("Redriving transaction: {}", temporaryTransaction.getId());
-                AssetRequest tempTransaction = temporaryTransaction.getAssetRequest();
-                tempTransaction.setTempTransactionId(temporaryTransaction.getId());
-                addTransaction(userMail, temporaryTransaction.getAssetRequest(), filteredOutTransactions);
-                temporaryTransactionRepository.deleteById(temporaryTransaction.getId());
-                redrivenTransactions.add(temporaryTransaction.getId());
+        List<String> succeeded = new ArrayList<>();
+        Map<String, String> failed = new HashMap<>();
+        List<String> stillFiltered = new ArrayList<>();
+        List<String> filteredOut = new ArrayList<>();
+
+        for (TransactionEntity tempTxn : userTemporaryTransactions) {
+            AssetRequest assetRequest = tempTxn.getAssetRequest();
+            if (assetRequest == null) {
+                log.warn("Temporary transaction {} has no asset request, skipping", tempTxn.getId());
+                failed.put(tempTxn.getId(), "No asset request stored");
+                continue;
+            }
+            if (temporaryTransactionService.filterOutTransaction(userMail, assetRequest, true)) {
+                log.info("Transaction {} still blocked by corporate action, skipping", tempTxn.getId());
+                stillFiltered.add(tempTxn.getId());
+                continue;
+            }
+
+            try {
+                log.info("Redriving transaction: {}", tempTxn.getId());
+                List<String> itemFiltered = new ArrayList<>();
+                assetRequest.setTempTransactionId(tempTxn.getId());
+                addTransaction(userMail, assetRequest, itemFiltered);
+
+                if (!itemFiltered.isEmpty()) {
+                    // Transaction was re-filtered during redrive; a new temp record was created.
+                    // Do not update the original — it is still the source of truth.
+                    filteredOut.add(tempTxn.getId());
+                } else {
+                    succeeded.add(tempTxn.getId());
+                }
+            } catch (Exception e) {
+                log.error("Failed to redrive temporary transaction {}: {}", tempTxn.getId(), e.getMessage(), e);
+                failed.put(tempTxn.getId(), e.getMessage());
             }
         }
 
-        if (!filteredOutTransactions.isEmpty()) {
-            return String.format("Filtered out transactions: %s", filteredOutTransactions);
+        if (!succeeded.isEmpty()) {
+            List<TransactionEntity> toUpdate = transactionRepository.findAllById(succeeded);
+            for (TransactionEntity entity : toUpdate) {
+                entity.setStatus(TransactionStatus.PROCESSED);
+            }
+            transactionRepository.saveAll(toUpdate);
         }
 
-        return "Redriven temporary transactions: " + redrivenTransactions;
+        String message = buildRedriveMessage(succeeded, failed, stillFiltered, filteredOut);
+        return new RedriveResult(succeeded, failed, stillFiltered, filteredOut, message);
+    }
+
+    private static String buildRedriveMessage(List<String> succeeded, Map<String, String> failed, List<String> stillFiltered, List<String> filteredOut) {
+        if (succeeded.isEmpty() && failed.isEmpty() && stillFiltered.isEmpty() && filteredOut.isEmpty()) {
+            return "No temporary transactions to redrive";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("Redrive complete. ");
+        if (!succeeded.isEmpty()) {
+            sb.append("Succeeded: ").append(succeeded.size());
+        }
+        if (!failed.isEmpty()) {
+            if (!succeeded.isEmpty()) sb.append(", ");
+            sb.append("Failed: ").append(failed.size());
+        }
+        if (!stillFiltered.isEmpty()) {
+            if (!succeeded.isEmpty() || !failed.isEmpty()) sb.append(", ");
+            sb.append("Still filtered: ").append(stillFiltered.size());
+        }
+        if (!filteredOut.isEmpty()) {
+            if (!succeeded.isEmpty() || !failed.isEmpty() || !stillFiltered.isEmpty()) sb.append(", ");
+            sb.append("Re-filtered: ").append(filteredOut.size());
+        }
+        return sb.toString();
     }
 
     public void buyStock(UserMail userMail, String transactionId, AssetRequest assetRequest) {
@@ -400,21 +470,53 @@ public class PortfolioService {
         portfolioRepository.saveAll(stocks);
     }
 
+    /**
+     * WARNING — deletes from 5 collections (portfolio, reports, transactions,
+     * profitAndLoss, temporaryTransactions). Without a working MongoTransactionManager
+     * a crash after deleting some collections but before others leaves orphaned data.
+     * Each delete is wrapped in its own try/catch so one failure does not silently
+     * abort the rest. With {@code app.mongodb.transactions-enabled=true} (Atlas replica
+     * set) the @{@link Transactional} annotation guarantees atomicity.
+     */
     @Transactional
     public String clearAllRecordsForCustomer(UserMail userMail) {
 
         log.info("Initiated deletion of all records of user: {}", userMail.getEmail());
 
-        portfolioRepository.deleteByEmail(userMail.getEmail());
-        log.info("Deleted all portfolio stocks for user: {}", userMail.getEmail());
-        reportService.deleteReports(userMail);
-        log.info("Deleted all reports for user: {}", userMail.getEmail());
-        transactionService.deleteTransactions(userMail);
-        log.info("Deleted all transactions for user: {}", userMail.getEmail());
-        profitAndLossService.deleteProfitAndLoss(userMail);
-        log.info("Deleted all profit and loss reports for user: {}", userMail.getEmail());
-        temporaryTransactionService.deleteTemporaryTransaction(userMail);
-        log.info("Deleted all temporary transactions for user: {}", userMail.getEmail());
+        try {
+            portfolioRepository.deleteByEmail(userMail.getEmail());
+            log.info("Deleted all portfolio stocks for user: {}", userMail.getEmail());
+        } catch (Exception e) {
+            log.error("Failed to delete portfolio stocks for user: {} — continuing with remaining collections", userMail.getEmail(), e);
+        }
+
+        try {
+            reportService.deleteReports(userMail);
+            log.info("Deleted all reports for user: {}", userMail.getEmail());
+        } catch (Exception e) {
+            log.error("Failed to delete reports for user: {} — continuing with remaining collections", userMail.getEmail(), e);
+        }
+
+        try {
+            transactionService.deleteTransactions(userMail);
+            log.info("Deleted all transactions for user: {}", userMail.getEmail());
+        } catch (Exception e) {
+            log.error("Failed to delete transactions for user: {} — continuing with remaining collections", userMail.getEmail(), e);
+        }
+
+        try {
+            profitAndLossService.deleteProfitAndLoss(userMail);
+            log.info("Deleted all profit and loss reports for user: {}", userMail.getEmail());
+        } catch (Exception e) {
+            log.error("Failed to delete profit and loss for user: {} — continuing with remaining collections", userMail.getEmail(), e);
+        }
+
+        try {
+            temporaryTransactionService.deleteTemporaryTransaction(userMail);
+            log.info("Deleted all temporary transactions for user: {}", userMail.getEmail());
+        } catch (Exception e) {
+            log.error("Failed to delete temporary transactions for user: {}", userMail.getEmail(), e);
+        }
 
         return "User: " + userMail.getEmail() + ", records and transactions deleted successfully";
     }

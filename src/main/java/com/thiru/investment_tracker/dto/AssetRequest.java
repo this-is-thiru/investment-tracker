@@ -84,6 +84,9 @@ public class AssetRequest implements AssetEntityProtoType, TransactionEntityProt
         transactionEntity.setAccountHolder(accountHolder);
         transactionEntity.setTransactionType(transactionType);
         transactionEntity.setTransactionDate(transactionDate);
+        if (tempTransactionId != null) {
+            transactionEntity.setSourceTempTransactionId(tempTransactionId);
+        }
         return transactionEntity;
     }
 

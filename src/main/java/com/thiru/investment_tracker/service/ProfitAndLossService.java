@@ -26,6 +26,11 @@ import java.time.Month;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Accumulates realised profit/loss figures per financial year. Class-level
+ * @{@link Transactional} ensures save operations are atomic. Safe only when
+ * MongoDB replica set + {@code app.mongodb.transactions-enabled=true} is set.
+ */
 @Log4j2
 @AllArgsConstructor
 @Service

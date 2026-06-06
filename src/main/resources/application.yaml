@@ -12,3 +12,5 @@ spring:
 app:
   security:
     key-secret: ${JWT_SECURITY_KEY}
+  mongodb:
+    transactions-enabled: true

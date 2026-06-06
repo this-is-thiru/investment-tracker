@@ -4,14 +4,14 @@ import com.thiru.investment_tracker.dto.AssetRequest;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.CorporateActionType;
+import com.thiru.investment_tracker.dto.enums.TransactionStatus;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.CorporateActionEntity;
 import com.thiru.investment_tracker.entity.LastlyPerformedCorporateAction;
-import com.thiru.investment_tracker.entity.TemporaryTransactionEntity;
+import com.thiru.investment_tracker.entity.TransactionEntity;
 import com.thiru.investment_tracker.repository.CorporateActionRepository;
 import com.thiru.investment_tracker.repository.LastlyPerformedCorporateActionRepo;
-import com.thiru.investment_tracker.repository.TemporaryTransactionRepository;
-import com.thiru.investment_tracker.util.collection.TJsonMapper;
+import com.thiru.investment_tracker.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -20,8 +20,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
-import java.util.Optional;
 
+/**
+ * Holds transactions that are blocked by a pending corporate action, to be
+ * redriven after the action is processed. Class-level @{@link Transactional}
+ * ensures single-method writes are atomic. Safe only when MongoDB replica set
+ * + {@code app.mongodb.transactions-enabled=true} is set.
+ */
 @Log4j2
 @Service
 @Transactional
@@ -31,54 +36,55 @@ public class TemporaryTransactionService {
     private static final int ONE = 1;
 
     private final CorporateActionRepository corporateActionRepository;
-    private final TemporaryTransactionRepository temporaryTransactionRepository;
+    private final TransactionRepository transactionRepository;
     private final LastlyPerformedCorporateActionRepo lastlyPerformedCorporateActionRepo;
 
-    public Optional<String> filterOutTransaction(UserMail userMail, AssetRequest assetRequest) {
-
+    public String filterOutTransaction(UserMail userMail, AssetRequest assetRequest) {
         LocalDate txnDate = assetRequest.getTransactionDate();
         if (anyCorporateActionToPerform(userMail, assetRequest.getStockCode(), txnDate, assetRequest.getBrokerName())) {
-            TemporaryTransactionEntity temporaryTransactionEntity = TJsonMapper.copy(assetRequest.asTransaction(), TemporaryTransactionEntity.class);
-            temporaryTransactionEntity.setAssetRequest(assetRequest);
-            temporaryTransactionEntity.setEmail(userMail.getEmail());
-            TemporaryTransactionEntity savedEntity = temporaryTransactionRepository.save(temporaryTransactionEntity);
-            return Optional.of(savedEntity.getId());
+            TransactionEntity entity = assetRequest.asTransaction();
+            entity.setStatus(TransactionStatus.TEMPORARY);
+            entity.setAssetRequest(assetRequest);
+            entity.setEmail(userMail.getEmail());
+            TransactionEntity saved = transactionRepository.save(entity);
+            return saved.getId();
         }
-        return Optional.empty();
+        return null;
     }
 
-    public List<TemporaryTransactionEntity> getAllTemporaryTransactions(UserMail userMail) {
-        return temporaryTransactionRepository.findByEmail(userMail.getEmail());
+    public List<TransactionEntity> getAllTemporaryTransactions(UserMail userMail) {
+        return transactionRepository.findByEmailAndStatus(userMail.getEmail(), TransactionStatus.TEMPORARY);
     }
 
-    public boolean filterOutTransaction(UserMail userMail, TemporaryTransactionEntity temporaryTransaction) {
-        LocalDate txnDate = temporaryTransaction.getTransactionDate();
-        return anyCorporateActionToPerform(userMail, temporaryTransaction.getStockCode(), txnDate, temporaryTransaction.getBrokerName());
+    public boolean filterOutTransaction(UserMail userMail, AssetRequest assetRequest, boolean checkCorporateAction) {
+        if (!checkCorporateAction) {
+            return false;
+        }
+        LocalDate txnDate = assetRequest.getTransactionDate();
+        return anyCorporateActionToPerform(userMail, assetRequest.getStockCode(), txnDate, assetRequest.getBrokerName());
     }
 
     public boolean anyCorporateActionToPerform(UserMail userMail, String stockCode, LocalDate txnDate, BrokerName brokerName) {
-
         LocalDate quarterStart = getQuarterStart(txnDate);
-        List<CorporateActionEntity> corporateActions = corporateActionRepository.findByStockCodeAndTypeInAndRecordDateBetween(stockCode, CorporateActionType.FILTERABLE_CORPORATE_ACTIONS, quarterStart, txnDate);
+        List<CorporateActionEntity> corporateActions = corporateActionRepository
+                .findByStockCodeAndTypeInAndRecordDateBetween(stockCode, CorporateActionType.FILTERABLE_CORPORATE_ACTIONS, quarterStart, txnDate);
 
         for (CorporateActionEntity corporateAction : corporateActions) {
             if (isCorporateActionToPerform(userMail, corporateAction, brokerName)) {
                 return true;
             }
         }
-
         return false;
     }
 
     public boolean isCorporateActionToPerform(UserMail userMail, CorporateActionEntity corporateAction, BrokerName brokerName) {
-
         String stockCode = corporateAction.getStockCode();
         CorporateActionType actionType = corporateAction.getType();
         AssetType assetType = corporateAction.getAssetType();
 
-        Optional<LastlyPerformedCorporateAction> lastlyPerformedActionOptional = lastlyPerformedCorporateActionRepo
+        var lastlyPerformedActionOptional = lastlyPerformedCorporateActionRepo
                 .findLastPerformedCA(userMail.getEmail(), stockCode, assetType, actionType, brokerName);
-        Optional<LocalDate> nextDayOfActionDay = lastlyPerformedActionOptional.map(lpa->lpa.getActionDate().plusDays(1));
+        var nextDayOfActionDay = lastlyPerformedActionOptional.map(lpa -> lpa.getActionDate().plusDays(1));
 
         if (nextDayOfActionDay.isPresent() && corporateAction.getRecordDate().isBefore(nextDayOfActionDay.get())) {
             return false;
@@ -89,7 +95,17 @@ public class TemporaryTransactionService {
     public void deleteTemporaryTransaction(UserMail userMail) {
         lastlyPerformedCorporateActionRepo.deleteByEmail(userMail.getEmail());
         log.info("Deleted lastly performed corporate actions for user: {}", userMail.getEmail());
-        temporaryTransactionRepository.deleteByEmail(userMail.getEmail());
+        transactionRepository.deleteByEmailAndStatus(userMail.getEmail(), TransactionStatus.TEMPORARY);
+    }
+
+    public List<TransactionEntity> findTempTransactionsBefore(String email, String stockCode, AssetType assetType, LocalDate recordDate) {
+        return transactionRepository.findByEmailAndStatusAndStockCodeAndAssetTypeAndTransactionDateBefore(
+                email, TransactionStatus.TEMPORARY, stockCode, assetType, recordDate);
+    }
+
+    public List<TransactionEntity> findTempTransactionsAfter(String email, String stockCode, AssetType assetType, LocalDate recordDate) {
+        return transactionRepository.findByEmailAndStatusAndStockCodeAndAssetTypeAndTransactionDateAfterOrderByTransactionDateAsc(
+                email, TransactionStatus.TEMPORARY, stockCode, assetType, recordDate);
     }
 
     private static LocalDate getQuarterStart(LocalDate transactionDate) {

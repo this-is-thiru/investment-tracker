@@ -18,7 +18,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+/**
+ * Service for managing TransactionEntity records. Class-level @{@link Transactional}
+ * ensures that methods touching multiple collections are atomic. Safe only when the
+ * MongoDB replica set + {@code app.mongodb.transactions-enabled=true} is set.
+ */
 @Log4j2
 @Service
 @Transactional
@@ -32,6 +38,14 @@ public class TransactionService {
 
         if (assetRequest.getTransactionDate() == null) {
             assetRequest.setTransactionDate(LocalDate.now());
+        }
+        if (assetRequest.getTempTransactionId() != null) {
+            Optional<TransactionEntity> existing = transactionRepository
+                .findByEmailAndSourceTempTransactionId(userMail.getEmail(), assetRequest.getTempTransactionId());
+            if (existing.isPresent()) {
+                log.warn("Duplicate transaction suppressed for sourceTempTransactionId {}", assetRequest.getTempTransactionId());
+                return existing.get().getId();
+            }
         }
         TransactionEntity transactionEntity = assetRequest.asTransaction();
         transactionEntity.setEmail(userMail.getEmail());

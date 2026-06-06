@@ -11,11 +11,9 @@ import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.entity.AssetEntity;
 import com.thiru.investment_tracker.entity.CorporateActionEntity;
 import com.thiru.investment_tracker.entity.LastlyPerformedCorporateAction;
-import com.thiru.investment_tracker.entity.TemporaryTransactionEntity;
 import com.thiru.investment_tracker.entity.TransactionEntity;
 import com.thiru.investment_tracker.repository.CorporateActionRepository;
 import com.thiru.investment_tracker.repository.LastlyPerformedCorporateActionRepo;
-import com.thiru.investment_tracker.repository.TemporaryTransactionRepository;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.collection.TJsonMapper;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +41,7 @@ public class CorporateActionService {
 
     private final PortfolioService portfolioService;
     private final TransactionService transactionService;
-    private final TemporaryTransactionRepository temporaryTransactionRepository;
+    private final TemporaryTransactionService temporaryTransactionService;
     private final CorporateActionRepository corporateActionRepository;
     private final LastlyPerformedCorporateActionRepo lastlyPerformedCorporateActionRepo;
 
@@ -107,6 +105,11 @@ public class CorporateActionService {
         return corporateActionRepository.findAll();
     }
 
+    /**
+     * Iterates over corporate actions in the current quarter and processes them.
+     * Each action may write to portfolio, transactions, and the performed-CAs table.
+     * Safe only when MongoDB replica set + {@code app.mongodb.transactions-enabled=true} is set.
+     */
     @Transactional
     public void performPendingCorporateActions(String email, CorporateActionPerformDto actionPerformDto, boolean allBrokers) {
         if (actionPerformDto.brokerName() == null && !allBrokers) {
@@ -162,8 +165,8 @@ public class CorporateActionService {
         AssetType assetType = corporateAction.getAssetType();
         LocalDate recordDate = corporateAction.getRecordDate();
 
-        List<TemporaryTransactionEntity> beforeTemporaryTransactions = temporaryTransactionRepository
-                .findByEmailAndStockCodeAndAssetTypeAndTransactionDateBefore(email, stockCode, assetType, recordDate);
+        List<TransactionEntity> beforeTemporaryTransactions = temporaryTransactionService
+                .findTempTransactionsBefore(email, stockCode, assetType, recordDate);
 
         return !beforeTemporaryTransactions.isEmpty();
     }
@@ -197,6 +200,11 @@ public class CorporateActionService {
         log.info("Corporate action: {} noted successfully for stock: {}", action, corporateAction.getStockCode());
     }
 
+    /**
+     * Processes a single corporate action (stock-split or name-change) by writing
+     * to portfolio and transaction collections. Safe only when MongoDB replica set
+     * + {@code app.mongodb.transactions-enabled=true} is set.
+     */
     @Transactional
     public String performCorporateAction(CorporateActionDto actionWrapper) {
 

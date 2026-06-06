@@ -1,0 +1,26 @@
+package com.thiru.investment_tracker.config;
+
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.mongodb.MongoDatabaseFactory;
+import org.springframework.data.mongodb.MongoTransactionManager;
+
+/**
+ * Enables MongoDB multi-document ACID transactions when
+ * {@code app.mongodb.transactions-enabled=true} (the default, because the
+ * MongoDB Atlas cluster used has a replica set).
+ *
+ * <p>When this property is {@code false} the {@link MongoTransactionManager} bean
+ * is not created and all @{@link org.springframework.transaction.annotation.Transactional}
+ * annotations become no-ops.
+ */
+@Configuration
+@ConditionalOnProperty(prefix = "app.mongodb", name = "transactions-enabled", havingValue = "true", matchIfMissing = true)
+public class MongoDbTransactionConfig {
+
+    @Bean
+    MongoTransactionManager transactionManager(MongoDatabaseFactory dbFactory) {
+        return new MongoTransactionManager(dbFactory);
+    }
+}
