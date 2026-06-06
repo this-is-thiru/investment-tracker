@@ -68,6 +68,9 @@ public class PortfolioService {
     @Transactional
     public String addTransaction(UserMail userMail, AssetRequest assetRequest, List<String> filteredOutTransactions) {
         validateAssetRequest(userMail, assetRequest);
+        if (temporaryTransactionService.hasTemporaryTransactions(userMail)) {
+            throw new BadRequestException("There are pending temporary transactions. Please redrive them before adding a new transaction.");
+        }
         sanitizeAssetRequest(assetRequest);
 
         String filteredOutTransactionId = temporaryTransactionService.filterOutTransaction(userMail, assetRequest);
@@ -114,6 +117,9 @@ public class PortfolioService {
      */
     @Transactional
     public String uploadTransactions(UserMail userMail, String quarter, MultipartFile file) {
+        if (temporaryTransactionService.hasTemporaryTransactions(userMail)) {
+            throw new BadRequestException("There are pending temporary transactions. Please redrive them before uploading transactions. Some transactions may be blocked due to pending corporate actions during upload.");
+        }
 
         List<String> errors = new ArrayList<>();
         AssetRequestParser assetRequestParser = new AssetRequestParser(quarter);

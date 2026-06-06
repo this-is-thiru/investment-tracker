@@ -56,6 +56,10 @@ public class TemporaryTransactionService {
         return transactionRepository.findByEmailAndStatus(userMail.getEmail(), TransactionStatus.TEMPORARY);
     }
 
+    public boolean hasTemporaryTransactions(UserMail userMail) {
+        return !getAllTemporaryTransactions(userMail).isEmpty();
+    }
+
     public boolean filterOutTransaction(UserMail userMail, AssetRequest assetRequest, boolean checkCorporateAction) {
         if (!checkCorporateAction) {
             return false;
