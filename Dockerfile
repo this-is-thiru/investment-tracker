@@ -8,7 +8,7 @@ COPY backend ./backend
 COPY test-report ./test-report
 
 # Package the backend application (and parent)
-RUN mvn clean install -pl backend -am -DskipTests
+RUN mvn clean install -pl backend -am
 
 # ---------- Runtime Stage ----------
 FROM eclipse-temurin:25-jre-alpine
