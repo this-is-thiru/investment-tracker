@@ -21,6 +21,7 @@
     <artifactId>investment-tracker</artifactId>
 
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
     <name>investment-tracker</name>
 
@@ -285,5 +286,10 @@
         </plugins>
 
     </build>
+
+    <modules>
+        <module>backend</module>
+        <module>test-report</module>
+    </modules>
 
 </project>
