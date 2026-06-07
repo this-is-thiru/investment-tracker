@@ -2,10 +2,8 @@ package com.thiru.investment_tracker.integration;
 
 import com.thiru.investment_tracker.dto.AssetRequest;
 
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.mock.web.MockMultipartFile;
-import com.thiru.investment_tracker.dto.AssetResponse;
 import com.thiru.investment_tracker.dto.BulkGetRequest;
 import com.thiru.investment_tracker.dto.DateRange;
 import com.thiru.investment_tracker.dto.OrderTimeQuantity;
@@ -14,24 +12,19 @@ import com.thiru.investment_tracker.dto.enums.AccountType;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.CorporateActionType;
-import com.thiru.investment_tracker.dto.enums.HoldingType;
 import com.thiru.investment_tracker.dto.enums.TransactionStatus;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.entity.AssetEntity;
 import com.thiru.investment_tracker.entity.CorporateActionEntity;
 import com.thiru.investment_tracker.entity.TransactionEntity;
-import com.thiru.investment_tracker.entity.query.QueryFilter;
 import com.thiru.investment_tracker.service.PortfolioService;
 import com.thiru.investment_tracker.service.TransactionService;
-import com.thiru.investment_tracker.util.time.TLocalDate;
 import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
-import org.springframework.util.MultiValueMap;
 import org.springframework.http.client.ClientHttpResponse;
 
 import org.springframework.web.client.DefaultResponseErrorHandler;
@@ -44,9 +37,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 

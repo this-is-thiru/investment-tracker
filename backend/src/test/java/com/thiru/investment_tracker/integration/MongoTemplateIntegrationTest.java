@@ -1,7 +1,6 @@
 package com.thiru.investment_tracker.integration;
 
 import com.thiru.investment_tracker.dto.user.UserMail;
-import com.thiru.investment_tracker.entity.AssetEntity;
 import com.thiru.investment_tracker.entity.TransactionEntity;
 import com.thiru.investment_tracker.entity.query.QueryFilter;
 import com.thiru.investment_tracker.repository.TransactionRepository;

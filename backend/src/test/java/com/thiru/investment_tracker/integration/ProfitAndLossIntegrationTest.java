@@ -9,7 +9,6 @@ import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.AssetEntity;
 import com.thiru.investment_tracker.entity.ProfitAndLossEntity;
-import com.thiru.investment_tracker.entity.TransactionEntity;
 import com.thiru.investment_tracker.entity.model.FinancialReport;
 import com.thiru.investment_tracker.entity.model.RealisedProfits;
 import com.thiru.investment_tracker.service.PortfolioService;
@@ -23,7 +22,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
 import java.time.LocalDate;
-import java.time.Month;
 
 import static org.junit.jupiter.api.Assertions.*;
 

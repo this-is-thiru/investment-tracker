@@ -27,8 +27,6 @@ import java.net.URI;
 import java.util.ArrayList;
 
 import java.time.LocalDate;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;

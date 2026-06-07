@@ -4,7 +4,6 @@ import com.thiru.investment_tracker.dto.AssetRequest;
 import com.thiru.investment_tracker.dto.BulkGetRequest;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.TransactionEntity;
-import com.thiru.investment_tracker.entity.query.QueryFilter;
 import com.thiru.investment_tracker.repository.TransactionRepository;
 import com.thiru.investment_tracker.service.TransactionService;
 import io.restassured.RestAssured;

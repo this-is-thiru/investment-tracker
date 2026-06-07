@@ -2,7 +2,6 @@ package com.thiru.investment_tracker.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.thiru.investment_tracker.dto.CorporateActionDto;
 import com.thiru.investment_tracker.dto.OrderTimeQuantity;
 import com.thiru.investment_tracker.dto.enums.*;
 import com.thiru.investment_tracker.entity.helper.AuditMetadata;

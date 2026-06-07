@@ -1,11 +1,8 @@
 package com.thiru.investment_tracker.integration;
 
-import com.thiru.investment_tracker.dto.AssetRequest;
 import com.thiru.investment_tracker.dto.context.ReportContext;
 import com.thiru.investment_tracker.dto.user.UserMail;
-import com.thiru.investment_tracker.entity.AssetEntity;
 import com.thiru.investment_tracker.entity.ReportEntity;
-import com.thiru.investment_tracker.entity.TransactionEntity;
 import com.thiru.investment_tracker.repository.ReportRepository;
 import com.thiru.investment_tracker.service.PortfolioService;
 import com.thiru.investment_tracker.service.ReportService;
@@ -20,7 +17,6 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.net.URI;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;

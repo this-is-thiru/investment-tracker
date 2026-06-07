@@ -7,7 +7,6 @@ import com.thiru.investment_tracker.dto.enums.TransactionStatus;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.CorporateActionEntity;
-import com.thiru.investment_tracker.entity.LastlyPerformedCorporateAction;
 import com.thiru.investment_tracker.entity.TransactionEntity;
 import com.thiru.investment_tracker.repository.CorporateActionRepository;
 import com.thiru.investment_tracker.repository.LastlyPerformedCorporateActionRepo;

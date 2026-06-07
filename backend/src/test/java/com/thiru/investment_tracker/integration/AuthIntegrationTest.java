@@ -13,8 +13,6 @@ import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
-
 import java.net.URI;
 
 import static io.restassured.RestAssured.given;
