@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${summary.reportTitle}">Consolidated Test Report</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        h2 {
+            color: #34495e;
+            margin: 30px 0 15px;
+            font-size: 22px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 8px;
+        }
+
+        h3 {
+            color: #555;
+            margin: 20px 0 10px;
+            font-size: 18px;
+        }
+
+        .report-meta {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .summary-card.passed {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .summary-card.failed {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        }
+
+        .summary-card.skipped {
+            background: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
+        }
+
+        .summary-card .value {
+            font-size: 32px;
+            font-weight: bold;
+            display: block;
+        }
+
+        .summary-card .label {
+            font-size: 13px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .success-rate {
+            background: linear-gradient(135deg, #4caf50 0%, #81c784 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .success-rate .value {
+            font-size: 48px;
+            font-weight: bold;
+        }
+
+        .success-rate .label {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+
+        thead {
+            background: #34495e;
+            color: white;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status-pass {
+            background-color: #d4edda;
+        }
+
+        .status-fail {
+            background-color: #f8d7da;
+        }
+
+        .status-skip {
+            background-color: #fff3cd;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-badge.pass {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .status-badge.fail {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .status-badge.skip {
+            background-color: #ffc107;
+            color: #333;
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        @media (max-width: 900px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-wrapper {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .chart-wrapper h3 {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .collapsible {
+            margin: 10px 0;
+        }
+
+        .collapsible summary {
+            cursor: pointer;
+            background-color: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-weight: 500;
+        }
+
+        .collapsible summary:hover {
+            background-color: #e9ecef;
+        }
+
+        .collapsible-content {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-x: auto;
+        }
+
+        .failed-tests-section {
+            background-color: #fff;
+            border: 1px solid #f5c6cb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .no-failures {
+            color: #28a745;
+            font-weight: bold;
+            padding: 20px;
+            text-align: center;
+            background-color: #d4edda;
+            border-radius: 8px;
+        }
+
+        .time {
+            font-family: 'Courier New', monospace;
+            color: #666;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 th:text="${summary.reportTitle}">Consolidated Test Report</h1>
+        <p class="report-meta">
+            Generated at: <span th:text="${#temporals.format(summary.generatedAt, 'yyyy-MM-dd HH:mm:ss')}">2024-01-01 12:00:00</span>
+            &nbsp;|&nbsp;
+            Total Suites: <span th:text="${summary.totalSuites}">0</span>
+            &nbsp;|&nbsp;
+            Total Time: <span class="time" th:text="${#numbers.formatDecimal(summary.totalTimeSeconds, 1, 3)} + 's'">0.000s</span>
+        </p>
+
+        <!-- Overall Summary Section -->
+        <h2>Overall Summary</h2>
+        <div class="summary-cards">
+            <div class="summary-card">
+                <span class="value" th:text="${summary.totalTests}">0</span>
+                <span class="label">Total Tests</span>
+            </div>
+            <div class="summary-card passed">
+                <span class="value" th:text="${summary.totalPassed}">0</span>
+                <span class="label">Passed</span>
+            </div>
+            <div class="summary-card failed">
+                <span class="value" th:text="${summary.totalFailed + summary.totalErrors}">0</span>
+                <span class="label">Failed</span>
+            </div>
+            <div class="summary-card skipped">
+                <span class="value" th:text="${summary.totalSkipped}">0</span>
+                <span class="label">Skipped</span>
+            </div>
+        </div>
+
+        <div class="success-rate">
+            <div class="value">
+                <span th:text="${#numbers.formatDecimal(summary.totalPassed * 100.0 / (summary.totalTests > 0 ? summary.totalTests : 1), 1, 1)}">0.0</span>%
+            </div>
+            <div class="label">Success Rate</div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-container" th:if="${summary.totalTests > 0}">
+            <div class="chart-wrapper">
+                <h3>Test Status Distribution</h3>
+                <canvas id="statusPie"></canvas>
+            </div>
+            <div class="chart-wrapper">
+                <h3>Pass / Fail by Class</h3>
+                <canvas id="passFailBar"></canvas>
+            </div>
+        </div>
+
+        <!-- Class-Level Summary Table -->
+        <h2>Class-Level Summary</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Test Class</th>
+                    <th>Total</th>
+                    <th>Passed</th>
+                    <th>Failed</th>
+                    <th>Skipped</th>
+                    <th>Duration</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="cls : ${summary.classSummaries}"
+                    th:class="${cls.failedCount + cls.errorCount > 0} ? 'status-fail' : (${cls.skippedCount > 0 && cls.passedCount == 0} ? 'status-skip' : 'status-pass')">
+                    <td th:text="${cls.fullyQualifiedClassName}">com.example.TestClass</td>
+                    <td th:text="${cls.totalTests}">0</td>
+                    <td th:text="${cls.passedCount}">0</td>
+                    <td th:text="${cls.failedCount + cls.errorCount}">0</td>
+                    <td th:text="${cls.skippedCount}">0</td>
+                    <td class="time" th:text="${#numbers.formatDecimal(cls.totalTimeSeconds, 1, 3)} + 's'">0.000s</td>
+                    <td>
+                        <span th:if="${cls.failedCount + cls.errorCount > 0}" class="status-badge fail">FAIL</span>
+                        <span th:if="${cls.failedCount + cls.errorCount == 0 && cls.skippedCount > 0 && cls.passedCount == 0}" class="status-badge skip">SKIPPED</span>
+                        <span th:if="${cls.failedCount + cls.errorCount == 0 && (cls.passedCount > 0 || cls.skippedCount == 0)}" class="status-badge pass">PASS</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Failed Test Details Section -->
+        <h2>Failed Test Details</h2>
+        <div th:if="${summary.totalFailed + summary.totalErrors == 0}" class="no-failures">
+            No failed tests! All tests passed.
+        </div>
+
+        <div th:each="cls : ${summary.classSummaries}"
+             th:if="${cls.failedCount + cls.errorCount > 0}"
+             class="failed-tests-section">
+            <h3 th:text="${cls.fullyQualifiedClassName}">com.example.TestClass</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Type</th>
+                        <th>Message</th>
+                        <th>Stack Trace</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="testCase : ${cls.testCases}"
+                        th:if="${testCase.status.name() == 'FAILED' || testCase.status.name() == 'ERROR'}">
+                        <td th:text="${testCase.name}">testMethod</td>
+                        <td th:text="${testCase.failureType} ?: 'N/A'">java.lang.AssertionError</td>
+                        <td th:text="${testCase.failureMessage} ?: 'No message provided'">Failure message</td>
+                        <td>
+                            <details class="collapsible" th:if="${testCase.failureDetail != null && !testCase.failureDetail.isEmpty()}">
+                                <summary>View Stack Trace</summary>
+                                <div class="collapsible-content" th:text="${testCase.failureDetail}">Stack trace here</div>
+                            </details>
+                            <span th:if="${testCase.failureDetail == null || testCase.failureDetail.isEmpty()}" th:text="'N/A'">N/A</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            Generated by Investment Tracker Test Report Generator
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const statusData = /*[[${summary.statusDistribution}]]*/ {};
+        const classStatusCounts = /*[[${summary.classStatusCounts}]]*/ {};
+
+        // Pie Chart for status distribution
+        if (statusData && Object.keys(statusData).length > 0) {
+            const ctxPie = document.getElementById('statusPie').getContext('2d');
+            new Chart(ctxPie, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(statusData),
+                    datasets: [{
+                        data: Object.values(statusData),
+                        backgroundColor: [
+                            '#28a745', // passed - green
+                            '#dc3545', // failed - red
+                            '#ffc107', // skipped - yellow
+                            '#17a2b8'  // error - blue
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Stacked Bar Chart for pass/fail by class
+        if (classStatusCounts && Object.keys(classStatusCounts).length > 0) {
+            const entries = Object.entries(classStatusCounts)
+                .sort((a, b) => (b[1].passed + b[1].failed + b[1].skipped + b[1].error) - (a[1].passed + a[1].failed + a[1].skipped + a[1].error))
+                .slice(0, 20);
+
+            const labels = entries.map(e => {
+                const parts = e[0].split('.');
+                return parts[parts.length - 1];
+            });
+
+            const ctxBar = document.getElementById('passFailBar').getContext('2d');
+            new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Passed',
+                            data: entries.map(e => e[1].passed),
+                            backgroundColor: '#28a745'
+                        },
+                        {
+                            label: 'Failed',
+                            data: entries.map(e => e[1].failed),
+                            backgroundColor: '#dc3545'
+                        },
+                        {
+                            label: 'Skipped',
+                            data: entries.map(e => e[1].skipped),
+                            backgroundColor: '#ffc107'
+                        },
+                        {
+                            label: 'Error',
+                            data: entries.map(e => e[1].error),
+                            backgroundColor: '#17a2b8'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Test Count'
+                            }
+                        },
+                        y: {
+                            stacked: true
+                        }
+                    }
+                }
+            });
+        }
+        /*]]>*/
+    </script>
+</body>
+</html>
