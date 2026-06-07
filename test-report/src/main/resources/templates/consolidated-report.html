@@ -356,6 +356,7 @@
                 <thead>
                     <tr>
                         <th>Method</th>
+                        <th>Type</th>
                         <th>Message</th>
                         <th>Stack Trace</th>
                     </tr>
@@ -364,7 +365,8 @@
                     <tr th:each="testCase : ${cls.testCases}"
                         th:if="${testCase.status.name() == 'FAILED' || testCase.status.name() == 'ERROR'}">
                         <td th:text="${testCase.name}">testMethod</td>
-                        <td th:text="${testCase.failureMessage}">Failure message</td>
+                        <td th:text="${testCase.failureType} ?: 'N/A'">java.lang.AssertionError</td>
+                        <td th:text="${testCase.failureMessage} ?: 'No message provided'">Failure message</td>
                         <td>
                             <details class="collapsible" th:if="${testCase.failureDetail != null && !testCase.failureDetail.isEmpty()}">
                                 <summary>View Stack Trace</summary>

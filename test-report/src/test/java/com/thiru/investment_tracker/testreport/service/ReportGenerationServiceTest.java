@@ -158,6 +158,7 @@ class ReportGenerationServiceTest {
         // Then
         assertThat(html).contains("Failed Test Details");
         assertThat(html).contains("testSellStock");
+        assertThat(html).contains("java.lang.AssertionError");
         assertThat(html).contains("Not enough stocks");
         assertThat(html).contains("collapsible");
         assertThat(html).doesNotContain("#booleanCompare");
