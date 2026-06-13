@@ -1,0 +1,378 @@
+{
+  "id": "019ec241-5aad-73ed-85fa-6ab3571b1f30",
+  "name": "Advanced Analytics V1",
+  "description": "list",
+  "status": "running",
+  "worktree": {
+    "path": "/Users/pthirumalayadav/IdeaProjects/investment-tracker",
+    "branch": "master",
+    "commit": "f4ab773067db428eeb1c74d7f3eefb0977f0abe8"
+  },
+  "scoping": {
+    "goal": {
+      "answer": "Create a purpose-built TradeOutcomeEntity collection to replace the buggy ReportEntity, migrate existing historical data from ReportEntity, then implement self-contained V1 portfolio analytics endpoints: portfolio summary, asset allocation, performance metrics, and XIRR. TradeOutcomeEntity will correctly handle corporate actions (bonus, split, demerger) and multipart sells via dual cost basis tracking and sourceSellTransactionId linkage.",
+      "confirmedAt": "2026-06-13T19:01:37.789Z"
+    },
+    "criteria": {
+      "answer": "TradeOutcomeEntity exists with dual cost basis, charges, holdingPeriodDays, capitalGainsType, sourceSellTransactionId, isCaDerived\nOne-time migration/backfill script created that reads ReportEntity and populates TradeOutcomeEntity with best-effort field mapping; existing user data preserved\nReportEntity and all report-related classes deleted; PortfolioService writes to TradeOutcomeService instead\nGET /analytics/user/{email}/portfolio-summary returns totalInvested, totalRealizedProfit, totalTrades, buyTrades, sellTrades, holdingCount\nGET /analytics/user/{email}/asset-allocation returns investedValue and percentage per AssetType summing to 100\nGET /analytics/user/{email}/performance-metrics returns win/loss counts, avg profit/loss per trade, winLossRatio, avg holding period, portfolio turnover, best/worst stock\nPOST /analytics/user/{email}/xirr returns xirr, xirrPercentage, cashFlowsCount, converged flag; supports optional currentPrices for open positions\nXIRR Calculator matches Excel/Google Sheets XIRR for known test cases within 0.01% tolerance\nAnalyticsService unit tests pass for all 4 features\nAnalyticsIntegrationTest passes with seeded data including corporate actions and multipart sells",
+      "confirmedAt": "2026-06-13T19:01:37.789Z"
+    },
+    "constraints": {
+      "answer": "No external market-price APIs for V1, No sector allocation or benchmarking, No pre-computed analytics snapshots or caching layer, Follow existing Spring Boot / MongoDB / Lombok conventions, Handle empty portfolios and edge cases gracefully",
+      "confirmedAt": "2026-06-13T19:01:37.789Z"
+    },
+    "phases": {
+      "answer": "TradeOutcome Foundation + Migration, Analytics Skeleton, Portfolio Summary + Asset Allocation, Performance Metrics, XIRR Calculator + Endpoint, Tests",
+      "confirmedAt": "2026-06-13T19:01:37.789Z"
+    },
+    "assumptions": {
+      "answer": "Research docs in .kimchi/docs already analyzed corporate action impact, multipart sell scenarios, and reports collection bugs; we use those conclusions directly; TradeOutcomeEntity will be populated during the existing sellStock() write path in PortfolioService, replacing ReportEntity entirely; XIRR must always be computed from TransactionEntity (not TradeOutcomeEntity) to preserve actual cash flows; MongoDB additive schema changes are backward-compatible if needed later; no migration script required for new fields; Multipart sells produce multiple TradeOutcomeEntity records per sell transaction, linked by sourceSellTransactionId for aggregation; Corporate actions (bonus, split, demerger) are reflected in TradeOutcomeEntity via caAdjustedBuyPrice and isCaDerived flag",
+      "confirmedAt": "2026-06-13T19:01:37.789Z"
+    }
+  },
+  "phases": [
+    {
+      "id": "phase-1",
+      "index": 1,
+      "name": "TradeOutcome Foundation + Migration",
+      "goal": "Replace buggy ReportEntity with clean TradeOutcomeEntity and preserve existing user data",
+      "description": "Create TradeOutcomeEntity with dual cost basis (originalBuyPrice + caAdjustedBuyPrice), full charge pro-rating, holdingPeriodDays, capitalGainsType, financialYear, sourceSellTransactionId, sourceBuyLotId, netProfit, profitPercentage, isCaDerived flag. Create TradeOutcomeContext, TradeOutcomeRepository, TradeOutcomeService. Build a one-time backfill migration that reads existing ReportEntity documents and creates corresponding TradeOutcomeEntity records with best-effort field population (missing fields like charges and netProfit are left null or computed where possible). Replace all ReportEntity write/read usage in PortfolioService with TradeOutcomeEntity. Delete ReportEntity, ReportContext, ReportService, ReportRepository, and ReportController.",
+      "budget": "55k tokens",
+      "parallel": false,
+      "status": "active",
+      "steps": [
+        {
+          "id": "step-1",
+          "index": 1,
+          "description": "Create TradeOutcomeEntity, TradeOutcomeContext, TradeOutcomeRepository, TradeOutcomeService with full schema",
+          "status": "verified",
+          "verification": {
+            "command": "test -f backend/src/main/java/com/thiru/investment_tracker/entity/TradeOutcomeEntity.java && test -f backend/src/main/java/com/thiru/investment_tracker/service/TradeOutcomeService.java",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false,
+          "startedAt": "2026-06-13T19:02:06.333Z",
+          "completedAt": "2026-06-13T19:04:20.750Z",
+          "result": {
+            "success": true,
+            "exitCode": 0,
+            "stdout": "",
+            "stderr": "",
+            "completedAt": "2026-06-13T19:04:20.750Z"
+          }
+        },
+        {
+          "id": "step-2",
+          "index": 2,
+          "description": "Build one-time migration/backfill that reads existing ReportEntity and populates TradeOutcomeEntity with available fields",
+          "status": "verified",
+          "verification": {
+            "command": "grep -q 'class TradeOutcomeMigration\\|void migrateReportsToTradeOutcomes' backend/src/main/java/com/thiru/investment_tracker/migration/TradeOutcomeMigration.java",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false,
+          "startedAt": "2026-06-13T19:04:44.521Z",
+          "completedAt": "2026-06-13T19:10:19.539Z",
+          "result": {
+            "success": true,
+            "exitCode": 0,
+            "stdout": "",
+            "stderr": "",
+            "completedAt": "2026-06-13T19:10:19.539Z"
+          }
+        },
+        {
+          "id": "step-3",
+          "index": 3,
+          "description": "Replace reportService usage in PortfolioService sellStock() and clearAllRecordsForCustomer() with tradeOutcomeService",
+          "status": "running",
+          "verification": {
+            "command": "! grep -q 'reportService' backend/src/main/java/com/thiru/investment_tracker/service/PortfolioService.java",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false,
+          "startedAt": "2026-06-13T19:10:29.836Z"
+        },
+        {
+          "id": "step-4",
+          "index": 4,
+          "description": "Delete ReportEntity, ReportContext, ReportService, ReportRepository, ReportController and verify clean compile",
+          "status": "pending",
+          "verification": {
+            "command": "! test -f backend/src/main/java/com/thiru/investment_tracker/entity/ReportEntity.java && ./mvnw compile -pl backend -q",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false
+        }
+      ],
+      "startedAt": "2026-06-13T19:01:57.926Z"
+    },
+    {
+      "id": "phase-2",
+      "index": 2,
+      "name": "Analytics Skeleton",
+      "goal": "Establish the API contract for analytics",
+      "description": "Create AnalyticsController with 4 endpoints, all request/response DTOs, and AnalyticsService skeleton returning stub data. Defines the public API contract.",
+      "budget": "25k tokens",
+      "parallel": false,
+      "status": "planned",
+      "steps": [
+        {
+          "id": "step-1",
+          "index": 1,
+          "description": "Create AnalyticsController with GET /portfolio-summary, GET /asset-allocation, GET /performance-metrics, POST /xirr",
+          "status": "pending",
+          "verification": {
+            "command": "grep -q 'class AnalyticsController' backend/src/main/java/com/thiru/investment_tracker/controller/AnalyticsController.java",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false
+        },
+        {
+          "id": "step-2",
+          "index": 2,
+          "description": "Create DTOs: PortfolioSummaryResponse, AssetAllocationResponse, PerformanceMetricsResponse, XirrRequest, XirrResponse, CashFlow",
+          "status": "pending",
+          "verification": {
+            "command": "ls backend/src/main/java/com/thiru/investment_tracker/dto/*.java | grep -c 'Response\\|Request' | grep -q '[6-9]'",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false
+        },
+        {
+          "id": "step-3",
+          "index": 3,
+          "description": "Create AnalyticsService skeleton with stub methods",
+          "status": "pending",
+          "verification": {
+            "command": "grep -q 'class AnalyticsService' backend/src/main/java/com/thiru/investment_tracker/service/AnalyticsService.java",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false
+        }
+      ]
+    },
+    {
+      "id": "phase-3",
+      "index": 3,
+      "name": "Portfolio Summary + Asset Allocation",
+      "goal": "Deliver portfolio-level aggregations",
+      "description": "Implement getPortfolioSummary() from AssetEntity + ProfitAndLossEntity + TransactionEntity. Implement getAssetAllocation() grouping AssetEntity by AssetType with percentage computation.",
+      "budget": "30k tokens",
+      "parallel": false,
+      "status": "planned",
+      "steps": [
+        {
+          "id": "step-1",
+          "index": 1,
+          "description": "Implement getPortfolioSummary() computing totalInvested, totalRealizedProfit, trade counts, holdingCount",
+          "status": "pending",
+          "verification": {
+            "command": "./mvnw test -pl backend -Dtest=AnalyticsServiceTest#shouldReturnCorrectPortfolioSummary -q",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false
+        },
+        {
+          "id": "step-2",
+          "index": 2,
+          "description": "Implement getAssetAllocation() with investedValue and percentage per AssetType",
+          "status": "pending",
+          "verification": {
+            "command": "./mvnw test -pl backend -Dtest=AnalyticsServiceTest#shouldReturnAssetAllocationPercentagesSummingTo100 -q",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false
+        }
+      ]
+    },
+    {
+      "id": "phase-4",
+      "index": 4,
+      "name": "Performance Metrics",
+      "goal": "Deliver trade-level performance metrics",
+      "description": "Implement getPerformanceMetrics() using TradeOutcomeEntity. Compute win/loss counts, average profit/loss per trade, win/loss ratio, average holding period, portfolio turnover, and best/worst stock by realized return. Use sourceSellTransactionId to optionally group by sell transaction. Handle migrated records gracefully where some pre-computed fields may be null.",
+      "budget": "35k tokens",
+      "parallel": false,
+      "status": "planned",
+      "steps": [
+        {
+          "id": "step-1",
+          "index": 1,
+          "description": "Implement performance metrics aggregations from TradeOutcomeEntity with null-safe handling for migrated records",
+          "status": "pending",
+          "verification": {
+            "command": "./mvnw test -pl backend -Dtest=AnalyticsServiceTest#shouldReturnCorrectWinLossCounts -q",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false
+        },
+        {
+          "id": "step-2",
+          "index": 2,
+          "description": "Implement best/worst stock selection and portfolio turnover",
+          "status": "pending",
+          "verification": {
+            "command": "./mvnw test -pl backend -Dtest=AnalyticsServiceTest#shouldIdentifyBestAndWorstStock -q",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false
+        },
+        {
+          "id": "step-3",
+          "index": 3,
+          "description": "Handle edge cases: empty data, all wins, all losses, zero turnover, null fields in migrated records",
+          "status": "pending",
+          "verification": {
+            "command": "./mvnw test -pl backend -Dtest=AnalyticsServiceTest#shouldHandleEmptyPortfolio -q",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false
+        }
+      ]
+    },
+    {
+      "id": "phase-5",
+      "index": 5,
+      "name": "XIRR Calculator + Endpoint",
+      "goal": "Deliver accurate XIRR using actual cash flows",
+      "description": "Build pure Java XirrCalculator using Newton-Raphson. Implement AnalyticsService.calculateXirr() constructing cash flows from TransactionEntity (BUY negative, SELL positive, optional notional inflow for open positions from request body currentPrices). Expose via POST endpoint. XIRR must NOT use post-CA adjusted prices from TradeOutcomeEntity — only raw TransactionEntity cash flows.",
+      "budget": "40k tokens",
+      "parallel": false,
+      "status": "planned",
+      "steps": [
+        {
+          "id": "step-1",
+          "index": 1,
+          "description": "Create XirrCalculator utility with Newton-Raphson, NPV, derivative, convergence, and fallback logic",
+          "status": "pending",
+          "verification": {
+            "command": "./mvnw test -pl backend -Dtest=XirrCalculatorTest#shouldMatchExpectedXirrForKnownCashFlows -q",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false
+        },
+        {
+          "id": "step-2",
+          "index": 2,
+          "description": "Implement cash flow construction from TransactionEntity in AnalyticsService",
+          "status": "pending",
+          "verification": {
+            "command": "./mvnw test -pl backend -Dtest=AnalyticsServiceTest#shouldCalculatePortfolioXirr -q",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false
+        },
+        {
+          "id": "step-3",
+          "index": 3,
+          "description": "Support optional currentPrices in request body to include open positions as notional cash flow",
+          "status": "pending",
+          "verification": {
+            "command": "./mvnw test -pl backend -Dtest=AnalyticsServiceTest#shouldCalculateXirrWithCurrentPrices -q",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false
+        }
+      ]
+    },
+    {
+      "id": "phase-6",
+      "index": 6,
+      "name": "Tests",
+      "goal": "Validate correctness end-to-end",
+      "description": "Add comprehensive unit tests for AnalyticsService (mocked repositories) and XirrCalculator (pure math). Add integration tests with Testcontainers MongoDB seeding realistic data including corporate actions and multipart sells, then assert all endpoints. Seed TradeOutcomeEntity via the sellStock() write path.",
+      "budget": "30k tokens",
+      "parallel": false,
+      "status": "planned",
+      "steps": [
+        {
+          "id": "step-1",
+          "index": 1,
+          "description": "Add AnalyticsService unit tests covering all methods and edge cases",
+          "status": "pending",
+          "verification": {
+            "command": "./mvnw test -pl backend -Dtest=AnalyticsServiceTest -q",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false
+        },
+        {
+          "id": "step-2",
+          "index": 2,
+          "description": "Add XirrCalculator unit tests including non-convergent and edge cases",
+          "status": "pending",
+          "verification": {
+            "command": "./mvnw test -pl backend -Dtest=XirrCalculatorTest -q",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false
+        },
+        {
+          "id": "step-3",
+          "index": 3,
+          "description": "Add AnalyticsIntegrationTest seeding data and calling all endpoints",
+          "status": "pending",
+          "verification": {
+            "command": "./mvnw test -pl backend -Dtest=AnalyticsIntegrationTest -q",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false
+        }
+      ]
+    }
+  ],
+  "decisions": [
+    {
+      "id": "D001",
+      "title": "Work on feature branch",
+      "description": "All Phase 1 work (and subsequent phases) must be committed to a feature branch, not master. Need to create branch and ensure all edits are committed there.",
+      "phaseId": "phase-1",
+      "stepId": "step-2",
+      "createdAt": "2026-06-13T19:08:37.662Z"
+    }
+  ],
+  "memories": [],
+  "createdAt": "2026-06-13T18:32:03.501Z",
+  "updatedAt": "2026-06-13T19:10:29.836Z",
+  "goal": "Create a purpose-built TradeOutcomeEntity collection to replace the buggy ReportEntity, migrate existing historical data from ReportEntity, then implement self-contained V1 portfolio analytics endpoints: portfolio summary, asset allocation, performance metrics, and XIRR. TradeOutcomeEntity will correctly handle corporate actions (bonus, split, demerger) and multipart sells via dual cost basis tracking and sourceSellTransactionId linkage.",
+  "successCriteria": [
+    "TradeOutcomeEntity exists with dual cost basis, charges, holdingPeriodDays, capitalGainsType, sourceSellTransactionId, isCaDerived",
+    "One-time migration/backfill script created that reads ReportEntity and populates TradeOutcomeEntity with best-effort field mapping; existing user data preserved",
+    "ReportEntity and all report-related classes deleted; PortfolioService writes to TradeOutcomeService instead",
+    "GET /analytics/user/{email}/portfolio-summary returns totalInvested, totalRealizedProfit, totalTrades, buyTrades, sellTrades, holdingCount",
+    "GET /analytics/user/{email}/asset-allocation returns investedValue and percentage per AssetType summing to 100",
+    "GET /analytics/user/{email}/performance-metrics returns win/loss counts, avg profit/loss per trade, winLossRatio, avg holding period, portfolio turnover, best/worst stock",
+    "POST /analytics/user/{email}/xirr returns xirr, xirrPercentage, cashFlowsCount, converged flag; supports optional currentPrices for open positions",
+    "XIRR Calculator matches Excel/Google Sheets XIRR for known test cases within 0.01% tolerance",
+    "AnalyticsService unit tests pass for all 4 features",
+    "AnalyticsIntegrationTest passes with seeded data including corporate actions and multipart sells"
+  ],
+  "constraints": [
+    "No external market-price APIs for V1",
+    "No sector allocation or benchmarking",
+    "No pre-computed analytics snapshots or caching layer",
+    "Follow existing Spring Boot / MongoDB / Lombok conventions",
+    "Handle empty portfolios and edge cases gracefully"
+  ],
+  "lastActiveAt": "2026-06-13T19:01:57.926Z",
+  "activePhaseId": "phase-1"
+}

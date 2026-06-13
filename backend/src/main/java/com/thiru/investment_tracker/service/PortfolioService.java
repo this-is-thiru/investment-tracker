@@ -6,9 +6,10 @@ import com.thiru.investment_tracker.dto.OrderTimeQuantity;
 import com.thiru.investment_tracker.dto.RedriveResult;
 import com.thiru.investment_tracker.dto.context.ProfitAndLossContext;
 import com.thiru.investment_tracker.dto.ProfitAndLossResponse;
-import com.thiru.investment_tracker.dto.context.ReportContext;
+import com.thiru.investment_tracker.dto.context.TradeOutcomeContext;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
+import com.thiru.investment_tracker.dto.enums.CapitalGainsType;
 import com.thiru.investment_tracker.dto.enums.HoldingType;
 import com.thiru.investment_tracker.dto.enums.TransactionStatus;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
@@ -35,6 +36,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
+import java.time.Month;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -56,7 +59,7 @@ public class PortfolioService {
     private final TransactionService transactionService;
     private final ProfitAndLossService profitAndLossService;
     private final MongoTemplateService mongoTemplateService;
-    private final ReportService reportService;
+    private final TradeOutcomeService tradeOutcomeService;
     private final TransactionRepository transactionRepository;
     private final TemporaryTransactionService temporaryTransactionService;
 
@@ -405,53 +408,119 @@ public class PortfolioService {
             assetEntity.getSellTransactionIds().add(transactionId);
             Double assetQuantity = assetEntity.getQuantity();
 
-            ReportContext reportContext;
+            TradeOutcomeContext tradeOutcomeContext;
             ProfitAndLossContext profitAndLossContext;
+            double sellQty;
             if (sellQuantity >= assetQuantity) {
-                reportContext = toReportContext(assetEntity, assetRequest, assetQuantity);
+                tradeOutcomeContext = toTradeOutcomeContext(userMail.getEmail(), assetEntity, assetRequest, assetQuantity, transactionId);
                 profitAndLossContext = ProfitAndLossContext.from(assetEntity, assetRequest, assetQuantity);
+                sellQty = assetQuantity;
 
                 assetEntity.setQuantity(0D);
                 sellQuantity = sellQuantity - assetQuantity;
             } else {
-                reportContext = toReportContext(assetEntity, assetRequest, sellQuantity);
+                tradeOutcomeContext = toTradeOutcomeContext(userMail.getEmail(), assetEntity, assetRequest, sellQuantity, transactionId);
                 profitAndLossContext = ProfitAndLossContext.from(assetEntity, assetRequest, sellQuantity);
+                sellQty = sellQuantity;
 
                 double remainingQuantity = assetQuantity - sellQuantity;
                 assetEntity.setQuantity(remainingQuantity);
                 sellQuantity = 0;
             }
 
-            reportService.stockReport(userMail, reportContext);
+            tradeOutcomeService.saveTradeOutcome(userMail, tradeOutcomeContext);
             profitAndLossService.updateProfitAndLoss(userMail, profitAndLossContext);
         }
     }
 
-    private static ReportContext toReportContext(AssetEntity assetEntity, AssetRequest assetRequest, double sellQuantity) {
+    private TradeOutcomeContext toTradeOutcomeContext(String email, AssetEntity assetEntity, AssetRequest assetRequest,
+                                                       double sellQuantity, String transactionId) {
 
-        ReportContext reportContext = ReportContext.empty();
+        LocalDate buyDate = assetEntity.getTransactionDate();
+        LocalDate sellDate = assetRequest.getTransactionDate();
 
-        // Adding asset details to ReportContext
-        reportContext.setStockCode(assetEntity.getStockCode());
-        reportContext.setStockName(assetEntity.getStockName());
-        reportContext.setExchangeName(assetEntity.getExchangeName());
-        reportContext.setBrokerName(assetEntity.getBrokerName());
-        reportContext.setAssetType(assetEntity.getAssetType());
-        reportContext.setPurchasePrice(assetEntity.getPrice());
-        reportContext.setPurchaseDate(assetEntity.getTransactionDate());
+        // Pro-rate buy-side charges based on sell quantity
+        double assetQuantity = assetEntity.getQuantity() != null ? assetEntity.getQuantity() : 1.0;
+        double buyBrokerCharges = (assetEntity.getBrokerCharges() / assetQuantity) * sellQuantity;
+        double buyMiscCharges = (assetEntity.getMiscCharges() / assetQuantity) * sellQuantity;
 
-        // Adding asset request details to ReportContext
-        reportContext.setSellPrice(assetRequest.getPrice());
-        reportContext.setSellDate(assetRequest.getTransactionDate());
+        // Pro-rate sell-side charges based on sell quantity
+        double sellReqQuantity = assetRequest.getQuantity() != null ? assetRequest.getQuantity() : 1.0;
+        double sellBrokerCharges = (assetRequest.getBrokerCharges() / sellReqQuantity) * sellQuantity;
+        double sellMiscCharges = (assetRequest.getMiscCharges() / sellReqQuantity) * sellQuantity;
 
-        // Add AccountType and AccountHolder
-        reportContext.setAccountType(assetRequest.getAccountType());
-        reportContext.setAccountHolder(assetRequest.getAccountHolder());
+        // Buy side values
+        double caAdjustedBuyPrice = assetEntity.getPrice();
+        double originalBuyPrice = caAdjustedBuyPrice; // Will improve later with source transaction data
+        long buyQty = (long) sellQuantity;
 
-        // Adding sell quantity to ReportContext
-        reportContext.setSellQuantity(sellQuantity);
-        return reportContext;
+        // Sell side values
+        double sellPrice = assetRequest.getPrice();
+        long sellQty = (long) sellQuantity;
 
+        // Computed values
+        double totalBuyValue = (caAdjustedBuyPrice * sellQuantity) + buyBrokerCharges + buyMiscCharges;
+        double totalSellValue = (sellPrice * sellQuantity) - sellBrokerCharges - sellMiscCharges;
+        double netProfit = totalSellValue - totalBuyValue;
+        double profitPercentage = totalBuyValue > 0 ? (netProfit / totalBuyValue) * 100 : 0.0;
+
+        // Holding period and capital gains type
+        long holdingPeriodDays = ChronoUnit.DAYS.between(buyDate, sellDate);
+        CapitalGainsType capitalGainsType = holdingPeriodDays > 365 ? CapitalGainsType.LONG_TERM : CapitalGainsType.SHORT_TERM;
+
+        // Financial year derivation (Indian FY: April - March)
+        String financialYear = deriveFinancialYear(sellDate);
+
+        // Check if CA-derived (bonus stock or price=0)
+        boolean isCaDerived = (assetEntity.getCorporateActions() != null && !assetEntity.getCorporateActions().isEmpty())
+                || (assetEntity.getPrice() == 0 && assetEntity.getCorporateActionType() != null);
+
+        // Build context
+        TradeOutcomeContext context = TradeOutcomeContext.builder()
+                .email(email)
+                .stockCode(assetEntity.getStockCode())
+                .stockName(assetEntity.getStockName())
+                .exchangeName(assetEntity.getExchangeName())
+                .brokerName(assetEntity.getBrokerName())
+                .assetType(assetEntity.getAssetType())
+                .accountType(assetRequest.getAccountType())
+                .accountHolder(assetRequest.getAccountHolder())
+                .originalBuyPrice(originalBuyPrice)
+                .caAdjustedBuyPrice(caAdjustedBuyPrice)
+                .buyQuantity(buyQty)
+                .buyDate(buyDate)
+                .buyBrokerCharges(buyBrokerCharges)
+                .buyMiscCharges(buyMiscCharges)
+                .sellPrice(sellPrice)
+                .sellQuantity(sellQty)
+                .sellDate(sellDate)
+                .sellBrokerCharges(sellBrokerCharges)
+                .sellMiscCharges(sellMiscCharges)
+                .totalBuyValue(totalBuyValue)
+                .totalSellValue(totalSellValue)
+                .netProfit(netProfit)
+                .profitPercentage(profitPercentage)
+                .holdingPeriodDays(holdingPeriodDays)
+                .capitalGainsType(capitalGainsType)
+                .financialYear(financialYear)
+                .sourceSellTransactionId(transactionId)
+                .sourceBuyLotId(assetEntity.getId())
+                .isCaDerived(isCaDerived)
+                .appliedCorporateActions(assetEntity.getCorporateActions())
+                .build();
+
+        return context;
+    }
+
+    private static String deriveFinancialYear(LocalDate transactionDate) {
+        int transactionYear = transactionDate.getYear();
+        LocalDate financialYearEnd = LocalDate.of(transactionYear, Month.MARCH, 31);
+
+        if (transactionDate.isBefore(financialYearEnd)) {
+            return (transactionYear - 1) + "-" + transactionYear;
+        }
+
+        return transactionYear + "-" + (transactionYear + 1);
     }
 
     public ProfitAndLossResponse getProfitAndLoss(UserMail userMail, String financialYear) {
@@ -501,10 +570,10 @@ public class PortfolioService {
         }
 
         try {
-            reportService.deleteReports(userMail);
-            log.info("Deleted all reports for user: {}", userMail.getEmail());
+            tradeOutcomeService.deleteByEmail(userMail);
+            log.info("Deleted all trade outcomes for user: {}", userMail.getEmail());
         } catch (Exception e) {
-            log.error("Failed to delete reports for user: {} — continuing with remaining collections", userMail.getEmail(), e);
+            log.error("Failed to delete trade outcomes for user: {} — continuing with remaining collections", userMail.getEmail(), e);
         }
 
         try {
@@ -616,8 +685,7 @@ public class PortfolioService {
         portfolioRepository.saveAll(all);
 
         log.info("Updated all portfolio stocks");
-        reportService.updateReports();
-        log.info("Updated all reports");
+        log.info("ReportService.updateReports() removed — TradeOutcomeEntity uses typed schema");
         transactionService.updateTransactions();
         log.info("Updated all transactions");
     }
