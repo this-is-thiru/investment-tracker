@@ -20,8 +20,8 @@ import java.time.Instant;
 @RestControllerAdvice
 public class ControllerAdviser {
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidInputException(IllegalArgumentException ex, HttpServletRequest request) {
+    @ExceptionHandler({IllegalArgumentException.class, HttpMessageNotReadableException.class})
+    public ResponseEntity<ErrorResponse> handleBadRequest(Exception ex, HttpServletRequest request) {
         log(ex);
         return buildErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), request);
     }
@@ -33,32 +33,20 @@ public class ControllerAdviser {
         return buildErrorResponse(HttpStatus.BAD_REQUEST.value(), message, request);
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleException(AccessDeniedException ex, HttpServletRequest request) {
-        log(ex);
-        return buildErrorResponse(HttpStatus.UNAUTHORIZED.value(), ex.getMessage(), request);
-    }
-
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponse> handleException(HttpMessageNotReadableException ex, HttpServletRequest request) {
-        log(ex);
-        return buildErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), request);
-    }
-
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ErrorResponse> handleException(BadCredentialsException ex, HttpServletRequest request) {
+    @ExceptionHandler({AccessDeniedException.class, BadCredentialsException.class})
+    public ResponseEntity<ErrorResponse> handleUnauthorized(Exception ex, HttpServletRequest request) {
         log(ex);
         return buildErrorResponse(HttpStatus.UNAUTHORIZED.value(), ex.getMessage(), request);
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<ErrorResponse> handleException(NoResourceFoundException ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleNotFound(Exception ex, HttpServletRequest request) {
         log(ex);
         return buildErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage(), request);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, HttpServletRequest request) {
         log(ex);
         return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage(), request);
     }
