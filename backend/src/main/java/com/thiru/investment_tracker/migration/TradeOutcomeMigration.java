@@ -1,65 +1,75 @@
 package com.thiru.investment_tracker.migration;
 
+import com.thiru.investment_tracker.dto.enums.AccountType;
+import com.thiru.investment_tracker.dto.enums.AssetType;
+import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.CapitalGainsType;
-import com.thiru.investment_tracker.entity.ReportEntity;
 import com.thiru.investment_tracker.entity.TradeOutcomeEntity;
 import com.thiru.investment_tracker.entity.helper.AuditMetadata;
-import com.thiru.investment_tracker.repository.ReportRepository;
 import com.thiru.investment_tracker.repository.TradeOutcomeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
+/**
+ * One-time migration that reads all legacy ReportEntity documents from the 'reports' collection
+ * (via MongoTemplate — ReportRepository is deleted) and populates TradeOutcomeEntity in the
+ * 'trade_outcomes' collection with best-effort field mapping.
+ * <p>
+ * Field mapping from ReportEntity (raw BSON) to TradeOutcomeEntity:
+ * - email, stockCode, stockName, exchangeName, brokerName, assetType, accountType, accountHolder → direct map
+ * - purchasePrice → caAdjustedBuyPrice (best-effort: no post-CA adjusted price in old reports)
+ * - originalBuyPrice = caAdjustedBuyPrice (best-effort: no original txn price in ReportEntity)
+ * - sellPrice → direct map
+ * - quantity → sellQuantity (Long cast to Long; quantity in ReportEntity was sell qty)
+ * - totalValue → totalSellValue (copy existing value, even if buggy/0)
+ * - purchaseDate → buyDate
+ * - sellDate → direct map
+ * - holdingPeriodDays → calculated from ChronoUnit.DAYS.between(buyDate, sellDate)
+ * - capitalGainsType → derived from holdingPeriodDays (SHORT_TERM if &lt; 365, else LONG_TERM)
+ * - financialYear → derived from sellDate using Indian FY (Apr-Mar)
+ * - netProfit → (sellPrice - caAdjustedBuyPrice) * sellQuantity (approximate, no charges)
+ * - profitPercentage → (netProfit / totalBuyValue) * 100
+ * - isCaDerived → false (cannot determine from old reports)
+ * - auditMetadata → new with migration timestamp
+ * <p>
+ * Run once via: GET /migrations/run?className=TradeOutcomeMigration
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class TradeOutcomeMigration {
 
     private static final long LONG_TERM_THRESHOLD_DAYS = 365L;
+    private static final String REPORTS_COLLECTION = "reports";
 
-    private final ReportRepository reportRepository;
+    private final MongoTemplate mongoTemplate;
     private final TradeOutcomeRepository tradeOutcomeRepository;
 
-    /**
-     * One-time migration that reads all ReportEntity documents from the 'reports' collection
-     * and populates TradeOutcomeEntity in the 'trade_outcomes' collection with best-effort field mapping.
-     * <p>
-     * Field mapping from ReportEntity to TradeOutcomeEntity:
-     * - email, stockCode, stockName, exchangeName, brokerName, assetType, accountType, accountHolder → direct map
-     * - purchasePrice → caAdjustedBuyPrice (best-effort: no post-CA adjusted price in old reports)
-     * - originalBuyPrice = caAdjustedBuyPrice (best-effort: no original txn price in ReportEntity)
-     * - sellPrice → direct map
-     * - quantity → sellQuantity (Long cast to Long, note: quantity in ReportEntity was sell qty)
-     * - totalValue → totalSellValue (copy existing value, even if buggy/0)
-     * - purchaseDate → buyDate
-     * - sellDate → direct map
-     * - holdingPeriodDays → calculated from ChronoUnit.DAYS.between(buyDate, sellDate)
-     * - capitalGainsType → derived from holdingPeriodDays (SHORT_TERM if < 365, else LONG_TERM)
-     * - financialYear → derived from sellDate using Indian FY (Apr-Mar)
-     * - netProfit → (sellPrice - caAdjustedBuyPrice) * sellQuantity (approximate, no charges)
-     * - profitPercentage → (netProfit / totalBuyValue) * 100
-     * - isCaDerived → false (cannot determine from old reports)
-     * - auditMetadata → copied from ReportEntity or new with migration timestamp
-     */
     public void migrateReportsToTradeOutcomes() {
         log.info("Starting migration from ReportEntity to TradeOutcomeEntity");
         LocalDateTime startTime = LocalDateTime.now();
 
-        Iterable<ReportEntity> allReports = reportRepository.findAll();
+        // Query the 'reports' collection directly — ReportRepository is deleted
+        var allReports = mongoTemplate.findAll(Document.class, REPORTS_COLLECTION);
+
         int totalCount = 0;
         int skippedCount = 0;
         int migratedCount = 0;
 
-        for (ReportEntity report : allReports) {
+        for (Document report : allReports) {
             totalCount++;
 
-            // Skip invalid records with missing critical fields
             if (!isValidReport(report)) {
-                log.warn("Skipping invalid ReportEntity with id={}: missing required fields", report.getId());
+                log.warn("Skipping invalid ReportEntity with id={}: missing required fields",
+                        report.getString("_id"));
                 skippedCount++;
                 continue;
             }
@@ -81,58 +91,62 @@ public class TradeOutcomeMigration {
                 totalCount, migratedCount, skippedCount, durationSeconds);
     }
 
-    /**
-     * Validates that a ReportEntity has the minimum required fields for migration.
-     */
-    private boolean isValidReport(ReportEntity report) {
-        return report != null
-                && report.getEmail() != null && !report.getEmail().isBlank()
-                && report.getStockCode() != null && !report.getStockCode().isBlank()
-                && report.getPurchasePrice() > 0
-                && report.getSellPrice() > 0
-                && report.getSellQuantity() != null && report.getSellQuantity() > 0
-                && report.getPurchaseDate() != null
-                && report.getSellDate() != null;
+    private boolean isValidReport(Document report) {
+        String email = report.getString("email");
+        String stockCode = report.getString("stock_code");
+        Object purchasePriceObj = report.get("purchase_price");
+        Object sellPriceObj = report.get("sell_price");
+        Object sellQuantityObj = report.get("sell_quantity");
+
+        double purchasePrice = parseDouble(purchasePriceObj);
+        double sellPrice = parseDouble(sellPriceObj);
+        long sellQuantity = parseLong(sellQuantityObj);
+
+        Document purchaseDateDoc = report.get("purchase_date", Document.class);
+        Document sellDateDoc = report.get("sell_date", Document.class);
+
+        return email != null && !email.isBlank()
+                && stockCode != null && !stockCode.isBlank()
+                && purchasePrice > 0
+                && sellPrice > 0
+                && sellQuantity > 0
+                && purchaseDateDoc != null
+                && sellDateDoc != null;
     }
 
-    /**
-     * Maps a ReportEntity to TradeOutcomeEntity with best-effort field population.
-     */
-    private TradeOutcomeEntity mapReportToTradeOutcome(ReportEntity report) {
+    private TradeOutcomeEntity mapReportToTradeOutcome(Document report) {
         TradeOutcomeEntity outcome = new TradeOutcomeEntity();
 
-        // Identity fields - direct mapping
-        outcome.setEmail(report.getEmail());
-        outcome.setStockCode(report.getStockCode());
-        outcome.setStockName(report.getStockName());
-        outcome.setExchangeName(report.getExchangeName());
-        outcome.setBrokerName(report.getBrokerName());
-        outcome.setAssetType(report.getAssetType());
-        outcome.setAccountType(report.getAccountType());
-        outcome.setAccountHolder(report.getAccountHolder());
+        outcome.setEmail(report.getString("email"));
+        outcome.setStockCode(report.getString("stock_code"));
+        outcome.setStockName(report.getString("stock_name"));
+        outcome.setExchangeName(report.getString("exchange_name"));
+        outcome.setBrokerName(parseEnum(BrokerName.class, report.getString("broker_name")));
+        outcome.setAssetType(parseEnum(AssetType.class, report.getString("asset_type")));
+        outcome.setAccountType(parseEnum(AccountType.class, report.getString("account_type")));
+        outcome.setAccountHolder(report.getString("account_holder"));
 
-        // Buy side - purchasePrice becomes both original and CA-adjusted (best-effort)
-        double caAdjustedBuyPrice = report.getPurchasePrice();
+        double caAdjustedBuyPrice = parseDouble(report.get("purchase_price"));
         outcome.setOriginalBuyPrice(caAdjustedBuyPrice);
         outcome.setCaAdjustedBuyPrice(caAdjustedBuyPrice);
-        outcome.setBuyQuantity(report.getSellQuantity()); // Original qty equals sell qty in ReportEntity
-        outcome.setBuyDate(report.getPurchaseDate());
-        outcome.setBuyBrokerCharges(0.0); // Not available in ReportEntity
-        outcome.setBuyMiscCharges(0.0);   // Not available in ReportEntity
+        outcome.setBuyQuantity(parseLong(report.get("sell_quantity")));
+        outcome.setBuyDate(parseLocalDate(report.get("purchase_date")));
+        outcome.setBuyBrokerCharges(0.0);
+        outcome.setBuyMiscCharges(0.0);
 
-        // Sell side - direct mapping
-        outcome.setSellPrice(report.getSellPrice());
-        outcome.setSellQuantity(report.getSellQuantity());
-        outcome.setSellDate(report.getSellDate());
-        outcome.setSellBrokerCharges(0.0); // Not available in ReportEntity
-        outcome.setSellMiscCharges(0.0);   // Not available in ReportEntity
+        outcome.setSellPrice(parseDouble(report.get("sell_price")));
+        outcome.setSellQuantity(parseLong(report.get("sell_quantity")));
+        outcome.setSellDate(parseLocalDate(report.get("sell_date")));
+        outcome.setSellBrokerCharges(0.0);
+        outcome.setSellMiscCharges(0.0);
 
-        // Computed fields
-        double totalBuyValue = caAdjustedBuyPrice * report.getSellQuantity();
-        double totalSellValue = report.getTotalValue() > 0
-                ? report.getTotalValue()
-                : report.getSellPrice() * report.getSellQuantity();
-        double netProfit = (report.getSellPrice() - caAdjustedBuyPrice) * report.getSellQuantity();
+        long sellQty = parseLong(report.get("sell_quantity"));
+        double totalBuyValue = caAdjustedBuyPrice * sellQty;
+        double totalSellValue = parseDouble(report.get("total_value"));
+        if (totalSellValue <= 0) {
+            totalSellValue = parseDouble(report.get("sell_price")) * sellQty;
+        }
+        double netProfit = (parseDouble(report.get("sell_price")) - caAdjustedBuyPrice) * sellQty;
         double profitPercentage = totalBuyValue > 0 ? (netProfit / totalBuyValue) * 100 : 0.0;
 
         outcome.setTotalBuyValue(totalBuyValue);
@@ -140,51 +154,81 @@ public class TradeOutcomeMigration {
         outcome.setNetProfit(netProfit);
         outcome.setProfitPercentage(profitPercentage);
 
-        // Holding period and capital gains
-        long holdingPeriodDays = ChronoUnit.DAYS.between(report.getPurchaseDate(), report.getSellDate());
+        LocalDate buyDate = parseLocalDate(report.get("purchase_date"));
+        LocalDate sellDate = parseLocalDate(report.get("sell_date"));
+        long holdingPeriodDays = ChronoUnit.DAYS.between(buyDate, sellDate);
         outcome.setHoldingPeriodDays(holdingPeriodDays);
         outcome.setCapitalGainsType(deriveCapitalGainsType(holdingPeriodDays));
-        outcome.setFinancialYear(deriveFinancialYear(report.getSellDate()));
+        outcome.setFinancialYear(deriveFinancialYear(sellDate));
 
-        // Linkage fields - not available in ReportEntity
         outcome.setSourceSellTransactionId(null);
         outcome.setSourceBuyLotId(null);
-
-        // CA tracking - cannot determine from old reports
         outcome.setCaDerived(false);
 
-        // Audit metadata - copy from ReportEntity or create new
-        outcome.setAuditMetadata(copyOrCreateAuditMetadata(report));
+        outcome.setAuditMetadata(buildAuditMetadata());
 
         return outcome;
     }
 
-    /**
-     * Derives CapitalGainsType based on holding period.
-     * In India, equity held for more than 12 months (365 days) qualifies for long-term capital gains.
-     */
+    private double parseDouble(Object value) {
+        if (value == null) return 0.0;
+        if (value instanceof Number) return ((Number) value).doubleValue();
+        if (value instanceof String) {
+            try {
+                return Double.parseDouble((String) value);
+            } catch (NumberFormatException e) {
+                return 0.0;
+            }
+        }
+        if (value instanceof BigDecimal) return ((BigDecimal) value).doubleValue();
+        return 0.0;
+    }
+
+    private long parseLong(Object value) {
+        if (value == null) return 0L;
+        if (value instanceof Number) return ((Number) value).longValue();
+        if (value instanceof String) {
+            try {
+                return Long.parseLong((String) value);
+            } catch (NumberFormatException e) {
+                return 0L;
+            }
+        }
+        return 0L;
+    }
+
+    private LocalDate parseLocalDate(Object value) {
+        if (value == null) return null;
+        if (value instanceof java.util.Date) return ((java.util.Date) value).toInstant()
+                .atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+        if (value instanceof Document doc) {
+            // Spring Data MongoDB stores LocalDate as { "date": "...", "time": "..." } or epoch-based
+            Object dateObj = doc.get("date");
+            if (dateObj instanceof String s) {
+                return LocalDate.parse(s);
+            }
+            // epoch-based storage
+            Number epochDay = doc.get("epochDay", Number.class);
+            if (epochDay != null) {
+                return LocalDate.ofEpochDay(epochDay.longValue());
+            }
+            return null;
+        }
+        return null;
+    }
+
     private CapitalGainsType deriveCapitalGainsType(long holdingPeriodDays) {
         return holdingPeriodDays >= LONG_TERM_THRESHOLD_DAYS
                 ? CapitalGainsType.LONG_TERM
                 : CapitalGainsType.SHORT_TERM;
     }
 
-    /**
-     * Derives the Indian Financial Year string (e.g., "FY2023-24") from a sell date.
-     * Indian FY runs from April to March.
-     */
     private String deriveFinancialYear(LocalDate sellDate) {
         if (sellDate == null) {
             return "UNKNOWN";
         }
-
         int year = sellDate.getYear();
         int month = sellDate.getMonthValue();
-
-        // If sell date is Jan-Mar, it belongs to FY of previous calendar year
-        // e.g., Jan 2024 → FY2023-24
-        // If sell date is Apr-Dec, it belongs to FY of current calendar year
-        // e.g., Jun 2024 → FY2024-25
         if (month <= 3) {
             return String.format("FY%d-%02d", year - 1, (year % 100));
         } else {
@@ -192,27 +236,25 @@ public class TradeOutcomeMigration {
         }
     }
 
-    /**
-     * Copies AuditMetadata from ReportEntity or creates a new one with migration timestamp.
-     */
-    private AuditMetadata copyOrCreateAuditMetadata(ReportEntity report) {
-        AuditMetadata original = report.getAuditMetadata();
-        AuditMetadata newMetadata = new AuditMetadata();
-
-        LocalDateTime now = LocalDateTime.now();
-
-        if (original != null) {
-            newMetadata.setCreatedBy(original.getCreatedBy());
-            newMetadata.setCreatedAt(original.getCreatedAt());
-            newMetadata.setUpdatedBy("TradeOutcomeMigration@" + now);
-            newMetadata.setUpdatedAt(now);
-        } else {
-            newMetadata.setCreatedBy("TradeOutcomeMigration");
-            newMetadata.setCreatedAt(now);
-            newMetadata.setUpdatedBy("TradeOutcomeMigration");
-            newMetadata.setUpdatedAt(now);
+    private <T extends Enum<T>> T parseEnum(Class<T> enumClass, String value) {
+        if (value == null || value.isBlank()) {
+            return null;
         }
+        try {
+            return Enum.valueOf(enumClass, value.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            log.warn("Could not parse '{}' as {}, skipping", value, enumClass.getSimpleName());
+            return null;
+        }
+    }
 
-        return newMetadata;
+    private AuditMetadata buildAuditMetadata() {
+        LocalDateTime now = LocalDateTime.now();
+        AuditMetadata metadata = new AuditMetadata();
+        metadata.setCreatedBy("TradeOutcomeMigration");
+        metadata.setCreatedAt(now);
+        metadata.setUpdatedBy("TradeOutcomeMigration@" + now);
+        metadata.setUpdatedAt(now);
+        return metadata;
     }
 }
