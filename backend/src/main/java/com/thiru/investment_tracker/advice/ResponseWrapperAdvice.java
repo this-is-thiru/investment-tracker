@@ -1,0 +1,46 @@
+package com.thiru.investment_tracker.advice;
+
+import com.thiru.investment_tracker.dto.ApiResponse;
+import com.thiru.investment_tracker.util.collection.TJsonMapper;
+import org.jspecify.annotations.NonNull;
+import org.springframework.core.MethodParameter;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.context.annotation.Profile;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
+
+@Profile("!integration-test")
+@RestControllerAdvice
+public class ResponseWrapperAdvice implements ResponseBodyAdvice<Object> {
+
+    @Override
+    public boolean supports(@NonNull MethodParameter returnType,
+                            Class<? extends HttpMessageConverter<?>> converterType) {
+        return true;
+    }
+
+    @Override
+    public Object beforeBodyWrite(Object body,
+                                  MethodParameter returnType,
+                                  MediaType selectedContentType,
+                                  Class<? extends HttpMessageConverter<?>> selectedConverterType,
+                                  ServerHttpRequest request,
+                                  ServerHttpResponse response) {
+        if (body instanceof ApiResponse) {
+            return body;
+        }
+
+        if (body instanceof String) {
+            return TJsonMapper.writeValueAsString(new ApiResponse<>(body));
+        }
+
+        if (selectedContentType == null || !selectedContentType.isCompatibleWith(MediaType.APPLICATION_JSON)) {
+            return body;
+        }
+
+        return new ApiResponse<>(body);
+    }
+}
