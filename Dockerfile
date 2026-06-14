@@ -2,19 +2,20 @@
 FROM maven:3.9.11-eclipse-temurin-25 AS build
 WORKDIR /app
 
-# Copy the pom and source code
+# Copy the multi-module project
 COPY pom.xml .
-COPY src ./src
+COPY backend ./backend
+COPY test-report ./test-report
 
-# Package the application
-RUN mvn clean install -DskipTests
+# Package the backend application (and parent)
+RUN mvn clean install -pl backend -am -DskipTests
 
 # ---------- Runtime Stage ----------
 FROM eclipse-temurin:25-jre-alpine
 WORKDIR /app
 
-# Copy the built jar from the build stage
-COPY --from=build /app/target/investment-tracker.jar /app.jar
+# Copy the built jar from the backend module
+COPY --from=build /app/backend/target/investment-tracker.jar /app.jar
 
 EXPOSE 8080
 ENV SPRING_PROFILES_ACTIVE=default

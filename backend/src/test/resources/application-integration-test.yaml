@@ -1,0 +1,16 @@
+spring:
+  mongodb:
+    uri: mongodb://localhost:27017/testdb
+    database: integration-test
+  main:
+    allow-bean-definition-overriding: true
+
+app:
+  security:
+    key-secret: dGVzdC1zZWNyZXQta2V5LWZvci1pbnRlZ3JhdGlvbi10ZXN0cy1vbmx5
+  mongodb:
+    transactions-enabled: true
+
+logging:
+  level:
+    org.springframework.data.mongodb.core.MongoTemplate: DEBUG

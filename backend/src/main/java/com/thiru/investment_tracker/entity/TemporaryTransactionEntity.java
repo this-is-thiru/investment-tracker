@@ -1,0 +1,17 @@
+package com.thiru.investment_tracker.entity;
+
+import com.thiru.investment_tracker.dto.AssetRequest;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
+@EqualsAndHashCode(callSuper = true)
+@Data
+@AllArgsConstructor
+@Document(value = "temporary_transactions")
+public class TemporaryTransactionEntity extends TransactionEntity {
+    @Field("asset_request")
+    AssetRequest assetRequest;
+}

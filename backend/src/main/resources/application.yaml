@@ -1,0 +1,16 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: investment-tracker
+
+  mongodb:
+    uri: mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@it-staging.6fu8nvy.mongodb.net/?retryWrites=true&w=majority
+    database: it-staging
+
+app:
+  security:
+    key-secret: ${JWT_SECURITY_KEY}
+  mongodb:
+    transactions-enabled: true
