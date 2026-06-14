@@ -1,6 +1,5 @@
 package com.thiru.investment_tracker.service;
 
-import com.thiru.investment_tracker.dto.CorporateActionDto;
 import com.thiru.investment_tracker.dto.CorporateActionPerformDto;
 import com.thiru.investment_tracker.dto.context.DemergedStockContext;
 import com.thiru.investment_tracker.dto.context.DemergerContext;
@@ -8,6 +7,7 @@ import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.CorporateActionType;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
+import com.thiru.investment_tracker.dto.CorporateActionDto;
 import com.thiru.investment_tracker.entity.AssetEntity;
 import com.thiru.investment_tracker.entity.CorporateActionEntity;
 import com.thiru.investment_tracker.entity.LastlyPerformedCorporateAction;
@@ -16,6 +16,7 @@ import com.thiru.investment_tracker.repository.CorporateActionRepository;
 import com.thiru.investment_tracker.repository.LastlyPerformedCorporateActionRepo;
 import com.thiru.investment_tracker.util.collection.TCollectionUtil;
 import com.thiru.investment_tracker.util.collection.TJsonMapper;
+import com.thiru.investment_tracker.util.time.TLocalDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @Log4j2
@@ -95,6 +97,29 @@ public class CorporateActionService {
         List<CorporateActionEntity> actions = corporateActionRepository.findAllById(ids);
         return TCollectionUtil.map(actions, corporateAction -> TJsonMapper.copy(corporateAction, CorporateActionDto.class));
     }
+
+//    public void performQuarterlyCorporateActions(String email, int year, int quarter) {
+//
+//        Month quarterStart = TLocalDate.firstMonthOfQuarter(quarter);
+//        LocalDate fromDate = LocalDate.of(year, quarterStart, ONE);
+//        LocalDate toDate = LocalDate.of(year, quarterStart.plus(3), ONE).minusDays(ONE);
+//        List<CorporateActionEntity> corporateActions = corporateActionRepository.findByTypeInAndRecordDateBetween(CorporateActionType.FILTERABLE_CORPORATE_ACTIONS, fromDate, toDate);
+//        for (CorporateActionEntity corporateAction : corporateActions) {
+//            performQuarterlyCorporateAction(email, corporateAction);
+//        }
+//        log.info(corporateActions);
+//    }
+//
+//    public void performQuarterlyCorporateAction(String email, CorporateActionEntity corporateAction) {
+//
+//        CorporateActionType action = corporateAction.getType();
+//        if (Objects.requireNonNull(action) == CorporateActionType.BONUS) {
+//            processBonusShares(email, corporateAction);
+//        } else {
+//            throw new IllegalArgumentException("Invalid action type" + action);
+//        }
+//        log.info("Quarterly corporate action: {} noted successfully for stock: {}", action, corporateAction.getStockCode());
+//    }
 
     @Transactional
     public void deleteCorporateActions(String id) {

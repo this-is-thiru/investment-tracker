@@ -19,7 +19,7 @@ public class UserCorporateActionController {
 
     @PutMapping("/perform")
     public CorporateActionPerformDto performCorporateActions(@PathVariable String email, @RequestBody CorporateActionPerformDto actionPerformDto,
-                                        @RequestParam(value = "allBrokers", required = false, defaultValue = "false") boolean allBrokers) {
+                                                             @RequestParam(value = "allBrokers", required = false, defaultValue = "false") boolean allBrokers) {
         corporateActionService.performPendingCorporateActions(email, actionPerformDto, allBrokers);
         return actionPerformDto;
     }
