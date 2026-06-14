@@ -2,7 +2,7 @@
   "id": "019ec241-5aad-73ed-85fa-6ab3571b1f30",
   "name": "Advanced Analytics V1",
   "description": "list",
-  "status": "running",
+  "status": "paused",
   "worktree": {
     "path": "/Users/pthirumalayadav/IdeaProjects/investment-tracker",
     "branch": "master",
@@ -39,7 +39,7 @@
       "description": "Create TradeOutcomeEntity with dual cost basis (originalBuyPrice + caAdjustedBuyPrice), full charge pro-rating, holdingPeriodDays, capitalGainsType, financialYear, sourceSellTransactionId, sourceBuyLotId, netProfit, profitPercentage, isCaDerived flag. Create TradeOutcomeContext, TradeOutcomeRepository, TradeOutcomeService. Build a one-time backfill migration that reads existing ReportEntity documents and creates corresponding TradeOutcomeEntity records with best-effort field population (missing fields like charges and netProfit are left null or computed where possible). Replace all ReportEntity write/read usage in PortfolioService with TradeOutcomeEntity. Delete ReportEntity, ReportContext, ReportService, ReportRepository, and ReportController.",
       "budget": "55k tokens",
       "parallel": false,
-      "status": "active",
+      "status": "completed",
       "steps": [
         {
           "id": "step-1",
@@ -87,29 +87,48 @@
           "id": "step-3",
           "index": 3,
           "description": "Replace reportService usage in PortfolioService sellStock() and clearAllRecordsForCustomer() with tradeOutcomeService",
-          "status": "running",
+          "status": "verified",
           "verification": {
             "command": "! grep -q 'reportService' backend/src/main/java/com/thiru/investment_tracker/service/PortfolioService.java",
             "retries": 2,
             "retryDelayMs": 1000
           },
           "parallel": false,
-          "startedAt": "2026-06-13T19:10:29.836Z"
+          "startedAt": "2026-06-13T19:10:29.836Z",
+          "completedAt": "2026-06-13T19:22:42.300Z",
+          "result": {
+            "success": true,
+            "exitCode": 0,
+            "stdout": "",
+            "stderr": "",
+            "completedAt": "2026-06-13T19:22:42.300Z"
+          }
         },
         {
           "id": "step-4",
           "index": 4,
           "description": "Delete ReportEntity, ReportContext, ReportService, ReportRepository, ReportController and verify clean compile",
-          "status": "pending",
+          "status": "verified",
           "verification": {
             "command": "! test -f backend/src/main/java/com/thiru/investment_tracker/entity/ReportEntity.java && ./mvnw compile -pl backend -q",
             "retries": 2,
             "retryDelayMs": 1000
           },
-          "parallel": false
+          "parallel": false,
+          "startedAt": "2026-06-13T19:23:26.306Z",
+          "completedAt": "2026-06-13T19:26:26.864Z",
+          "result": {
+            "success": true,
+            "exitCode": 0,
+            "stdout": "",
+            "stderr": "",
+            "completedAt": "2026-06-13T19:26:26.864Z"
+          }
         }
       ],
-      "startedAt": "2026-06-13T19:01:57.926Z"
+      "startedAt": "2026-06-13T19:01:57.926Z",
+      "completedAt": "2026-06-13T19:35:19.153Z",
+      "summary": "Phase 1 complete. Replaced buggy ReportEntity with TradeOutcomeEntity featuring dual cost basis, charge pro-rating, CA tracking, and sourceSellTransactionId. Created migration script for historical data. Updated PortfolioService sell path and clear-all path. Deleted all ReportEntity code. 3 commits on feature/advanced-analytics-v1. Compilation clean, PortfolioServiceTest passes."
     },
     {
       "id": "phase-2",
@@ -352,7 +371,7 @@
   ],
   "memories": [],
   "createdAt": "2026-06-13T18:32:03.501Z",
-  "updatedAt": "2026-06-13T19:10:29.836Z",
+  "updatedAt": "2026-06-13T19:36:25.044Z",
   "goal": "Create a purpose-built TradeOutcomeEntity collection to replace the buggy ReportEntity, migrate existing historical data from ReportEntity, then implement self-contained V1 portfolio analytics endpoints: portfolio summary, asset allocation, performance metrics, and XIRR. TradeOutcomeEntity will correctly handle corporate actions (bonus, split, demerger) and multipart sells via dual cost basis tracking and sourceSellTransactionId linkage.",
   "successCriteria": [
     "TradeOutcomeEntity exists with dual cost basis, charges, holdingPeriodDays, capitalGainsType, sourceSellTransactionId, isCaDerived",
@@ -373,6 +392,5 @@
     "Follow existing Spring Boot / MongoDB / Lombok conventions",
     "Handle empty portfolios and edge cases gracefully"
   ],
-  "lastActiveAt": "2026-06-13T19:01:57.926Z",
-  "activePhaseId": "phase-1"
+  "lastActiveAt": "2026-06-13T19:01:57.926Z"
 }
