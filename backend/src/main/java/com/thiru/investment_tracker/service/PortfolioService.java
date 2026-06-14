@@ -16,7 +16,6 @@ import com.thiru.investment_tracker.dto.enums.CapitalGainsType;
 import com.thiru.investment_tracker.dto.enums.HoldingType;
 import com.thiru.investment_tracker.dto.enums.TransactionStatus;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
-import com.thiru.investment_tracker.dto.AssetResponse;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.AssetEntity;
 import com.thiru.investment_tracker.entity.TransactionEntity;
@@ -61,14 +60,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PortfolioService {
 
-    private final ReportService reportService;
     private final TransactionService transactionService;
     private final PortfolioRepository portfolioRepository;
     private final ProfitAndLossService profitAndLossService;
     private final MongoTemplateService mongoTemplateService;
     private final TradeOutcomeService tradeOutcomeService;
     private final TransactionRepository transactionRepository;
-    private final UserBrokerChargeService userBrokerChargeService;
+//    private final UserBrokerChargeService userBrokerChargeService;
     private final TemporaryTransactionService temporaryTransactionService;
 
     /**

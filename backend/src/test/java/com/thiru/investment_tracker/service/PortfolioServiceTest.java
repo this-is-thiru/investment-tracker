@@ -4,12 +4,11 @@ import com.thiru.investment_tracker.dto.AssetRequest;
 import com.thiru.investment_tracker.dto.RedriveResult;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
-import com.thiru.investment_tracker.exception.BadRequestException;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.TransactionEntity;
+import com.thiru.investment_tracker.exception.BadRequestException;
 import com.thiru.investment_tracker.repository.PortfolioRepository;
 import com.thiru.investment_tracker.repository.TransactionRepository;
-import com.thiru.investment_tracker.repository.TradeOutcomeRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -82,7 +81,7 @@ class PortfolioServiceTest {
                 TradeOutcomeService tradeOutcomeService,
                 TransactionRepository transactionRepository,
                 TemporaryTransactionService temporaryTransactionService) {
-            super(portfolioRepository, transactionService, profitAndLossService,
+            super(transactionService, portfolioRepository, profitAndLossService,
                     mongoTemplateService, tradeOutcomeService, transactionRepository,
                     temporaryTransactionService);
         }
@@ -125,7 +124,7 @@ class PortfolioServiceTest {
                 TradeOutcomeService tradeOutcomeService,
                 TransactionRepository transactionRepository,
                 TemporaryTransactionService temporaryTransactionService) {
-            super(portfolioRepository, transactionService, profitAndLossService,
+            super(transactionService, portfolioRepository, profitAndLossService,
                     mongoTemplateService, tradeOutcomeService, transactionRepository,
                     temporaryTransactionService);
         }
