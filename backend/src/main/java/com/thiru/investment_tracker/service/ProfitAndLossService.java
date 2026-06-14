@@ -1,6 +1,5 @@
 package com.thiru.investment_tracker.service;
 
-import com.thiru.investment_tracker.dto.context.ProfitAndLossContext;
 import com.thiru.investment_tracker.dto.context.BrokerChargeContext;
 import com.thiru.investment_tracker.dto.context.BuyContext;
 import com.thiru.investment_tracker.dto.context.ProfitAndLossContext;
@@ -11,14 +10,7 @@ import com.thiru.investment_tracker.dto.enums.BrokerChargeTransactionType;
 import com.thiru.investment_tracker.dto.enums.CorporateActionType;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.dto.ProfitAndLossResponse;
-import com.thiru.investment_tracker.dto.enums.AccountType;
 import com.thiru.investment_tracker.dto.user.UserMail;
-import com.thiru.investment_tracker.entity.ProfitAndLossEntity;
-import com.thiru.investment_tracker.entity.model.FinancialReport;
-import com.thiru.investment_tracker.entity.model.FortnightReport;
-import com.thiru.investment_tracker.entity.model.MonthlyReport;
-import com.thiru.investment_tracker.entity.model.RealisedProfits;
-import com.thiru.investment_tracker.entity.model.ReportModel;
 import com.thiru.investment_tracker.entity.ProfitAndLossEntity;
 import com.thiru.investment_tracker.entity.UserBrokerCharges;
 import com.thiru.investment_tracker.entity.model.BrokerChargesReport;

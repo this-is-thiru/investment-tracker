@@ -3,6 +3,7 @@ package com.thiru.investment_tracker.controller;
 import com.thiru.investment_tracker.dto.request.AssetManagementDetailsRequest;
 import com.thiru.investment_tracker.dto.request.BrokerChargesRequest;
 import com.thiru.investment_tracker.dto.user.UserMail;
+import com.thiru.investment_tracker.entity.AssetManagementDetails;
 import com.thiru.investment_tracker.entity.BrokerCharges;
 import com.thiru.investment_tracker.service.AssetManagementService;
 import com.thiru.investment_tracker.service.BrokerChargeService;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RequestMapping("/broker-charges/")
@@ -37,9 +40,9 @@ public class BrokerChargesController {
         assetManagementService.addAssetManagementEntry(UserMail.from(email), request);
     }
 
-    @PostMapping("/user/{email}/asset-management-details")
-    public void getAssetManagementDetails(@PathVariable String email) {
-        assetManagementService.getAssetManagementDetails(UserMail.from(email));
+    @GetMapping("/user/{email}/asset-management-details")
+    public List<AssetManagementDetails> getAssetManagementDetails(@PathVariable String email) {
+        return assetManagementService.getAssetManagementDetails(UserMail.from(email));
     }
 
     @PostMapping("/amc/impose")

@@ -37,9 +37,8 @@ public class UserBrokerChargeService {
 
         UserBrokerCharges brokerCharge;
         if (brokerChargeContext.transactionType() == BrokerChargeTransactionType.AMC_CHARGES) {
-            // TODO: handle this later
-            if (brokerCharges.getAmcChargeFrequency() != AmcChargeFrequency.QUARTERLY) {
-                log.error("Invalid amc charge frequency: {}", brokerCharges.getAmcChargeFrequency());
+            if (brokerCharges.getAmcChargeFrequency() == null) {
+                log.error("AMC charge frequency not configured for broker charges id: {}", brokerCharges.getId());
                 return null;
             }
             brokerCharge = getUserBrokerChargesForAmc(userMail, brokerChargeContext, brokerCharges);
@@ -84,8 +83,12 @@ public class UserBrokerChargeService {
         userBrokerCharges.setType(BrokerChargeTransactionType.AMC_CHARGES);
 
         double annualAmcCharges = brokerCharges.getAmcChargesAnnually();
-        double quarterlyCharges = annualAmcCharges / 4;
-        userBrokerCharges.setAmcCharges(quarterlyCharges);
+        AmcChargeFrequency frequency = brokerCharges.getAmcChargeFrequency();
+        double amcCharges = switch (frequency) {
+            case QUARTERLY -> annualAmcCharges / 4;
+            case ANNUALLY -> annualAmcCharges;
+        };
+        userBrokerCharges.setAmcCharges(amcCharges);
 
         setTaxes(userBrokerCharges, brokerCharges);
         return userBrokerCharges;
@@ -96,8 +99,8 @@ public class UserBrokerChargeService {
         double sebiCharge = brokerChargeContext.totalAmount() * brokerCharges.getSebiCharges() / 100;
         double govtCharges = sttCharge + sebiCharge;
 
-        var brokerChargesOptional = brokerChargeContext.transactionType();
-        if (brokerChargesOptional == BrokerChargeTransactionType.BUY) {
+        var transactionType = brokerChargeContext.transactionType();
+        if (transactionType == BrokerChargeTransactionType.BUY) {
             double stampDuty = brokerChargeContext.totalAmount() * brokerCharges.getStampDuty() / 100;
             govtCharges += stampDuty;
         }
@@ -105,7 +108,12 @@ public class UserBrokerChargeService {
     }
 
     private static void setTaxes(UserBrokerCharges userBrokerCharges, BrokerCharges brokerCharges) {
-        String[] taxComponents = brokerCharges.getGstApplicableDescription().split(",");
+        String gstDescription = brokerCharges.getGstApplicableDescription();
+        if (gstDescription == null || gstDescription.isBlank()) {
+            userBrokerCharges.setTaxes(0);
+            return;
+        }
+        String[] taxComponents = gstDescription.split(",");
         double taxes = 0;
         for (String taxComponent : taxComponents) {
             taxes += getTaxComponentTax(userBrokerCharges, taxComponent);
@@ -124,7 +132,7 @@ public class UserBrokerChargeService {
         } else if ("stt".equalsIgnoreCase(taxComponentName)) {
             return userBrokerCharges.getGovtCharges() * taxPercentage / 100;
         } else if ("amc_charges".equalsIgnoreCase(taxComponentName)) {
-            return userBrokerCharges.getAmcCharges();
+            return userBrokerCharges.getAmcCharges() * taxPercentage / 100;
         }
 
         log.error("Unknown tax component: {}", taxComponentName);

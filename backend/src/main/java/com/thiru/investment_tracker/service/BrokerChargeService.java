@@ -70,6 +70,7 @@ public class BrokerChargeService {
         brokerCharges.setStatus(brokerChargesRequest.getStatus());
         brokerCharges.setAccountOpeningCharges(brokerChargesRequest.getAccountOpeningCharges());
         brokerCharges.setAmcChargesAnnually(brokerChargesRequest.getAmcChargesAnnually());
+        brokerCharges.setAmcChargeFrequency(brokerChargesRequest.getAmcChargesFrequency());
         brokerCharges.setBrokerageCharges(TJsonMapper.copy(brokerChargesRequest.getBrokerageCharges(), BrokerageCharges.class));
         brokerCharges.setDpChargesPerScrip(brokerChargesRequest.getDpChargesPerScrip());
         brokerCharges.setStt(brokerChargesRequest.getStt());

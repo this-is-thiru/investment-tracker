@@ -1,6 +1,7 @@
 package com.thiru.investment_tracker.dto.request;
 
 
+import com.thiru.investment_tracker.dto.enums.AmcChargeFrequency;
 import com.thiru.investment_tracker.dto.helper.BrokerageChargesDto;
 import com.thiru.investment_tracker.dto.enums.BrokerName;
 import com.thiru.investment_tracker.dto.enums.EntityStatus;
@@ -19,6 +20,7 @@ public class BrokerChargesRequest{
     private EntityStatus status;
     private double accountOpeningCharges;
     private double amcChargesAnnually;
+    private AmcChargeFrequency amcChargesFrequency;
     private BrokerageChargesDto brokerageCharges;
     private double dpChargesPerScrip;
     private double stt;

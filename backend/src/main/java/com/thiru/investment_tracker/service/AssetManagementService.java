@@ -11,6 +11,7 @@ import com.thiru.investment_tracker.util.collection.TJsonMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Log4j2
+@Transactional
 public class AssetManagementService {
 
     private static final int DAYS_CONSIDER_FOR_QUARTERLY_AMC_CHARGES = 91;
