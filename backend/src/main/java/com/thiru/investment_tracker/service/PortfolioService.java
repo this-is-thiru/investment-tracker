@@ -66,9 +66,9 @@ public class PortfolioService {
     private final PortfolioRepository portfolioRepository;
     private final ProfitAndLossService profitAndLossService;
     private final MongoTemplateService mongoTemplateService;
-    private final UserBrokerChargeService userBrokerChargeService;
     private final TradeOutcomeService tradeOutcomeService;
     private final TransactionRepository transactionRepository;
+    private final UserBrokerChargeService userBrokerChargeService;
     private final TemporaryTransactionService temporaryTransactionService;
 
     /**
