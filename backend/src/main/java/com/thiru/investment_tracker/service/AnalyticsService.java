@@ -1,11 +1,14 @@
 package com.thiru.investment_tracker.service;
 
 import com.thiru.investment_tracker.dto.analytics.AssetAllocationResponse;
+import com.thiru.investment_tracker.dto.analytics.CashFlow;
+import com.thiru.investment_tracker.dto.analytics.MarketPriceEntry;
 import com.thiru.investment_tracker.dto.analytics.PerformanceMetricsResponse;
 import com.thiru.investment_tracker.dto.analytics.PortfolioSummaryResponse;
 import com.thiru.investment_tracker.dto.analytics.StockPerformance;
 import com.thiru.investment_tracker.dto.analytics.XirrRequest;
 import com.thiru.investment_tracker.dto.analytics.XirrResponse;
+import com.thiru.investment_tracker.util.calculator.XirrCalculator;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.dto.user.UserMail;
@@ -22,7 +25,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -194,7 +199,84 @@ public class AnalyticsService {
     }
 
     public XirrResponse calculateXirr(UserMail userMail, XirrRequest request) {
-        // Stub
-        return XirrResponse.builder().build();
+        String email = userMail.getEmail();
+        List<TransactionEntity> transactions = transactionRepository.findByEmail(email);
+        List<AssetEntity> assets = portfolioRepository.findByEmail(email);
+
+        List<CashFlow> cashFlows = new ArrayList<>();
+
+        for (TransactionEntity txn : transactions) {
+            double grossAmount = txn.getPrice() * txn.getQuantity();
+            double signedAmount;
+            switch (txn.getTransactionType()) {
+                case BUY -> signedAmount = -(grossAmount + txn.getBrokerCharges() + txn.getMiscCharges());
+                case SELL -> signedAmount = grossAmount - txn.getBrokerCharges() - txn.getMiscCharges();
+                default -> { continue; }
+            }
+            cashFlows.add(new CashFlow(signedAmount, txn.getTransactionDate()));
+        }
+
+        boolean includesOpenPositions = false;
+        String message = null;
+
+        if (request != null && request.getCurrentPrices() != null && !request.getCurrentPrices().isEmpty()) {
+            Map<String, Double> priceMap = request.getCurrentPrices().stream()
+                .collect(Collectors.toMap(MarketPriceEntry::getStockCode, MarketPriceEntry::getPrice));
+
+            double totalCurrentValue = 0.0;
+            for (AssetEntity asset : assets) {
+                if (asset.getQuantity() != null && asset.getQuantity() > 0) {
+                    Double currentPrice = priceMap.get(asset.getStockCode());
+                    if (currentPrice != null) {
+                        totalCurrentValue += currentPrice * asset.getQuantity();
+                    }
+                }
+            }
+
+            if (totalCurrentValue > 0) {
+                cashFlows.add(new CashFlow(totalCurrentValue, LocalDate.now()));
+                includesOpenPositions = true;
+            }
+        } else {
+            boolean hasOpenPositions = assets.stream().anyMatch(a -> a.getQuantity() != null && a.getQuantity() > 0);
+            if (hasOpenPositions) {
+                message = "Open positions excluded. Provide currentPrices for full XIRR.";
+            }
+        }
+
+        if (cashFlows.size() < 2) {
+            return XirrResponse.builder()
+                .xirr(0.0)
+                .xirrPercentage(0.0)
+                .calculationDate(LocalDate.now())
+                .cashFlowsCount(cashFlows.size())
+                .converged(false)
+                .includesOpenPositions(includesOpenPositions)
+                .message("Insufficient cash flows for XIRR calculation")
+                .build();
+        }
+
+        try {
+            double xirr = XirrCalculator.calculate(cashFlows);
+            return XirrResponse.builder()
+                .xirr(xirr)
+                .xirrPercentage(xirr * 100)
+                .calculationDate(LocalDate.now())
+                .cashFlowsCount(cashFlows.size())
+                .converged(true)
+                .includesOpenPositions(includesOpenPositions)
+                .message(message)
+                .build();
+        } catch (IllegalArgumentException e) {
+            return XirrResponse.builder()
+                .xirr(0.0)
+                .xirrPercentage(0.0)
+                .calculationDate(LocalDate.now())
+                .cashFlowsCount(cashFlows.size())
+                .converged(false)
+                .includesOpenPositions(includesOpenPositions)
+                .message(e.getMessage())
+                .build();
+        }
     }
 }

@@ -1,8 +1,11 @@
 package com.thiru.investment_tracker.service;
 
 import com.thiru.investment_tracker.dto.analytics.AssetAllocationResponse;
+import com.thiru.investment_tracker.dto.analytics.MarketPriceEntry;
 import com.thiru.investment_tracker.dto.analytics.PerformanceMetricsResponse;
 import com.thiru.investment_tracker.dto.analytics.PortfolioSummaryResponse;
+import com.thiru.investment_tracker.dto.analytics.XirrRequest;
+import com.thiru.investment_tracker.dto.analytics.XirrResponse;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.dto.user.UserMail;
@@ -22,6 +25,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -350,5 +354,115 @@ class AnalyticsServiceTest {
         assertEquals(1L, result.getWinCount());
         assertEquals(1L, result.getLossCount());
         assertEquals(0L, result.getBreakevenCount());
+    }
+
+    @Test
+    void shouldCalculatePortfolioXirr() {
+        String email = "test@example.com";
+        UserMail userMail = UserMail.from(email);
+
+        TransactionEntity buy = new TransactionEntity();
+        buy.setTransactionType(TransactionType.BUY);
+        buy.setPrice(100.0);
+        buy.setQuantity(10.0);
+        buy.setBrokerCharges(10.0);
+        buy.setMiscCharges(5.0);
+        buy.setTransactionDate(LocalDate.of(2023, 1, 1));
+
+        TransactionEntity sell = new TransactionEntity();
+        sell.setTransactionType(TransactionType.SELL);
+        sell.setPrice(150.0);
+        sell.setQuantity(10.0);
+        sell.setBrokerCharges(15.0);
+        sell.setMiscCharges(5.0);
+        sell.setTransactionDate(LocalDate.of(2024, 1, 1));
+
+        when(transactionRepository.findByEmail(email)).thenReturn(List.of(buy, sell));
+        when(portfolioRepository.findByEmail(email)).thenReturn(List.of());
+
+        XirrResponse result = analyticsService.calculateXirr(userMail, new XirrRequest());
+
+        assertTrue(result.getConverged());
+        assertTrue(result.getXirr() > 0);
+    }
+
+    @Test
+    void shouldCalculateXirrWithCurrentPrices() {
+        String email = "test@example.com";
+        UserMail userMail = UserMail.from(email);
+
+        TransactionEntity buy = new TransactionEntity();
+        buy.setTransactionType(TransactionType.BUY);
+        buy.setPrice(100.0);
+        buy.setQuantity(10.0);
+        buy.setBrokerCharges(10.0);
+        buy.setMiscCharges(5.0);
+        buy.setTransactionDate(LocalDate.of(2023, 1, 1));
+
+        AssetEntity asset = new AssetEntity();
+        asset.setStockCode("INFY");
+        asset.setQuantity(10.0);
+
+        when(transactionRepository.findByEmail(email)).thenReturn(List.of(buy));
+        when(portfolioRepository.findByEmail(email)).thenReturn(List.of(asset));
+
+        XirrRequest request = new XirrRequest();
+        request.setCurrentPrices(List.of(new MarketPriceEntry("INFY", 150.0)));
+
+        XirrResponse result = analyticsService.calculateXirr(userMail, request);
+
+        assertTrue(result.getConverged());
+        assertTrue(result.getIncludesOpenPositions());
+        assertTrue(result.getXirr() > 0);
+    }
+
+    @Test
+    void shouldReturnZeroWhenInsufficientCashFlows() {
+        String email = "test@example.com";
+        UserMail userMail = UserMail.from(email);
+
+        when(transactionRepository.findByEmail(email)).thenReturn(List.of());
+        when(portfolioRepository.findByEmail(email)).thenReturn(List.of());
+
+        XirrResponse result = analyticsService.calculateXirr(userMail, new XirrRequest());
+
+        assertFalse(result.getConverged());
+        assertEquals(0.0, result.getXirr());
+        assertEquals(0, result.getCashFlowsCount());
+    }
+
+    @Test
+    void shouldWarnWhenOpenPositionsExcluded() {
+        String email = "test@example.com";
+        UserMail userMail = UserMail.from(email);
+
+        // Two transactions: BUY and SELL creates at least 2 cash flows
+        TransactionEntity buy = new TransactionEntity();
+        buy.setTransactionType(TransactionType.BUY);
+        buy.setPrice(100.0);
+        buy.setQuantity(10.0);
+        buy.setBrokerCharges(0.0);
+        buy.setMiscCharges(0.0);
+        buy.setTransactionDate(LocalDate.of(2023, 1, 1));
+
+        TransactionEntity sell = new TransactionEntity();
+        sell.setTransactionType(TransactionType.SELL);
+        sell.setPrice(120.0);
+        sell.setQuantity(5.0);
+        sell.setBrokerCharges(0.0);
+        sell.setMiscCharges(0.0);
+        sell.setTransactionDate(LocalDate.of(2023, 6, 1));
+
+        AssetEntity asset = new AssetEntity();
+        asset.setStockCode("INFY");
+        asset.setQuantity(5.0); // Still have open position
+
+        when(transactionRepository.findByEmail(email)).thenReturn(List.of(buy, sell));
+        when(portfolioRepository.findByEmail(email)).thenReturn(List.of(asset));
+
+        XirrResponse result = analyticsService.calculateXirr(userMail, new XirrRequest());
+
+        assertNotNull(result.getMessage());
+        assertTrue(result.getMessage().contains("Open positions excluded"));
     }
 }
