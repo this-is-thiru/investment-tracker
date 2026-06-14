@@ -1,6 +1,6 @@
 # Investment Tracker
 
-A Spring Boot-based portfolio tracking application for the Indian stock market that manages buy/sell transactions, corporate actions (bonus, demerger, stock split), profit & loss calculation, and portfolio holdings using MongoDB for flexible document storage.
+A Spring Boot-based portfolio tracking application for the Indian stock market that manages buy/sell transactions, corporate actions (bonus, demerger, stock split), profit & loss calculation, broker & AMC charge tracking, and portfolio holdings using MongoDB for flexible document storage.
 
 ## Architecture Overview
 
@@ -9,11 +9,13 @@ The service follows a 3-layer architecture:
 ```
 Controller Layer          → PortfolioController, TransactionController, CorporateActionController,
                             UserCorporateActionController, TemporaryTransactionsController,
+                            BrokerChargesController, UserBrokerChargesController, TestController,
                             ReportController, FinancesController, AuthController,
                             EntityExportController, TemplateController, HelperController
          ↓
 Service Layer             → PortfolioService, TransactionService, CorporateActionService,
                             TemporaryTransactionService, ProfitAndLossService, ReportService,
+                            BrokerChargeService, UserBrokerChargeService, AssetManagementService,
                             FinancesService, AuthService, EntityExportService
          ↓
 Repository / Document     → MongoDB Repositories (Spring Data MongoDB)
@@ -25,8 +27,10 @@ Repository / Document     → MongoDB Repositories (Spring Data MongoDB)
 - `repository/` — Data access (Spring Data MongoDB)
 - `entity/` — MongoDB document entities with snake_case field names
 - `dto/` — Data transfer objects with `asTransaction()` / `asAsset()` converters
-- `dto/enums/` — Domain enums (TransactionType, AssetType, CorporateActionType, etc.)
-- `dto/context/` — Processing context objects (AssetContext, DemergerContext, ProfitAndLossContext)
+- `dto/enums/` — Domain enums (TransactionType, AssetType, CorporateActionType, BrokerChargeTransactionType, BrokerageAggregatorType, AmcChargeFrequency, EntityStatus, etc.)
+- `dto/context/` — Processing context objects (AssetContext, DemergerContext, ProfitAndLossContext, ProfitLossContext, BrokerChargeContext, BuyContext)
+- `dto/reports/` — Report response DTOs (brokerage charges reports)
+- `dto/request/` — Request DTOs for broker charges and asset management
 - `auth/` — JWT authentication (controller, service, filter, config)
 - `config/` — MongoDB config, converters, transaction config, RabbitMQ config
 - `util/` — Static utility classes (`TCollectionUtil`, `TJsonMapper`, `TLocalDate`, Excel builders/parsers)
@@ -44,6 +48,10 @@ erDiagram
     USER_DETAILS ||--o{ TRANSACTIONS : "owns"
     USER_DETAILS ||--o{ ASSETS : "owns"
     USER_DETAILS ||--o{ INSURANCES : "owns"
+    BROKER_CHARGES ||--o{ USER_BROKER_CHARGES : "used to compute"
+    USER_DETAILS ||--o{ USER_BROKER_CHARGES : "incurs"
+    USER_DETAILS ||--o{ ASSET_MANAGEMENT_DETAILS : "manages"
+    ASSET_MANAGEMENT_DETAILS ||--o{ USER_BROKER_CHARGES : "generates AMC"
 
     TRANSACTIONS {
         String id PK
@@ -152,6 +160,54 @@ erDiagram
         AuditMetadata audit_metadata
     }
 
+    BROKER_CHARGES {
+        String id PK
+        BrokerName broker_name
+        LocalDate start_date
+        LocalDate end_date
+        EntityStatus status
+        Double account_opening_charges
+        Double amc_charges
+        AmcChargeFrequency amc_charges_frequency
+        BrokerageCharges brokerage_charges
+        Double dp_charges_per_scrip
+        Double stt
+        Double sebi_charges
+        Double stamp_duty
+        String gst
+        AuditMetadata audit_metadata
+    }
+
+    USER_BROKER_CHARGES {
+        String id PK
+        String email
+        BrokerName broker_name
+        String stock_code
+        LocalDate transaction_date
+        BrokerChargeTransactionType type
+        String transaction_id
+        Double brokerage
+        Double account_opening_charges
+        Double amc_charges
+        Double govt_charges
+        Double taxes
+        Double dp_charges
+        AuditMetadata audit_metadata
+    }
+
+    ASSET_MANAGEMENT_DETAILS {
+        String id PK
+        String email
+        String demat_account_id
+        BrokerName broker_name
+        Double account_opening_charges
+        Double tax_on_account_opening_charges
+        LocalDate last_amc_charges_deducted_on
+        AmcChargeFrequency amc_charges_frequency
+        List amc_charges_events
+        AuditMetadata audit_metadata
+    }
+
     USER_DETAILS {
         String email PK
         String password
@@ -194,6 +250,34 @@ SELL transactions iterate over `AssetEntity` purchase lots in ascending transact
 ### Temporary Transaction Pattern
 
 When a `FILTERABLE_CORPORATE_ACTION` (BONUS, DEMERGER, STOCK_SPLIT) blocks a new transaction, the transaction is saved with `status = TEMPORARY` and its original `AssetRequest` is stored in the `assetRequest` field. Redrive via `POST /temporary-transactions/user/{email}/redrive` re-processes them once the corporate action is handled.
+
+### Broker Charge Templates
+
+`BrokerCharges` stores per-broker charge configurations with a validity window (`startDate`–`endDate`). Each template defines brokerage percentage/fixed/minimum/maximum charges, government levies (STT, SEBI, stamp duty), DP charges per scrip, AMC rates, and a GST applicability description (e.g. `18%-brokerage,18%-dp_charges,18%-stt`).
+
+On each BUY/SELL transaction, `UserBrokerChargeService` looks up the active template for the transaction's broker and date, then computes:
+- **Brokerage:** using a MIN or MAX aggregator across percentage-based and fixed charges
+- **Government Charges:** STT + SEBI (+ stamp duty for BUY only)
+- **DP Charges:** applied only on the first SELL per stock per day
+- **Taxes (GST):** parsed from the template's GST description and applied component-wise
+
+### AMC (Account Maintenance Charge) Imposition
+
+`AssetManagementDetails` tracks per-user-per-broker demat account configuration, including account opening charges and AMC frequency (quarterly or annually). An administrative endpoint (`POST /broker-charges/amc/impose`) processes all overdue accounts and creates `UserBrokerCharges` entries for the computed AMC amount.
+
+### Parallel P&L Reporting Hierarchy
+
+The `ProfitAndLossEntity` now contains two independent report hierarchies:
+1. **Capital Gains:** `RealisedProfits` → `FinancialReport` → `MonthlyReport` → `FortnightReport` (tracks purchase/sell amounts, profit)
+2. **Broker Charges:** `RealisedProfits` → `YearlyBrokerCharges` → `MonthlyBrokerCharges` → `BrokerChargesReport` (tracks brokerage, government charges, taxes, DP charges, AMC)
+
+This separation allows independent analysis of trading costs versus trading profits.
+
+### Portfolio Transaction v2
+
+`addTransactionV2` introduces a refined buy/sell flow:
+- **BUY (v2):** Each buy creates a separate `AssetEntity` (no same-day lot merging). For EQUITY assets, broker charges are automatically recorded in the P&L.
+- **SELL (v2):** Uses `findEligibleHoldingsForSell(email, stockCode, brokerName, accountHolder, transactionDate)` to fetch all buy lots with `transactionDate ≤ sellDate`, ordered ascending (FIFO). Each consumed buy lot contributes its own cost basis to the P&L calculation.
 
 ### Corporate Action Processing
 
@@ -393,12 +477,109 @@ curl -X GET "http://localhost:8080/portfolio/user/user@example.com/assets/holdin
   --output long_term_holdings.xlsx
 ```
 
+### Add Broker Charge Template
+
+```bash
+curl -X POST http://localhost:8080/broker-charges/add \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{
+    "brokerName": "ZERODHA",
+    "startDate": "2024-01-01",
+    "status": "ACTIVE",
+    "accountOpeningCharges": 0,
+    "amcChargesAnnually": 300,
+    "amcChargesFrequency": "QUARTERLY",
+    "brokerageCharges": {
+      "brokerage": 0,
+      "brokerageCharges": 20,
+      "brokerageAggregator": "MIN",
+      "minimumBrokerage": 0,
+      "maximumBrokerage": 20
+    },
+    "dpChargesPerScrip": 13.5,
+    "stt": 0.1,
+    "sebiCharges": 0.0001,
+    "stampDuty": 0.015,
+    "gstApplicableDescription": "18%-brokerage,18%-dp_charges,18%-stt,18%-amc_charges"
+  }'
+```
+
+### Get Broker Charge Template
+
+```bash
+curl -X GET "http://localhost:8080/broker-charges/{id}" \
+  -H "Authorization: Bearer <token>"
+```
+
+### Add Asset Management Detail
+
+```bash
+curl -X POST "http://localhost:8080/broker-charges/user/user@example.com/add/asset-management-detail" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{
+    "brokerName": "ZERODHA",
+    "dematAccountId": "1234567890",
+    "accountOpeningCharges": 300,
+    "taxOnAccountOpeningCharges": 54,
+    "lastAmcChargesDeductedOn": "2024-01-01",
+    "amcChargesFrequency": "QUARTERLY"
+  }'
+```
+
+### Get Asset Management Details
+
+```bash
+curl -X GET "http://localhost:8080/broker-charges/user/user@example.com/asset-management-details" \
+  -H "Authorization: Bearer <token>"
+```
+
+### Impose AMC Charges
+
+```bash
+curl -X POST "http://localhost:8080/broker-charges/amc/impose" \
+  -H "Authorization: Bearer <token>"
+```
+
+### Get User Broker Charges
+
+```bash
+curl -X GET "http://localhost:8080/user-broker-charges/user/user@example.com/all" \
+  -H "Authorization: Bearer <token>"
+```
+
+### Add Transaction (v2)
+
+```bash
+curl -X POST "http://localhost:8080/portfolio/user/user@example.com/transaction/v2" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{
+    "stockCode": "INFY",
+    "stockName": "Infosys Limited",
+    "exchangeName": "NSE",
+    "brokerName": "ZERODHA",
+    "price": 1450.00,
+    "quantity": 10,
+    "assetType": "EQUITY",
+    "transactionType": "BUY",
+    "transactionDate": "2024-01-15",
+    "accountType": "SELF",
+    "accountHolder": "user@example.com"
+  }'
+```
+
 ## Assumptions
 
 - **MongoDB Replica Set:** Multi-document transactions require a MongoDB replica set. The `app.mongodb.transactions-enabled` flag must be `true`.
 - **User Email as Identifier:** The `email` path variable serves as the user identifier across all portfolio endpoints. Authentication extracts the user from JWT but the API still accepts email explicitly in paths.
 - **Indian Market Context:** Asset types, exchange names, and broker names are oriented toward Indian stock market conventions.
 - **Holding Period:** Long-term vs short-term classification is based on a 1-year holding period for equities.
+- **Broker Charge Template Required:** For automatic broker charge calculation on BUY/SELL transactions, an active `BrokerCharges` template must exist for the broker and transaction date. If missing, the transaction proceeds without broker charges.
+- **GST Description Format:** The `gstApplicableDescription` field in `BrokerChargesRequest` follows the format `XX%-component_name,XX%-component_name` (e.g. `18%-brokerage,18%-stt`). The percentage symbol is optional; components not matching known names are silently ignored.
+- **DP Charge Deduplication:** DP charges are applied only once per stock per day on SELL transactions. Multiple sells of the same stock on the same day incur DP charges only on the first sell.
+- **AMC Frequency:** Quarterly AMC uses a fixed 91-day interval (not strict calendar quarters). Annual AMC uses a 1-year interval.
 - **Quarterly Corporate Actions:** Corporate actions are batched and processed per financial quarter rather than individually per record date.
 
 ## Future Improvements
@@ -410,4 +591,5 @@ curl -X GET "http://localhost:8080/portfolio/user/user@example.com/assets/holdin
 - **Caching:** Introduce Redis caching for frequently accessed portfolio and transaction data.
 - **Multi-currency Support:** Extend support for international stocks with currency conversion.
 - **Advanced Analytics:** Add portfolio performance metrics, XIRR calculation, and sector/asset allocation charts.
+- **Broker Charge Analytics:** Dashboard views for total brokerage, government charges, taxes, and DP charges per broker / financial year / month.
 - **Event-Driven Architecture:** Leverage RabbitMQ config to publish domain events (transaction created, corporate action performed) for downstream consumers.
