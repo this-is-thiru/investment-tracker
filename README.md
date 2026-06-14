@@ -10,11 +10,11 @@ The service follows a 3-layer architecture:
 Controller Layer          → PortfolioController, TransactionController, CorporateActionController,
                             UserCorporateActionController, TemporaryTransactionsController,
                             BrokerChargesController, UserBrokerChargesController, TestController,
-                            ReportController, FinancesController, AuthController,
+                            FinancesController, AuthController,
                             EntityExportController, TemplateController, HelperController
          ↓
 Service Layer             → PortfolioService, TransactionService, CorporateActionService,
-                            TemporaryTransactionService, ProfitAndLossService, ReportService,
+                            TemporaryTransactionService, ProfitAndLossService, TradeOutcomeService,
                             BrokerChargeService, UserBrokerChargeService, AssetManagementService,
                             FinancesService, AuthService, EntityExportService
          ↓
@@ -28,7 +28,7 @@ Repository / Document     → MongoDB Repositories (Spring Data MongoDB)
 - `entity/` — MongoDB document entities with snake_case field names
 - `dto/` — Data transfer objects with `asTransaction()` / `asAsset()` converters
 - `dto/enums/` — Domain enums (TransactionType, AssetType, CorporateActionType, BrokerChargeTransactionType, BrokerageAggregatorType, AmcChargeFrequency, EntityStatus, etc.)
-- `dto/context/` — Processing context objects (AssetContext, DemergerContext, ProfitAndLossContext, ProfitLossContext, BrokerChargeContext, BuyContext)
+- `dto/context/` — Processing context objects (AssetContext, DemergerContext, ProfitAndLossContext, ProfitLossContext, BrokerChargeContext, BuyContext, TradeOutcomeContext)
 - `dto/reports/` — Report response DTOs (brokerage charges reports)
 - `dto/request/` — Request DTOs for broker charges and asset management
 - `auth/` — JWT authentication (controller, service, filter, config)
@@ -41,8 +41,9 @@ Repository / Document     → MongoDB Repositories (Spring Data MongoDB)
 ```mermaid
 erDiagram
     TRANSACTIONS ||--o{ ASSETS : "impacts"
-    TRANSACTIONS ||--o{ REPORTS : "generates"
+    TRANSACTIONS ||--o{ TRADE_OUTCOMES : "generates"
     TRANSACTIONS ||--o{ PROFIT_AND_LOSS : "contributes to"
+    TRANSACTIONS ||--o{ USER_BROKER_CHARGES : "incurs"
     CORPORATE_ACTION ||--o{ ASSETS : "affects"
     CORPORATE_ACTION ||--o{ LASTLY_PERFORMED_CORPORATE_ACTION : "tracked by"
     USER_DETAILS ||--o{ TRANSACTIONS : "owns"
@@ -124,20 +125,38 @@ erDiagram
         AuditMetadata audit_metadata
     }
 
-    REPORTS {
+    TRADE_OUTCOMES {
         String id PK
         String email
         String stock_code
         String stock_name
         String exchange_name
         BrokerName broker_name
-        Double purchase_price
-        Double sell_price
-        Long sell_quantity
+        AssetType asset_type
         AccountType account_type
         String account_holder
-        LocalDate purchase_date
+        Double original_buy_price
+        Double ca_adjusted_buy_price
+        Double buy_quantity
+        LocalDate buy_date
+        Double buy_broker_charges
+        Double buy_misc_charges
+        Double sell_price
+        Double sell_quantity
         LocalDate sell_date
+        Double sell_broker_charges
+        Double sell_misc_charges
+        Double total_buy_value
+        Double total_sell_value
+        Double net_profit
+        Double profit_percentage
+        Long holding_period_days
+        CapitalGainsType capital_gains_type
+        String financial_year
+        String source_sell_transaction_id
+        String source_buy_lot_id
+        Boolean is_ca_derived
+        List applied_corporate_actions
         AuditMetadata audit_metadata
     }
 
