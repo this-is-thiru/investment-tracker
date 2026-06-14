@@ -123,7 +123,7 @@ public class UserBrokerChargeService {
 
     private static double getTaxComponentTax(UserBrokerCharges userBrokerCharges, String taxComponent) {
         String[] taxComponents = taxComponent.split("-");
-        double taxPercentage = Double.parseDouble(taxComponents[0]);
+        double taxPercentage = Double.parseDouble(taxComponents[0].replace("%", ""));
         String taxComponentName = taxComponents[1];
         if ("brokerage".equalsIgnoreCase(taxComponentName)) {
             return userBrokerCharges.getBrokerage() * taxPercentage / 100;
