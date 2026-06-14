@@ -30,18 +30,9 @@ import java.util.stream.Collectors;
  * Transaction-based migration that rebuilds TradeOutcomeEntity directly from
  * TransactionEntity BUY/SELL records via FIFO matching.
  * <p>
- * This replaces the old ReportEntity-based TradeOutcomeMigration which had issues
- * with fractional quantities being truncated (Long storage).
- * <p>
- * Migration steps:
- * 1. Read all distinct emails from transactions collection
- * 2. For each user:
- *    a. Read all BUY transactions
- *    b. Read all SELL transactions (sorted by date)
- *    c. Build BuyLots from BUYs via TradeMatchingService.buildLotsFromBuys()
- *    d. For each SELL: match against lots, convert to TradeOutcomeEntity, save
- * <p>
- * Run once via: GET /migrations/run?className=TransactionBasedTradeOutcomeMigration
+ * Triggered on app startup via {@link TradeOutcomeMigrationRunner} (CommandLineRunner).
+ * Runs once only when 'trade_outcomes' collection is empty.
+ * Do NOT trigger from client-facing code.
  */
 @Service
 @Slf4j
