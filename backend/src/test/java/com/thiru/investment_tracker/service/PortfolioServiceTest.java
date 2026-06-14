@@ -9,6 +9,7 @@ import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.TransactionEntity;
 import com.thiru.investment_tracker.repository.PortfolioRepository;
 import com.thiru.investment_tracker.repository.TransactionRepository;
+import com.thiru.investment_tracker.repository.TradeOutcomeRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,7 +40,7 @@ class PortfolioServiceTest {
     private MongoTemplateService mongoTemplateService;
 
     @Mock
-    private ReportService reportService;
+    private TradeOutcomeService tradeOutcomeService;
 
     @Mock
     private TransactionRepository transactionRepository;
@@ -57,7 +58,7 @@ class PortfolioServiceTest {
                 transactionService,
                 profitAndLossService,
                 mongoTemplateService,
-                reportService,
+                tradeOutcomeService,
                 transactionRepository,
                 temporaryTransactionService
         );
@@ -78,11 +79,11 @@ class PortfolioServiceTest {
                 TransactionService transactionService,
                 ProfitAndLossService profitAndLossService,
                 MongoTemplateService mongoTemplateService,
-                ReportService reportService,
+                TradeOutcomeService tradeOutcomeService,
                 TransactionRepository transactionRepository,
                 TemporaryTransactionService temporaryTransactionService) {
             super(portfolioRepository, transactionService, profitAndLossService,
-                    mongoTemplateService, reportService, transactionRepository,
+                    mongoTemplateService, tradeOutcomeService, transactionRepository,
                     temporaryTransactionService);
         }
 
@@ -121,11 +122,11 @@ class PortfolioServiceTest {
                 TransactionService transactionService,
                 ProfitAndLossService profitAndLossService,
                 MongoTemplateService mongoTemplateService,
-                ReportService reportService,
+                TradeOutcomeService tradeOutcomeService,
                 TransactionRepository transactionRepository,
                 TemporaryTransactionService temporaryTransactionService) {
             super(portfolioRepository, transactionService, profitAndLossService,
-                    mongoTemplateService, reportService, transactionRepository,
+                    mongoTemplateService, tradeOutcomeService, transactionRepository,
                     temporaryTransactionService);
         }
 
@@ -141,7 +142,7 @@ class PortfolioServiceTest {
         // Given: use real service so check is exercised
         RealPortfolioService realService = new RealPortfolioService(
                 portfolioRepository, transactionService, profitAndLossService,
-                mongoTemplateService, reportService, transactionRepository,
+                mongoTemplateService, tradeOutcomeService, transactionRepository,
                 temporaryTransactionService);
         when(temporaryTransactionService.hasTemporaryTransactions(userMail)).thenReturn(true);
         AssetRequest request = createAssetRequest("STOCK1");
@@ -158,7 +159,7 @@ class PortfolioServiceTest {
         // Given: use real service so check is exercised
         RealPortfolioService realService = new RealPortfolioService(
                 portfolioRepository, transactionService, profitAndLossService,
-                mongoTemplateService, reportService, transactionRepository,
+                mongoTemplateService, tradeOutcomeService, transactionRepository,
                 temporaryTransactionService);
         when(temporaryTransactionService.hasTemporaryTransactions(userMail)).thenReturn(false);
         AssetRequest request = createAssetRequest("STOCK1");
