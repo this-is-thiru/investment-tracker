@@ -1,11 +1,13 @@
 package com.thiru.investment_tracker.service;
 
 import com.thiru.investment_tracker.dto.analytics.AssetAllocationResponse;
+import com.thiru.investment_tracker.dto.analytics.PerformanceMetricsResponse;
 import com.thiru.investment_tracker.dto.analytics.PortfolioSummaryResponse;
 import com.thiru.investment_tracker.dto.enums.AssetType;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.AssetEntity;
+import com.thiru.investment_tracker.entity.TradeOutcomeEntity;
 import com.thiru.investment_tracker.entity.ProfitAndLossEntity;
 import com.thiru.investment_tracker.entity.TransactionEntity;
 import com.thiru.investment_tracker.entity.model.FinancialReport;
@@ -204,5 +206,149 @@ class AnalyticsServiceTest {
         // Then
         assertEquals(1, result.size());
         assertEquals(AssetType.EQUITY, result.get(0).getAssetType());
+    }
+
+    @Test
+    void shouldReturnCorrectWinLossCounts() {
+        // Given
+        String email = "test@example.com";
+        UserMail userMail = UserMail.from(email);
+
+        TradeOutcomeEntity win = new TradeOutcomeEntity();
+        win.setNetProfit(500.0);
+        win.setHoldingPeriodDays(30L);
+        win.setTotalBuyValue(1000.0);
+        win.setTotalSellValue(1500.0);
+        win.setStockCode("RELIANCE");
+
+        TradeOutcomeEntity loss = new TradeOutcomeEntity();
+        loss.setNetProfit(-300.0);
+        loss.setHoldingPeriodDays(60L);
+        loss.setTotalBuyValue(2000.0);
+        loss.setTotalSellValue(1700.0);
+        loss.setStockCode("HDFC");
+
+        TradeOutcomeEntity breakeven = new TradeOutcomeEntity();
+        breakeven.setNetProfit(0.0);
+        breakeven.setHoldingPeriodDays(45L);
+        breakeven.setTotalBuyValue(500.0);
+        breakeven.setTotalSellValue(500.0);
+        breakeven.setStockCode("TCS");
+
+        TradeOutcomeEntity anotherWin = new TradeOutcomeEntity();
+        anotherWin.setNetProfit(200.0);
+        anotherWin.setHoldingPeriodDays(90L);
+        anotherWin.setTotalBuyValue(800.0);
+        anotherWin.setTotalSellValue(1000.0);
+        anotherWin.setStockCode("RELIANCE");
+
+        when(tradeOutcomeRepository.findByEmail(email)).thenReturn(List.of(win, loss, breakeven, anotherWin));
+
+        // When
+        PerformanceMetricsResponse result = analyticsService.getPerformanceMetrics(userMail);
+
+        // Then
+        assertEquals(4L, result.getTotalTrades());
+        assertEquals(2L, result.getWinCount());
+        assertEquals(1L, result.getLossCount());
+        assertEquals(1L, result.getBreakevenCount());
+        assertEquals(350.0, result.getAverageProfitPerWin(), 0.01);
+        assertEquals(300.0, result.getAverageLossPerLoss(), 0.01);
+        assertEquals(2.0, result.getWinLossRatio(), 0.01);
+        assertEquals(56.25, result.getAverageHoldingPeriodDays(), 0.01);
+    }
+
+    @Test
+    void shouldIdentifyBestAndWorstStock() {
+        // Given
+        String email = "test@example.com";
+        UserMail userMail = UserMail.from(email);
+
+        TradeOutcomeEntity relianceWin = new TradeOutcomeEntity();
+        relianceWin.setStockCode("RELIANCE");
+        relianceWin.setNetProfit(1000.0);
+        relianceWin.setTotalBuyValue(5000.0);
+        relianceWin.setTotalSellValue(6000.0);
+        relianceWin.setHoldingPeriodDays(30L);
+
+        TradeOutcomeEntity hdfcLoss = new TradeOutcomeEntity();
+        hdfcLoss.setStockCode("HDFC");
+        hdfcLoss.setNetProfit(-500.0);
+        hdfcLoss.setTotalBuyValue(3000.0);
+        hdfcLoss.setTotalSellValue(2500.0);
+        hdfcLoss.setHoldingPeriodDays(60L);
+
+        TradeOutcomeEntity tcsSmallWin = new TradeOutcomeEntity();
+        tcsSmallWin.setStockCode("TCS");
+        tcsSmallWin.setNetProfit(100.0);
+        tcsSmallWin.setTotalBuyValue(1000.0);
+        tcsSmallWin.setTotalSellValue(1100.0);
+        tcsSmallWin.setHoldingPeriodDays(45L);
+
+        when(tradeOutcomeRepository.findByEmail(email)).thenReturn(List.of(relianceWin, hdfcLoss, tcsSmallWin));
+
+        // When
+        PerformanceMetricsResponse result = analyticsService.getPerformanceMetrics(userMail);
+
+        // Then
+        assertNotNull(result.getBestPerformingStock());
+        assertNotNull(result.getWorstPerformingStock());
+        assertEquals("RELIANCE", result.getBestPerformingStock().getStockCode());
+        assertEquals("HDFC", result.getWorstPerformingStock().getStockCode());
+        assertEquals(20.0, result.getBestPerformingStock().getReturnPercentage(), 0.01);
+        assertEquals(-16.67, result.getWorstPerformingStock().getReturnPercentage(), 0.01);
+    }
+
+    @Test
+    void shouldReturnZeroMetricsWhenEmpty() {
+        // Given
+        String email = "test@example.com";
+        UserMail userMail = UserMail.from(email);
+        when(tradeOutcomeRepository.findByEmail(email)).thenReturn(List.of());
+
+        // When
+        PerformanceMetricsResponse result = analyticsService.getPerformanceMetrics(userMail);
+
+        // Then
+        assertEquals(0L, result.getTotalTrades());
+        assertEquals(0L, result.getWinCount());
+        assertEquals(0L, result.getLossCount());
+        assertEquals(0L, result.getBreakevenCount());
+        assertEquals(0.0, result.getAverageProfitPerWin());
+        assertEquals(0.0, result.getAverageLossPerLoss());
+        assertEquals(0.0, result.getWinLossRatio());
+        assertEquals(0.0, result.getAverageHoldingPeriodDays());
+        assertEquals(0.0, result.getPortfolioTurnover());
+    }
+
+    @Test
+    void shouldHandleNullNetProfitInMigratedRecords() {
+        // Given
+        String email = "test@example.com";
+        UserMail userMail = UserMail.from(email);
+
+        TradeOutcomeEntity withProfit = new TradeOutcomeEntity();
+        withProfit.setNetProfit(500.0);
+        withProfit.setHoldingPeriodDays(30L);
+        withProfit.setTotalBuyValue(1000.0);
+        withProfit.setTotalSellValue(1500.0);
+        withProfit.setStockCode("RELIANCE");
+
+        TradeOutcomeEntity migratedRecord = new TradeOutcomeEntity();
+        migratedRecord.setNetProfit(-200.0); // negative = loss
+        migratedRecord.setHoldingPeriodDays(60L);
+        migratedRecord.setTotalBuyValue(2000.0);
+        migratedRecord.setTotalSellValue(1800.0);
+        migratedRecord.setStockCode("HDFC");
+
+        when(tradeOutcomeRepository.findByEmail(email)).thenReturn(List.of(withProfit, migratedRecord));
+
+        // When & Then - should not throw NPE
+        PerformanceMetricsResponse result = analyticsService.getPerformanceMetrics(userMail);
+
+        assertEquals(2L, result.getTotalTrades());
+        assertEquals(1L, result.getWinCount());
+        assertEquals(1L, result.getLossCount());
+        assertEquals(0L, result.getBreakevenCount());
     }
 }
