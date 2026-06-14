@@ -58,6 +58,6 @@ public class TradeOutcomeContext {
     private String sourceBuyLotId;
 
     // CA tracking
-    private boolean isCaDerived;
+    private Boolean isCaDerived;
     private List<CorporateActionEntity> appliedCorporateActions;
 }

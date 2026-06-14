@@ -122,7 +122,7 @@ public class TradeOutcomeEntity implements AuditableEntity {
 
     // CA tracking
     @Field("is_ca_derived")
-    private boolean isCaDerived;
+    private Boolean isCaDerived;
 
     @Field("applied_corporate_actions")
     private List<CorporateActionEntity> appliedCorporateActions = new ArrayList<>();

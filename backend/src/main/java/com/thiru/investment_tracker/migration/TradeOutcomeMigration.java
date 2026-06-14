@@ -163,7 +163,7 @@ public class TradeOutcomeMigration {
 
         outcome.setSourceSellTransactionId(null);
         outcome.setSourceBuyLotId(null);
-        outcome.setCaDerived(false);
+        outcome.setIsCaDerived(false);
 
         outcome.setAuditMetadata(buildAuditMetadata());
 
