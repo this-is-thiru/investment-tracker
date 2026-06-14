@@ -554,8 +554,4 @@ public class ProfitAndLossService {
     private record InternalContext(double purchaseAmount, double sellAmount,
                                    LocalDate sellDate, boolean isShortTermHeld) {
     }
-//			LocalDate thresholdDate = purchaseDate.plusYears(1);
-//			this.isShortTermGain = sellDate.isBefore(thresholdDate);
-//		}
-//	}
 }
