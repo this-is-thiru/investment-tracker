@@ -342,7 +342,9 @@ public class ProfitAndLossService {
         if (profitLossContext.assetType() == AssetType.EQUITY) {
             BrokerChargeContext brokerChargeContext = brokerChargeContext(profitLossContext);
             UserBrokerCharges userBrokerCharges = userBrokerChargeService.addUserBrokerChargeEntry(userMail, brokerChargeContext);
-            updateBrokerChargesReport(profitAndLossEntity, profitLossContext.accountType(), userBrokerCharges);
+            if (userBrokerCharges != null) {
+                updateBrokerChargesReport(profitAndLossEntity, profitLossContext.accountType(), userBrokerCharges);
+            }
         }
         profitAndLossRepository.save(profitAndLossEntity);
     }
@@ -368,7 +370,9 @@ public class ProfitAndLossService {
         if (profitLossContext.assetType() == AssetType.EQUITY) {
             BrokerChargeContext brokerChargeContext = brokerChargeContext(profitLossContext);
             UserBrokerCharges userBrokerCharges = userBrokerChargeService.addUserBrokerChargeEntry(userMail, brokerChargeContext);
-            updateBrokerChargesReport(profitAndLossEntity, profitLossContext.accountType(), userBrokerCharges);
+            if (userBrokerCharges != null) {
+                updateBrokerChargesReport(profitAndLossEntity, profitLossContext.accountType(), userBrokerCharges);
+            }
         }
         profitAndLossRepository.save(profitAndLossEntity);
     }
@@ -546,7 +550,9 @@ public class ProfitAndLossService {
         ProfitAndLossEntity profitAndLossEntity = optionalProfitAndLoss.orElse(new ProfitAndLossEntity(email, financialYear));
 
         UserBrokerCharges userBrokerCharges = userBrokerChargeService.addUserBrokerChargeEntry(userMail, brokerChargeContext);
-        updateBrokerChargesReport(profitAndLossEntity, AccountType.SELF, userBrokerCharges);
+        if (userBrokerCharges != null) {
+            updateBrokerChargesReport(profitAndLossEntity, AccountType.SELF, userBrokerCharges);
+        }
         profitAndLossRepository.save(profitAndLossEntity);
         return userBrokerCharges;
     }
