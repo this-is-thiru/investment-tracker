@@ -120,12 +120,12 @@ public class AnalyticsIntegrationTest extends AbstractIntegrationTest {
         outcome.setStockName("Infosys Ltd");
         outcome.setOriginalBuyPrice(100.0);
         outcome.setCaAdjustedBuyPrice(100.0);
-        outcome.setBuyQuantity(10L);
+        outcome.setBuyQuantity(10.0);
         outcome.setBuyDate(LocalDate.of(2023, 1, 1));
         outcome.setBuyBrokerCharges(10.0);
         outcome.setBuyMiscCharges(5.0);
         outcome.setSellPrice(150.0);
-        outcome.setSellQuantity(10L);
+        outcome.setSellQuantity(10.0);
         outcome.setSellDate(LocalDate.of(2024, 6, 1));
         outcome.setSellBrokerCharges(15.0);
         outcome.setSellMiscCharges(5.0);

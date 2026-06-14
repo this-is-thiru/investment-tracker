@@ -452,11 +452,11 @@ public class PortfolioService {
         // Buy side values
         double caAdjustedBuyPrice = assetEntity.getPrice();
         double originalBuyPrice = caAdjustedBuyPrice; // Will improve later with source transaction data
-        long buyQty = (long) sellQuantity;
+        double buyQty = sellQuantity;
 
         // Sell side values
         double sellPrice = assetRequest.getPrice();
-        long sellQty = (long) sellQuantity;
+        double sellQty = sellQuantity;
 
         // Computed values
         double totalBuyValue = (caAdjustedBuyPrice * sellQuantity) + buyBrokerCharges + buyMiscCharges;

@@ -62,7 +62,7 @@ public class TradeOutcomeEntity implements AuditableEntity {
     private double caAdjustedBuyPrice;
 
     @Field("buy_quantity")
-    private Long buyQuantity;
+    private Double buyQuantity;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCollectionUtil.DATE_FORMAT)
     @Field("buy_date")
@@ -79,7 +79,7 @@ public class TradeOutcomeEntity implements AuditableEntity {
     private double sellPrice;
 
     @Field("sell_quantity")
-    private Long sellQuantity;
+    private Double sellQuantity;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TCollectionUtil.DATE_FORMAT)
     @Field("sell_date")

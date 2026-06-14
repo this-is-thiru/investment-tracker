@@ -32,14 +32,14 @@ public class TradeOutcomeContext {
     // Buy side
     private double originalBuyPrice;
     private double caAdjustedBuyPrice;
-    private Long buyQuantity;
+    private Double buyQuantity;
     private LocalDate buyDate;
     private double buyBrokerCharges;
     private double buyMiscCharges;
 
     // Sell side
     private double sellPrice;
-    private Long sellQuantity;
+    private Double sellQuantity;
     private LocalDate sellDate;
     private double sellBrokerCharges;
     private double sellMiscCharges;

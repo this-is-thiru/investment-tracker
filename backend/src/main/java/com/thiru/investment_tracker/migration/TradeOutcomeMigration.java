@@ -129,18 +129,18 @@ public class TradeOutcomeMigration {
         double caAdjustedBuyPrice = parseDouble(report.get("purchase_price"));
         outcome.setOriginalBuyPrice(caAdjustedBuyPrice);
         outcome.setCaAdjustedBuyPrice(caAdjustedBuyPrice);
-        outcome.setBuyQuantity(parseLong(report.get("sell_quantity")));
+        outcome.setBuyQuantity(parseDouble(report.get("sell_quantity")));
         outcome.setBuyDate(parseLocalDate(report.get("purchase_date")));
         outcome.setBuyBrokerCharges(0.0);
         outcome.setBuyMiscCharges(0.0);
 
         outcome.setSellPrice(parseDouble(report.get("sell_price")));
-        outcome.setSellQuantity(parseLong(report.get("sell_quantity")));
+        outcome.setSellQuantity(parseDouble(report.get("sell_quantity")));
         outcome.setSellDate(parseLocalDate(report.get("sell_date")));
         outcome.setSellBrokerCharges(0.0);
         outcome.setSellMiscCharges(0.0);
 
-        long sellQty = parseLong(report.get("sell_quantity"));
+        double sellQty = parseDouble(report.get("sell_quantity"));
         double totalBuyValue = caAdjustedBuyPrice * sellQty;
         double totalSellValue = parseDouble(report.get("total_value"));
         if (totalSellValue <= 0) {
