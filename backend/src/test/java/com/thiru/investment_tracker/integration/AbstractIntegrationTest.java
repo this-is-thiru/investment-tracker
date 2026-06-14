@@ -70,6 +70,9 @@ public abstract class AbstractIntegrationTest {
         mongoTemplate.getDb().getCollection("reports").drop();
         mongoTemplate.getDb().getCollection("user_details").drop();
         mongoTemplate.getDb().getCollection("insurances").drop();
+        mongoTemplate.getDb().getCollection("broker_charges").drop();
+        mongoTemplate.getDb().getCollection("user_broker_charges").drop();
+        mongoTemplate.getDb().getCollection("asset_management_details").drop();
     }
 
     protected String generateToken(String email) {
