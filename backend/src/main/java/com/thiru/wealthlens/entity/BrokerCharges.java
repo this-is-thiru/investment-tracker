@@ -3,11 +3,11 @@ package com.thiru.wealthlens.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thiru.wealthlens.dto.enums.AmcChargeFrequency;
-import com.thiru.wealthlens.dto.enums.BrokerName;
+import com.thiru.wealthlens.portfolio.dto.enums.BrokerName;
 import com.thiru.wealthlens.shared.dto.enums.EntityStatus;
 import com.thiru.wealthlens.shared.entity.helper.AuditMetadata;
 import com.thiru.wealthlens.shared.entity.model.AuditableEntity;
-import com.thiru.wealthlens.entity.model.BrokerageCharges;
+import com.thiru.wealthlens.portfolio.entity.model.BrokerageCharges;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;

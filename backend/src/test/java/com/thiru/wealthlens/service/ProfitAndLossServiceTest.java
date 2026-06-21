@@ -1,18 +1,18 @@
 package com.thiru.wealthlens.service;
 
 import com.thiru.wealthlens.dto.context.BrokerChargeContext;
-import com.thiru.wealthlens.dto.context.BuyContext;
-import com.thiru.wealthlens.dto.context.ProfitLossContext;
+import com.thiru.wealthlens.portfolio.dto.context.BuyContext;
+import com.thiru.wealthlens.portfolio.dto.context.ProfitLossContext;
 import com.thiru.wealthlens.shared.dto.enums.AccountType;
-import com.thiru.wealthlens.dto.enums.AssetType;
+import com.thiru.wealthlens.portfolio.dto.enums.AssetType;
 import com.thiru.wealthlens.dto.enums.BrokerChargeTransactionType;
-import com.thiru.wealthlens.dto.enums.BrokerName;
+import com.thiru.wealthlens.portfolio.dto.enums.BrokerName;
 import com.thiru.wealthlens.dto.enums.CorporateActionType;
-import com.thiru.wealthlens.dto.enums.TransactionType;
+import com.thiru.wealthlens.portfolio.dto.enums.TransactionType;
 import com.thiru.wealthlens.shared.dto.user.UserMail;
-import com.thiru.wealthlens.entity.ProfitAndLossEntity;
+import com.thiru.wealthlens.portfolio.entity.ProfitAndLossEntity;
 import com.thiru.wealthlens.entity.UserBrokerCharges;
-import com.thiru.wealthlens.repository.ProfitAndLossRepository;
+import com.thiru.wealthlens.portfolio.repository.ProfitAndLossRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;

@@ -1,8 +1,8 @@
 package com.thiru.wealthlens.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.thiru.wealthlens.dto.enums.AssetType;
-import com.thiru.wealthlens.dto.enums.BrokerName;
+import com.thiru.wealthlens.portfolio.dto.enums.AssetType;
+import com.thiru.wealthlens.portfolio.dto.enums.BrokerName;
 import com.thiru.wealthlens.dto.enums.CorporateActionType;
 import com.thiru.wealthlens.shared.entity.helper.AuditMetadata;
 import com.thiru.wealthlens.shared.entity.model.AuditableEntity;

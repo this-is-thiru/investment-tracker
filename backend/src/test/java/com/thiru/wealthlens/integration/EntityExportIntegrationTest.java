@@ -1,12 +1,12 @@
 package com.thiru.wealthlens.integration;
 
 import com.thiru.wealthlens.shared.dto.EntityExportRequest;
-import com.thiru.wealthlens.entity.AssetEntity;
-import com.thiru.wealthlens.entity.TransactionEntity;
+import com.thiru.wealthlens.portfolio.entity.AssetEntity;
+import com.thiru.wealthlens.portfolio.entity.TransactionEntity;
 import com.thiru.wealthlens.shared.entity.query.QueryFilter;
-import com.thiru.wealthlens.service.EntityExportService;
-import com.thiru.wealthlens.service.PortfolioService;
-import com.thiru.wealthlens.service.TransactionService;
+import com.thiru.wealthlens.portfolio.service.EntityExportService;
+import com.thiru.wealthlens.portfolio.service.PortfolioService;
+import com.thiru.wealthlens.portfolio.service.TransactionService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;

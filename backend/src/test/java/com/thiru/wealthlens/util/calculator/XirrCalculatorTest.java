@@ -1,6 +1,6 @@
 package com.thiru.wealthlens.util.calculator;
 
-import com.thiru.wealthlens.dto.analytics.CashFlow;
+import com.thiru.wealthlens.portfolio.dto.analytics.CashFlow;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;

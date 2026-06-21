@@ -1,6 +1,6 @@
 package com.thiru.wealthlens.repository;
 
-import com.thiru.wealthlens.dto.enums.BrokerName;
+import com.thiru.wealthlens.portfolio.dto.enums.BrokerName;
 import com.thiru.wealthlens.entity.BrokerCharges;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;

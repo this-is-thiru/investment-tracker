@@ -1,6 +1,6 @@
 package com.thiru.wealthlens.controller;
 
-import com.thiru.wealthlens.service.PortfolioService;
+import com.thiru.wealthlens.portfolio.service.PortfolioService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;

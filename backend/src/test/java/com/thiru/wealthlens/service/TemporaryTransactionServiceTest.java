@@ -1,16 +1,16 @@
 package com.thiru.wealthlens.service;
 
-import com.thiru.wealthlens.dto.AssetRequest;
-import com.thiru.wealthlens.dto.enums.AssetType;
-import com.thiru.wealthlens.dto.enums.BrokerName;
-import com.thiru.wealthlens.dto.enums.TransactionStatus;
-import com.thiru.wealthlens.dto.enums.TransactionType;
+import com.thiru.wealthlens.portfolio.dto.AssetRequest;
+import com.thiru.wealthlens.portfolio.dto.enums.AssetType;
+import com.thiru.wealthlens.portfolio.dto.enums.BrokerName;
+import com.thiru.wealthlens.portfolio.dto.enums.TransactionStatus;
+import com.thiru.wealthlens.portfolio.dto.enums.TransactionType;
 import com.thiru.wealthlens.shared.dto.user.UserMail;
 import com.thiru.wealthlens.entity.CorporateActionEntity;
-import com.thiru.wealthlens.entity.TransactionEntity;
+import com.thiru.wealthlens.portfolio.entity.TransactionEntity;
 import com.thiru.wealthlens.repository.CorporateActionRepository;
 import com.thiru.wealthlens.repository.LastlyPerformedCorporateActionRepo;
-import com.thiru.wealthlens.repository.TransactionRepository;
+import com.thiru.wealthlens.portfolio.repository.TransactionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

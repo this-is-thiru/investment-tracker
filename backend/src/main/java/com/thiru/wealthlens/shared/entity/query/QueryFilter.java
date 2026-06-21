@@ -1,7 +1,7 @@
 package com.thiru.wealthlens.shared.entity.query;
 
 import com.thiru.wealthlens.shared.dto.user.UserMail;
-import com.thiru.wealthlens.entity.AssetEntity;
+import com.thiru.wealthlens.portfolio.entity.AssetEntity;
 import com.thiru.wealthlens.shared.exception.BadRequestException;
 import com.thiru.wealthlens.shared.util.collection.TCollectionUtil;
 import lombok.AllArgsConstructor;

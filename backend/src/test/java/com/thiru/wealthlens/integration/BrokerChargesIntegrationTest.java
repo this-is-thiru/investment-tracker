@@ -5,7 +5,7 @@ import com.thiru.wealthlens.dto.request.AssetManagementDetailsRequest;
 import com.thiru.wealthlens.dto.request.BrokerChargesRequest;
 import com.thiru.wealthlens.dto.enums.AmcChargeFrequency;
 import com.thiru.wealthlens.dto.enums.BrokerageAggregatorType;
-import com.thiru.wealthlens.dto.enums.BrokerName;
+import com.thiru.wealthlens.portfolio.dto.enums.BrokerName;
 import com.thiru.wealthlens.shared.dto.enums.EntityStatus;
 import com.thiru.wealthlens.entity.BrokerCharges;
 import com.thiru.wealthlens.entity.UserBrokerCharges;

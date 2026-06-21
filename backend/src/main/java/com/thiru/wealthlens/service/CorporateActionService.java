@@ -1,17 +1,20 @@
 package com.thiru.wealthlens.service;
+import com.thiru.wealthlens.portfolio.service.TransactionService;
+import com.thiru.wealthlens.portfolio.service.PortfolioService;
+import com.thiru.wealthlens.portfolio.service.TemporaryTransactionService;
 
 import com.thiru.wealthlens.dto.CorporateActionPerformDto;
 import com.thiru.wealthlens.dto.context.DemergedStockContext;
 import com.thiru.wealthlens.dto.context.DemergerContext;
-import com.thiru.wealthlens.dto.enums.AssetType;
-import com.thiru.wealthlens.dto.enums.BrokerName;
+import com.thiru.wealthlens.portfolio.dto.enums.AssetType;
+import com.thiru.wealthlens.portfolio.dto.enums.BrokerName;
 import com.thiru.wealthlens.dto.enums.CorporateActionType;
-import com.thiru.wealthlens.dto.enums.TransactionType;
+import com.thiru.wealthlens.portfolio.dto.enums.TransactionType;
 import com.thiru.wealthlens.dto.CorporateActionDto;
-import com.thiru.wealthlens.entity.AssetEntity;
+import com.thiru.wealthlens.portfolio.entity.AssetEntity;
 import com.thiru.wealthlens.entity.CorporateActionEntity;
 import com.thiru.wealthlens.entity.LastlyPerformedCorporateAction;
-import com.thiru.wealthlens.entity.TransactionEntity;
+import com.thiru.wealthlens.portfolio.entity.TransactionEntity;
 import com.thiru.wealthlens.repository.CorporateActionRepository;
 import com.thiru.wealthlens.repository.LastlyPerformedCorporateActionRepo;
 import com.thiru.wealthlens.shared.util.collection.TCollectionUtil;

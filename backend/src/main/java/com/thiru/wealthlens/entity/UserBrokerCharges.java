@@ -3,7 +3,7 @@ package com.thiru.wealthlens.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thiru.wealthlens.dto.enums.BrokerChargeTransactionType;
-import com.thiru.wealthlens.dto.enums.BrokerName;
+import com.thiru.wealthlens.portfolio.dto.enums.BrokerName;
 import com.thiru.wealthlens.shared.entity.helper.AuditMetadata;
 import com.thiru.wealthlens.shared.entity.model.AuditableEntity;
 import lombok.AccessLevel;

@@ -1,10 +1,10 @@
 package com.thiru.wealthlens.integration;
 
 import com.thiru.wealthlens.shared.dto.user.UserMail;
-import com.thiru.wealthlens.entity.TransactionEntity;
+import com.thiru.wealthlens.portfolio.entity.TransactionEntity;
 import com.thiru.wealthlens.shared.entity.query.QueryFilter;
-import com.thiru.wealthlens.repository.TransactionRepository;
-import com.thiru.wealthlens.service.MongoTemplateService;
+import com.thiru.wealthlens.portfolio.repository.TransactionRepository;
+import com.thiru.wealthlens.portfolio.service.MongoTemplateService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 

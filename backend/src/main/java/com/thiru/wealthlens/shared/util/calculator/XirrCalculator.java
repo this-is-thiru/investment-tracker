@@ -1,6 +1,6 @@
 package com.thiru.wealthlens.shared.util.calculator;
 
-import com.thiru.wealthlens.dto.analytics.CashFlow;
+import com.thiru.wealthlens.portfolio.dto.analytics.CashFlow;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;

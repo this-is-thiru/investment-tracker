@@ -1,6 +1,6 @@
 package com.thiru.wealthlens.dto.context;
 
-import com.thiru.wealthlens.entity.AssetEntity;
+import com.thiru.wealthlens.portfolio.entity.AssetEntity;
 
 import java.util.List;
 

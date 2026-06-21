@@ -1,13 +1,13 @@
 package com.thiru.wealthlens.service;
 
 import com.thiru.wealthlens.shared.dto.enums.AccountType;
-import com.thiru.wealthlens.dto.enums.AssetType;
-import com.thiru.wealthlens.dto.enums.BrokerName;
-import com.thiru.wealthlens.dto.enums.CapitalGainsType;
+import com.thiru.wealthlens.portfolio.dto.enums.AssetType;
+import com.thiru.wealthlens.portfolio.dto.enums.BrokerName;
+import com.thiru.wealthlens.portfolio.dto.enums.CapitalGainsType;
 import com.thiru.wealthlens.dto.enums.CorporateActionType;
 import com.thiru.wealthlens.entity.CorporateActionEntity;
-import com.thiru.wealthlens.entity.TransactionEntity;
-import com.thiru.wealthlens.entity.TradeOutcomeEntity;
+import com.thiru.wealthlens.portfolio.entity.TransactionEntity;
+import com.thiru.wealthlens.portfolio.entity.TradeOutcomeEntity;
 import com.thiru.wealthlens.service.TradeMatchingService.BuyLot;
 import com.thiru.wealthlens.service.TradeMatchingService.MatchedTrade;
 import com.thiru.wealthlens.service.TradeMatchingService.SellRequest;

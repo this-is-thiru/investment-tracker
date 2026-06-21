@@ -1,7 +1,7 @@
 package com.thiru.wealthlens.dto.request;
 
 import com.thiru.wealthlens.dto.enums.AmcChargeFrequency;
-import com.thiru.wealthlens.dto.enums.BrokerName;
+import com.thiru.wealthlens.portfolio.dto.enums.BrokerName;
 import lombok.Data;
 
 import java.time.LocalDate;

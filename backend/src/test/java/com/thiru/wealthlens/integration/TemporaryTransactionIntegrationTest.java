@@ -1,18 +1,18 @@
 package com.thiru.wealthlens.integration;
 
-import com.thiru.wealthlens.dto.AssetRequest;
+import com.thiru.wealthlens.portfolio.dto.AssetRequest;
 import com.thiru.wealthlens.shared.dto.enums.AccountType;
-import com.thiru.wealthlens.dto.enums.AssetType;
-import com.thiru.wealthlens.dto.enums.BrokerName;
+import com.thiru.wealthlens.portfolio.dto.enums.AssetType;
+import com.thiru.wealthlens.portfolio.dto.enums.BrokerName;
 import com.thiru.wealthlens.dto.enums.CorporateActionType;
-import com.thiru.wealthlens.dto.enums.TransactionStatus;
-import com.thiru.wealthlens.dto.enums.TransactionType;
+import com.thiru.wealthlens.portfolio.dto.enums.TransactionStatus;
+import com.thiru.wealthlens.portfolio.dto.enums.TransactionType;
 import com.thiru.wealthlens.shared.dto.user.UserMail;
 import com.thiru.wealthlens.entity.CorporateActionEntity;
 import com.thiru.wealthlens.entity.LastlyPerformedCorporateAction;
-import com.thiru.wealthlens.entity.TransactionEntity;
-import com.thiru.wealthlens.repository.TransactionRepository;
-import com.thiru.wealthlens.service.TemporaryTransactionService;
+import com.thiru.wealthlens.portfolio.entity.TransactionEntity;
+import com.thiru.wealthlens.portfolio.repository.TransactionRepository;
+import com.thiru.wealthlens.portfolio.service.TemporaryTransactionService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;

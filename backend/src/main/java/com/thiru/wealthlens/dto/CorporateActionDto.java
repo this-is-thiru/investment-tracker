@@ -2,7 +2,7 @@ package com.thiru.wealthlens.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.thiru.wealthlens.dto.enums.AssetType;
+import com.thiru.wealthlens.portfolio.dto.enums.AssetType;
 import com.thiru.wealthlens.dto.enums.CorporateActionType;
 import com.thiru.wealthlens.shared.dto.model.AuditMetadataDto;
 import com.thiru.wealthlens.shared.dto.model.AuditableResponse;

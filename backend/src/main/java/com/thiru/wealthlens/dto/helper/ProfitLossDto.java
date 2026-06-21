@@ -1,7 +1,7 @@
 package com.thiru.wealthlens.dto.helper;
 
-import com.thiru.wealthlens.dto.AssetRequest;
-import com.thiru.wealthlens.entity.AssetEntity;
+import com.thiru.wealthlens.portfolio.dto.AssetRequest;
+import com.thiru.wealthlens.portfolio.entity.AssetEntity;
 
 import java.util.List;
 
