@@ -6,7 +6,7 @@
 
     <parent>
         <groupId>com.thiru</groupId>
-        <artifactId>investment-tracker</artifactId>
+        <artifactId>wealthlens</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
@@ -73,7 +73,7 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
-                            <mainClass>com.thiru.investment_tracker.testreport.TestReportApplication</mainClass>
+                            <mainClass>com.thiru.wealthlens.testreport.TestReportApplication</mainClass>
                             <systemProperties>
                                 <systemProperty>
                                     <key>module.basedir</key>
