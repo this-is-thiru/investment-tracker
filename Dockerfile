@@ -4,6 +4,7 @@ WORKDIR /app
 
 # Copy the multi-module project
 COPY pom.xml .
+COPY checkstyle.xml .
 COPY backend ./backend
 COPY test-report ./test-report
 
