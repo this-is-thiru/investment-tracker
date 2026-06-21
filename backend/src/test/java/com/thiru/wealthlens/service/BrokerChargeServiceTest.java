@@ -1,15 +1,15 @@
 package com.thiru.wealthlens.service;
 
-import com.thiru.wealthlens.dto.enums.AmcChargeFrequency;
+import com.thiru.wealthlens.brokercharges.dto.enums.AmcChargeFrequency;
 import com.thiru.wealthlens.portfolio.dto.enums.BrokerName;
-import com.thiru.wealthlens.dto.enums.BrokerageAggregatorType;
+import com.thiru.wealthlens.brokercharges.dto.enums.BrokerageAggregatorType;
 import com.thiru.wealthlens.shared.dto.enums.EntityStatus;
-import com.thiru.wealthlens.dto.helper.BrokerageChargesDto;
-import com.thiru.wealthlens.dto.request.BrokerChargesRequest;
-import com.thiru.wealthlens.entity.BrokerCharges;
+import com.thiru.wealthlens.brokercharges.dto.helper.BrokerageChargesDto;
+import com.thiru.wealthlens.brokercharges.dto.request.BrokerChargesRequest;
+import com.thiru.wealthlens.brokercharges.entity.BrokerCharges;
 import com.thiru.wealthlens.portfolio.entity.model.BrokerageCharges;
 import com.thiru.wealthlens.shared.exception.BadRequestException;
-import com.thiru.wealthlens.repository.BrokerChargesRepository;
+import com.thiru.wealthlens.brokercharges.repository.BrokerChargesRepository;
 import com.thiru.wealthlens.shared.util.collection.TJsonMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

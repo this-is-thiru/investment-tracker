@@ -1,4 +1,4 @@
-package com.thiru.wealthlens.entity.model;
+package com.thiru.wealthlens.brokercharges.entity.model;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

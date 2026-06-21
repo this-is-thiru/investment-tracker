@@ -1,8 +1,8 @@
-package com.thiru.wealthlens.entity;
+package com.thiru.wealthlens.brokercharges.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.thiru.wealthlens.dto.enums.AmcChargeFrequency;
+import com.thiru.wealthlens.brokercharges.dto.enums.AmcChargeFrequency;
 import com.thiru.wealthlens.portfolio.dto.enums.BrokerName;
 import com.thiru.wealthlens.shared.dto.enums.EntityStatus;
 import com.thiru.wealthlens.shared.entity.helper.AuditMetadata;

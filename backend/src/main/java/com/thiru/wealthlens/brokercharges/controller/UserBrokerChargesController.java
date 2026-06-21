@@ -1,8 +1,8 @@
-package com.thiru.wealthlens.controller;
+package com.thiru.wealthlens.brokercharges.controller;
 
 import com.thiru.wealthlens.shared.dto.user.UserMail;
-import com.thiru.wealthlens.entity.UserBrokerCharges;
-import com.thiru.wealthlens.service.UserBrokerChargeService;
+import com.thiru.wealthlens.brokercharges.entity.UserBrokerCharges;
+import com.thiru.wealthlens.brokercharges.service.UserBrokerChargeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

@@ -1,4 +1,4 @@
-package com.thiru.wealthlens.entity.model;
+package com.thiru.wealthlens.brokercharges.entity.model;
 
 import lombok.Data;
 import org.springframework.data.annotation.LastModifiedDate;

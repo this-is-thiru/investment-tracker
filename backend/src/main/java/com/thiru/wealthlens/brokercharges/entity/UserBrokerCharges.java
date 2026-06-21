@@ -1,8 +1,8 @@
-package com.thiru.wealthlens.entity;
+package com.thiru.wealthlens.brokercharges.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.thiru.wealthlens.dto.enums.BrokerChargeTransactionType;
+import com.thiru.wealthlens.brokercharges.dto.enums.BrokerChargeTransactionType;
 import com.thiru.wealthlens.portfolio.dto.enums.BrokerName;
 import com.thiru.wealthlens.shared.entity.helper.AuditMetadata;
 import com.thiru.wealthlens.shared.entity.model.AuditableEntity;

@@ -1,4 +1,4 @@
-package com.thiru.wealthlens.dto.enums;
+package com.thiru.wealthlens.brokercharges.dto.enums;
 
 public enum AmcChargeFrequency {
     ANNUALLY,

@@ -1,9 +1,9 @@
 package com.thiru.wealthlens.portfolio.service;
 
-import com.thiru.wealthlens.dto.context.BrokerChargeContext;
-import com.thiru.wealthlens.dto.enums.AmcChargeFrequency;
-import com.thiru.wealthlens.dto.enums.BrokerChargeTransactionType;
-import com.thiru.wealthlens.dto.request.AssetManagementDetailsRequest;
+import com.thiru.wealthlens.brokercharges.dto.context.BrokerChargeContext;
+import com.thiru.wealthlens.brokercharges.dto.enums.AmcChargeFrequency;
+import com.thiru.wealthlens.brokercharges.dto.enums.BrokerChargeTransactionType;
+import com.thiru.wealthlens.brokercharges.dto.request.AssetManagementDetailsRequest;
 import com.thiru.wealthlens.shared.dto.user.UserMail;
 import com.thiru.wealthlens.portfolio.entity.AssetManagementDetails;
 import com.thiru.wealthlens.portfolio.repository.AssetManagementRepository;

@@ -1,6 +1,6 @@
 package com.thiru.wealthlens.portfolio.repository;
 
-import com.thiru.wealthlens.dto.enums.AmcChargeFrequency;
+import com.thiru.wealthlens.brokercharges.dto.enums.AmcChargeFrequency;
 import com.thiru.wealthlens.portfolio.dto.enums.BrokerName;
 import com.thiru.wealthlens.portfolio.entity.AssetManagementDetails;
 import org.springframework.data.mongodb.repository.MongoRepository;

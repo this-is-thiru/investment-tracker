@@ -1,7 +1,7 @@
-package com.thiru.wealthlens.dto.context;
+package com.thiru.wealthlens.brokercharges.dto.context;
 import com.thiru.wealthlens.corporate.dto.enums.CorporateActionType;
 
-import com.thiru.wealthlens.dto.enums.BrokerChargeTransactionType;
+import com.thiru.wealthlens.brokercharges.dto.enums.BrokerChargeTransactionType;
 import com.thiru.wealthlens.portfolio.dto.enums.BrokerName;
 import com.thiru.wealthlens.corporate.dto.enums.CorporateActionType;
 

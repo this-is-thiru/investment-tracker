@@ -1,7 +1,7 @@
-package com.thiru.wealthlens.dto.helper;
+package com.thiru.wealthlens.brokercharges.dto.helper;
 
 
-import com.thiru.wealthlens.dto.enums.BrokerageAggregatorType;
+import com.thiru.wealthlens.brokercharges.dto.enums.BrokerageAggregatorType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

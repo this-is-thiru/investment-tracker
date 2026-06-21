@@ -1,12 +1,12 @@
-package com.thiru.wealthlens.controller;
+package com.thiru.wealthlens.brokercharges.controller;
 
-import com.thiru.wealthlens.dto.request.AssetManagementDetailsRequest;
-import com.thiru.wealthlens.dto.request.BrokerChargesRequest;
+import com.thiru.wealthlens.brokercharges.dto.request.AssetManagementDetailsRequest;
+import com.thiru.wealthlens.brokercharges.dto.request.BrokerChargesRequest;
 import com.thiru.wealthlens.shared.dto.user.UserMail;
 import com.thiru.wealthlens.portfolio.entity.AssetManagementDetails;
-import com.thiru.wealthlens.entity.BrokerCharges;
+import com.thiru.wealthlens.brokercharges.entity.BrokerCharges;
 import com.thiru.wealthlens.portfolio.service.AssetManagementService;
-import com.thiru.wealthlens.service.BrokerChargeService;
+import com.thiru.wealthlens.brokercharges.service.BrokerChargeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

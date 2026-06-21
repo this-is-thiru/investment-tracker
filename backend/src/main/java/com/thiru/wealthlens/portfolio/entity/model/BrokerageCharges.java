@@ -1,6 +1,6 @@
 package com.thiru.wealthlens.portfolio.entity.model;
 
-import com.thiru.wealthlens.dto.enums.BrokerageAggregatorType;
+import com.thiru.wealthlens.brokercharges.dto.enums.BrokerageAggregatorType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
