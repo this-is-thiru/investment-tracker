@@ -23,7 +23,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Document(value = "lastly-performed-corporate-action")
+@Document(value = "lastly_performed_corporate_action")
 public class LastlyPerformedCorporateAction implements AuditableEntity {
     @JsonIgnore
     @MongoId

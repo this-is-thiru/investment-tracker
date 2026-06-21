@@ -65,7 +65,7 @@ public abstract class AbstractIntegrationTest {
         mongoTemplate.getDb().getCollection("transactions").drop();
         mongoTemplate.getDb().getCollection("assets").drop();
         mongoTemplate.getDb().getCollection("corporate_action").drop();
-        mongoTemplate.getDb().getCollection("lastly-performed-corporate-action").drop();
+        mongoTemplate.getDb().getCollection("lastly_performed_corporate_action").drop();
         mongoTemplate.getDb().getCollection("profit_and_loss").drop();
         mongoTemplate.getDb().getCollection("reports").drop();
         mongoTemplate.getDb().getCollection("user_details").drop();

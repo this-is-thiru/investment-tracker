@@ -32,7 +32,7 @@ Repository Layer   → Spring Data MongoDB
 
 - `portfolio` sits at the center and may depend on `shared`, `auth`, `corporate`, `brokercharges`, and `helper`.
 - `brokercharges` and `corporate` are secondary domains that both depend on `portfolio` for holding context.
-- `shared` contains cross-cutting utilities and currently depends on `portfolio` for domain-specific DTOs/entities consumed by generic tools.
+- `shared` contains cross-cutting utilities and depends on `portfolio` for domain-specific DTOs/entities consumed by generic tools (e.g. `MongoConfig` for custom conversions, `MongoDBConfig` for auditing).
 - `auth` is the security layer and depends only on `shared`.
 - `insurance`, `finance`, and `taxplanning` are leaf modules with no downstream consumers.
 - All modules are declared **OPEN** (`@ApplicationModule(type = Type.OPEN)`) so internal sub-package types are exposed during the migration from a flat package layout.
@@ -44,7 +44,7 @@ Repository Layer   → Spring Data MongoDB
 - `repository/` → Data access now split across `portfolio.repository`, `corporate.repository`, `brokercharges.repository`, `auth.repository`, `insurance.repository`
 - `entity/` → MongoDB document entities now split across module `entity/` sub-packages
 - `dto/` → DTOs now split across module `dto/` sub-packages with `shared.dto` holding common types
-- `config/` → Configuration classes moved to `shared.config` (MongoDB, RabbitMQ, transactions) and `auth.config` (security)
+- `config/` → Configuration classes moved to `shared.config` (MongoDB, MongoDB auditing, transactions) and `auth.config` (security)
 - `util/` → Static utility classes moved to `shared.util`
 - `exception/` → Custom exceptions and global handler moved to `shared.exception`
 - `auth/` → JWT authentication module (`auth.controller`, `auth.service`, `auth.filter`, `auth.config`, `auth.dto`, `auth.entity`, `auth.repository`)
@@ -58,7 +58,7 @@ erDiagram
     TRANSACTIONS ||--o{ PROFIT_AND_LOSS : "contributes to"
     TRANSACTIONS ||--o{ USER_BROKER_CHARGES : "incurs"
     CORPORATE_ACTION ||--o{ ASSETS : "affects"
-    CORPORATE_ACTION ||--o{ LASTLY_PERFORMED_CORPORATE_ACTION : "tracked by"
+    CORPORATE_ACTION ||--o{ LASTLY_PERFORMED_CORPORATE_ACTION : "tracked by (collection: lastly-performed-corporate-action)"
     USER_DETAILS ||--o{ TRANSACTIONS : "owns"
     USER_DETAILS ||--o{ ASSETS : "owns"
     USER_DETAILS ||--o{ INSURANCES : "owns"
@@ -90,6 +90,10 @@ erDiagram
         String source_temp_transaction_id
         AssetRequest asset_request
         AuditMetadata audit_metadata
+        String comment
+        String timezone_id
+        CorporateActionType corporate_action
+        List corporate_actions
     }
 
     ASSETS {
@@ -107,6 +111,17 @@ erDiagram
         List buy_transaction_ids
         List sell_transaction_ids
         List corporate_actions
+        Double broker_charges
+        Double misc_charges
+        LocalDate maturity_date
+        String order_id
+        LocalDateTime order_execution_time
+        String timezone_id
+        AccountType account_type
+        String account_holder
+        CorporateActionType corporate_action
+        TransactionType transaction_type
+        String comments
         AuditMetadata audit_metadata
     }
 
@@ -124,6 +139,8 @@ erDiagram
         String ratio
         String action_price
         DemergerDetail demerger_detail
+        String description
+        LocalDate date
         AuditMetadata audit_metadata
     }
 
@@ -189,6 +206,12 @@ erDiagram
         String agent_name
         String agent_email
         String agent_contact
+        String renewal_date
+        String maturity_amount
+        String agent_address
+        String insurance_status
+        String notes
+        List policyDetails
         AuditMetadata audit_metadata
     }
 
@@ -270,8 +293,10 @@ erDiagram
 | **Transactions** | MongoDB multi-document transactions (requires replica set) |
 | **Build** | Maven (multi-module: `backend`, `test-report`) |
 | **Utilities** | Lombok, Apache POI 5.5.1 (Excel), Flying Saucer 10.0.6 + iTextPDF 5.5.13.4 (PDF), Thymeleaf |
-| **Testing** | JUnit 5, Mockito, REST Assured 5.5.7, Testcontainers MongoDB 2.0.5 |
+| **Modulith** | Spring Modulith 2.1.0 (module boundary enforcement) |
+| **Testing** | JUnit 5, Mockito, REST Assured 5.5.7, Testcontainers MongoDB 2.0.5, Spring Modulith Test |
 | **Container** | Docker (multi-stage build) |
+| **Nullability** | JSpecify 1.0.0 |
 
 ## Design Decisions
 
@@ -624,4 +649,4 @@ curl -X POST "http://localhost:8080/portfolio/user/user@example.com/transaction/
 - **Multi-currency Support:** Extend support for international stocks with currency conversion.
 - **Advanced Analytics:** Add portfolio performance metrics, XIRR calculation, and sector/asset allocation charts.
 - **Broker Charge Analytics:** Dashboard views for total brokerage, government charges, taxes, and DP charges per broker / financial year / month.
-- **Event-Driven Architecture:** Leverage RabbitMQ config to publish domain events (transaction created, corporate action performed) for downstream consumers.
+- **Event-Driven Architecture:** RabbitMQ configuration exists (`shared.config.RabbitMQConfig`) but is currently commented out with no AMQP dependency in the build. When activated, it can publish domain events (transaction created, corporate action performed) for downstream consumers.
