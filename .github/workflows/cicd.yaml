@@ -51,7 +51,7 @@ jobs:
         id: set_tag
         run: |
           # Define the base image name
-          REPO_IMAGE="tperamasani/investment-tracker"
+          REPO_IMAGE="tperamasani/wealthlens"
 
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             # --- Logic for Pull Requests ---
@@ -96,8 +96,8 @@ jobs:
 #    runs-on: self-hosted
 #    steps:
 #      - name: Pull Image from docker hub
-#        run: docker pull tperamasani/investment-tracker:latest
+#        run: docker pull tperamasani/wealthlens:latest
 #      - name: Delete old container
-#        run: docker rm -f investment-tracker-container
+#        run: docker rm -f wealthlens-container
 #      - name: Run docker container
-#        run: docker run -d -p 8080:8080 --name investment-tracker-container tperamasani/investment-tracker
+#        run: docker run -d -p 8080:8080 --name wealthlens-container tperamasani/wealthlens

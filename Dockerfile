@@ -4,6 +4,7 @@ WORKDIR /app
 
 # Copy the multi-module project
 COPY pom.xml .
+COPY checkstyle.xml .
 COPY backend ./backend
 COPY test-report ./test-report
 
@@ -15,7 +16,7 @@ FROM eclipse-temurin:25-jre-alpine
 WORKDIR /app
 
 # Copy the built jar from the backend module
-COPY --from=build /app/backend/target/investment-tracker.jar /app.jar
+COPY --from=build /app/backend/target/wealthlens.jar /app.jar
 
 EXPOSE 8080
 ENV SPRING_PROFILES_ACTIVE=default

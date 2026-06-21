@@ -1,40 +1,53 @@
-# Investment Tracker
+# WealthLens
 
-A Spring Boot-based portfolio tracking application for the Indian stock market that manages buy/sell transactions, corporate actions (bonus, demerger, stock split), profit & loss calculation, broker & AMC charge tracking, and portfolio holdings using MongoDB for flexible document storage.
+A Spring Boot + Spring Modulith portfolio tracking application for the Indian stock market that manages buy/sell transactions, corporate actions (bonus, demerger, stock split), profit & loss calculation, broker & AMC charge tracking, and portfolio holdings using MongoDB for flexible document storage.
 
 ## Architecture Overview
 
-The service follows a 3-layer architecture:
+WealthLens is built as a **single-deployable JAR Spring Modulith** application. The codebase is organized into explicit application modules under `com.thiru.wealthlens`, each with a `package-info.java` declaring allowed dependencies. Module boundaries are enforced via `ApplicationModules.verify()`.
+
+### Layered Architecture (within each module)
 
 ```
-Controller Layer          → PortfolioController, TransactionController, CorporateActionController,
-                            UserCorporateActionController, TemporaryTransactionsController,
-                            BrokerChargesController, UserBrokerChargesController, TestController,
-                            FinancesController, AuthController,
-                            EntityExportController, TemplateController, HelperController
-         ↓
-Service Layer             → PortfolioService, TransactionService, CorporateActionService,
-                            TemporaryTransactionService, ProfitAndLossService, TradeOutcomeService,
-                            BrokerChargeService, UserBrokerChargeService, AssetManagementService,
-                            FinancesService, AuthService, EntityExportService
-         ↓
-Repository / Document     → MongoDB Repositories (Spring Data MongoDB)
+Controller Layer   → REST API endpoints (no business logic)
+Service Layer      → @Transactional business logic
+Repository Layer   → Spring Data MongoDB
 ```
 
-**Key Packages:**
-- `controller/` — REST API endpoints
-- `service/` — Business logic and transaction processing
-- `repository/` — Data access (Spring Data MongoDB)
-- `entity/` — MongoDB document entities with snake_case field names
-- `dto/` — Data transfer objects with `asTransaction()` / `asAsset()` converters
-- `dto/enums/` — Domain enums (TransactionType, AssetType, CorporateActionType, BrokerChargeTransactionType, BrokerageAggregatorType, AmcChargeFrequency, EntityStatus, etc.)
-- `dto/context/` — Processing context objects (AssetContext, DemergerContext, ProfitAndLossContext, ProfitLossContext, BrokerChargeContext, BuyContext, TradeOutcomeContext)
-- `dto/reports/` — Report response DTOs (brokerage charges reports)
-- `dto/request/` — Request DTOs for broker charges and asset management
-- `auth/` — JWT authentication (controller, service, filter, config)
-- `config/` — MongoDB config, converters, transaction config, RabbitMQ config
-- `util/` — Static utility classes (`TCollectionUtil`, `TJsonMapper`, `TLocalDate`, Excel builders/parsers)
-- `exception/` — Custom exceptions and global exception handler (`ControllerAdviser`)
+### Application Modules
+
+| Module | Purpose | Key Types |
+|--------|---------|-----------|
+| **portfolio** | Core portfolio engine: transactions, P&L, trade matching, asset management, analytics, Excel export, temporary transaction redrive | PortfolioService, TransactionService, ProfitAndLossService, AssetEntity, TransactionEntity, AssetRequest |
+| **corporate** | Corporate action processing: bonus, demerger, stock split, name/symbol change | CorporateActionService, CorporateActionEntity, CorporateActionType, LastlyPerformedCorporateAction |
+| **brokercharges** | Broker & AMC charge computation, user-specific broker charge configuration | BrokerChargeService, UserBrokerChargeService, BrokerCharges, UserBrokerCharges |
+| **auth** | JWT-based Spring Security: login, registration, role upgrades | AuthService, AuthFilter, SecurityConfig, UserDetail |
+| **shared** | Cross-cutting utilities, common DTOs, audit entities, config, query helpers | ApiResponse, ErrorResponse, UserMail, TCollectionUtil, ExcelBuilder, XirrCalculator, MongoConfig |
+| **helper** | Auxiliary controllers and file utilities | HelperController, SpecialController, TemplateController, TestController, FileHelper, FileStream, FileType |
+| **finance** | Financial calculators (Step-up SIP) | FinancesService, StepUpSIPCalculator, FinanceRequest, FinanceResponse |
+| **insurance** | Insurance policy tracking | InsuranceService, InsuranceEntity, PolicyDetails, InsuranceRequest, InsuranceResponse |
+| **taxplanning** | Tax planning & ITR automation stub — intended for capital gains tax report generation, Schedule CG auto-fill, and Section 112A/111A computation | TaxPlanningModulePlaceholder |
+
+### Module Dependency Rules
+
+- `portfolio` sits at the center and may depend on `shared`, `auth`, `corporate`, `brokercharges`, and `helper`.
+- `brokercharges` and `corporate` are secondary domains that both depend on `portfolio` for holding context.
+- `shared` contains cross-cutting utilities and depends on `portfolio` for domain-specific DTOs/entities consumed by generic tools (e.g. `MongoConfig` for custom conversions, `MongoDBConfig` for auditing).
+- `auth` is the security layer and depends only on `shared`.
+- `insurance`, `finance`, and `taxplanning` are leaf modules with no downstream consumers.
+- All modules are declared **OPEN** (`@ApplicationModule(type = Type.OPEN)`) so internal sub-package types are exposed during the migration from a flat package layout.
+
+### Key Packages (legacy flat layout → modules)
+
+- `controller/` → REST API endpoints now split across `portfolio.controller`, `corporate.controller`, `brokercharges.controller`, `auth.controller`, `finance.controller`, `helper.controller`
+- `service/` → Business logic now split across `portfolio.service`, `corporate.service`, `brokercharges.service`, `auth.service`, `finance.service`, `insurance.service`, `helper.service`
+- `repository/` → Data access now split across `portfolio.repository`, `corporate.repository`, `brokercharges.repository`, `auth.repository`, `insurance.repository`
+- `entity/` → MongoDB document entities now split across module `entity/` sub-packages
+- `dto/` → DTOs now split across module `dto/` sub-packages with `shared.dto` holding common types
+- `config/` → Configuration classes moved to `shared.config` (MongoDB, MongoDB auditing, transactions) and `auth.config` (security)
+- `util/` → Static utility classes moved to `shared.util`
+- `exception/` → Custom exceptions and global handler moved to `shared.exception`
+- `auth/` → JWT authentication module (`auth.controller`, `auth.service`, `auth.filter`, `auth.config`, `auth.dto`, `auth.entity`, `auth.repository`)
 
 ## Data Model
 
@@ -45,7 +58,7 @@ erDiagram
     TRANSACTIONS ||--o{ PROFIT_AND_LOSS : "contributes to"
     TRANSACTIONS ||--o{ USER_BROKER_CHARGES : "incurs"
     CORPORATE_ACTION ||--o{ ASSETS : "affects"
-    CORPORATE_ACTION ||--o{ LASTLY_PERFORMED_CORPORATE_ACTION : "tracked by"
+    CORPORATE_ACTION ||--o{ LASTLY_PERFORMED_CORPORATE_ACTION : "tracked by (collection: lastly-performed-corporate-action)"
     USER_DETAILS ||--o{ TRANSACTIONS : "owns"
     USER_DETAILS ||--o{ ASSETS : "owns"
     USER_DETAILS ||--o{ INSURANCES : "owns"
@@ -77,6 +90,10 @@ erDiagram
         String source_temp_transaction_id
         AssetRequest asset_request
         AuditMetadata audit_metadata
+        String comment
+        String timezone_id
+        CorporateActionType corporate_action
+        List corporate_actions
     }
 
     ASSETS {
@@ -94,6 +111,17 @@ erDiagram
         List buy_transaction_ids
         List sell_transaction_ids
         List corporate_actions
+        Double broker_charges
+        Double misc_charges
+        LocalDate maturity_date
+        String order_id
+        LocalDateTime order_execution_time
+        String timezone_id
+        AccountType account_type
+        String account_holder
+        CorporateActionType corporate_action
+        TransactionType transaction_type
+        String comments
         AuditMetadata audit_metadata
     }
 
@@ -111,6 +139,8 @@ erDiagram
         String ratio
         String action_price
         DemergerDetail demerger_detail
+        String description
+        LocalDate date
         AuditMetadata audit_metadata
     }
 
@@ -176,6 +206,12 @@ erDiagram
         String agent_name
         String agent_email
         String agent_contact
+        String renewal_date
+        String maturity_amount
+        String agent_address
+        String insurance_status
+        String notes
+        List policyDetails
         AuditMetadata audit_metadata
     }
 
@@ -257,8 +293,10 @@ erDiagram
 | **Transactions** | MongoDB multi-document transactions (requires replica set) |
 | **Build** | Maven (multi-module: `backend`, `test-report`) |
 | **Utilities** | Lombok, Apache POI 5.5.1 (Excel), Flying Saucer 10.0.6 + iTextPDF 5.5.13.4 (PDF), Thymeleaf |
-| **Testing** | JUnit 5, Mockito, REST Assured 5.5.7, Testcontainers MongoDB 2.0.5 |
+| **Modulith** | Spring Modulith 2.1.0 (module boundary enforcement) |
+| **Testing** | JUnit 5, Mockito, REST Assured 5.5.7, Testcontainers MongoDB 2.0.5, Spring Modulith Test |
 | **Container** | Docker (multi-stage build) |
+| **Nullability** | JSpecify 1.0.0 |
 
 ## Design Decisions
 
@@ -351,8 +389,8 @@ The application starts on `http://localhost:8080`
 ### 5. Docker
 
 ```bash
-docker build -t investment-tracker .
-docker run -p 8080:8080 -e SPRING_PROFILES_ACTIVE=prod investment-tracker
+docker build -t wealthlens .
+docker run -p 8080:8080 -e SPRING_PROFILES_ACTIVE=prod wealthlens
 ```
 
 ## API Usage Examples
@@ -592,9 +630,9 @@ curl -X POST "http://localhost:8080/portfolio/user/user@example.com/transaction/
 ## Assumptions
 
 - **MongoDB Replica Set:** Multi-document transactions require a MongoDB replica set. The `app.mongodb.transactions-enabled` flag must be `true`.
-- **User Email as Identifier:** The `email` path variable serves as the user identifier across all portfolio endpoints. Authentication extracts the user from JWT but the API still accepts email explicitly in paths.
+- **User Email as Identifier:** The `email` path variable serves as the user identifier across all portfolio endpoints. Authentication extracts the user from JWT but the API still accepts email explicitly in paths. ⚠️ **Security gap:** Controllers currently do not validate that the path `email` matches the authenticated JWT principal. Path variable email is used directly without authorization checks.
 - **Indian Market Context:** Asset types, exchange names, and broker names are oriented toward Indian stock market conventions.
-- **Holding Period:** Long-term vs short-term classification is based on a 1-year holding period for equities.
+- **Holding Period:** Long-term vs short-term classification is based on a 1-year holding period (≥366 days) for **all asset types** uniformly, not just equities.
 - **Broker Charge Template Required:** For automatic broker charge calculation on BUY/SELL transactions, an active `BrokerCharges` template must exist for the broker and transaction date. If missing, the transaction proceeds without broker charges.
 - **GST Description Format:** The `gstApplicableDescription` field in `BrokerChargesRequest` follows the format `XX%-component_name,XX%-component_name` (e.g. `18%-brokerage,18%-stt`). The percentage symbol is optional; components not matching known names are silently ignored.
 - **DP Charge Deduplication:** DP charges are applied only once per stock per day on SELL transactions. Multiple sells of the same stock on the same day incur DP charges only on the first sell.
@@ -603,12 +641,19 @@ curl -X POST "http://localhost:8080/portfolio/user/user@example.com/transaction/
 
 ## Future Improvements
 
+### Completed
+- **XIRR Calculation:** Already implemented. Newton-Raphson algorithm with bisection fallback is available via `AnalyticsController` at `/analytics/user/{email}/xirr`.
+
+### In Progress / Partially Implemented
+- **Insurance Module:** Data model (`InsuranceEntity`, `PolicyDetails`, DTOs) exists but service layer is an empty stub and no controller endpoints are exposed.
+- **Advanced Analytics:** Portfolio performance metrics (win/loss ratio, avg profit/loss, best/worst stock, turnover) and asset allocation by type are already available via `AnalyticsController`. Missing: sector allocation (no sector field in entities), benchmark comparison, and charting endpoints.
+- **Broker Charge Analytics:** Transaction-level broker charges are fully captured in `UserBrokerCharges` and the P&L entity has a `YearlyBrokerCharges` → `MonthlyBrokerCharges` → `BrokerChargesReport` hierarchy. Missing: aggregation endpoints, dashboard views, and financial year grouping queries.
+
+### Not Started
 - **Frontend Application:** Build a React/Angular web UI for portfolio visualization and transaction entry.
 - **Real-time Market Data:** Integrate with a market data provider (NSE/BSE APIs) for live stock prices and unrealised P&L.
-- **Insurance Module:** Complete the `InsuranceService` to support full CRUD for insurance policies.
 - **Notifications:** Add email/push notifications for corporate action alerts and portfolio updates.
 - **Caching:** Introduce Redis caching for frequently accessed portfolio and transaction data.
 - **Multi-currency Support:** Extend support for international stocks with currency conversion.
-- **Advanced Analytics:** Add portfolio performance metrics, XIRR calculation, and sector/asset allocation charts.
-- **Broker Charge Analytics:** Dashboard views for total brokerage, government charges, taxes, and DP charges per broker / financial year / month.
-- **Event-Driven Architecture:** Leverage RabbitMQ config to publish domain events (transaction created, corporate action performed) for downstream consumers.
+- **Tax Filing / ITR Generation:** Auto-generate capital gains statements (Schedule CG) from realised P&L data, compute Section 111A (STCG) and Section 112A (LTCG) tax, and pre-fill ITR-2/ITR-3 with holding-wise buy/sell details, STT paid, and brokerage breakdown. The `taxplanning` module is reserved for this.
+- **Event-Driven Architecture:** RabbitMQ configuration exists (`shared.config.RabbitMQConfig`) but is currently commented out with no AMQP dependency in the build. When activated, it can publish domain events (transaction created, corporate action performed) for downstream consumers.

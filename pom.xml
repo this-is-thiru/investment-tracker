@@ -18,20 +18,22 @@
 
     <groupId>com.thiru</groupId>
 
-    <artifactId>investment-tracker</artifactId>
+    <artifactId>wealthlens</artifactId>
 
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>investment-tracker</name>
+    <name>wealthlens</name>
 
-    <description>Investment Tracker</description>
+    <description>WealthLens</description>
 
     <properties>
 
         <java.version>25</java.version>
 
         <jjwt.version>0.13.0</jjwt.version>
+
+        <spring-modulith.version>2.1.0</spring-modulith.version>
 
         <poi-ooxml.version>5.5.1</poi-ooxml.version>
 
@@ -40,6 +42,18 @@
         <flying-saucer-pdf.version>10.0.6</flying-saucer-pdf.version>
 
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.modulith</groupId>
+                <artifactId>spring-modulith-bom</artifactId>
+                <version>${spring-modulith.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
 
@@ -251,11 +265,21 @@
             <version>1.0.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.modulith</groupId>
+            <artifactId>spring-modulith-starter-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.modulith</groupId>
+            <artifactId>spring-modulith-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
 
-        <finalName>investment-tracker</finalName>
+        <finalName>wealthlens</finalName>
 
         <plugins>
 
@@ -297,6 +321,29 @@
                 <configuration>
                     <testFailureIgnore>true</testFailureIgnore>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.4.0</version>
+                <configuration>
+                    <configLocation>checkstyle.xml</configLocation>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>false</failsOnError>
+                    <failOnViolation>false</failOnViolation>
+                    <linkXRef>false</linkXRef>
+                    <includeTestSourceDirectory>false</includeTestSourceDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
         </plugins>
