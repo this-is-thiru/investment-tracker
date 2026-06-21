@@ -1,10 +1,13 @@
-package com.thiru.wealthlens.controller;
+package com.thiru.wealthlens.corporate.controller;
+import com.thiru.wealthlens.corporate.dto.CorporateActionDto;
+import com.thiru.wealthlens.corporate.entity.CorporateActionEntity;
+import com.thiru.wealthlens.corporate.service.CorporateActionService;
 
-import com.thiru.wealthlens.dto.CorporateActionDto;
+import com.thiru.wealthlens.corporate.dto.CorporateActionDto;
 import com.thiru.wealthlens.portfolio.dto.enums.BrokerName;
 import com.thiru.wealthlens.shared.dto.user.UserMail;
-import com.thiru.wealthlens.entity.CorporateActionEntity;
-import com.thiru.wealthlens.service.CorporateActionService;
+import com.thiru.wealthlens.corporate.entity.CorporateActionEntity;
+import com.thiru.wealthlens.corporate.service.CorporateActionService;
 import com.thiru.wealthlens.portfolio.service.TemporaryTransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

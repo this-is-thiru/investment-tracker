@@ -1,6 +1,8 @@
 package com.thiru.wealthlens.portfolio.entity;
+import com.thiru.wealthlens.corporate.dto.enums.CorporateActionType;
+import com.thiru.wealthlens.corporate.entity.CorporateActionEntity;
 import com.thiru.wealthlens.portfolio.dto.enums.BrokerName;
-import com.thiru.wealthlens.entity.CorporateActionEntity;
+import com.thiru.wealthlens.corporate.entity.CorporateActionEntity;
 import com.thiru.wealthlens.portfolio.dto.enums.TransactionType;
 import com.thiru.wealthlens.portfolio.dto.enums.AssetType;
 import com.thiru.wealthlens.shared.dto.enums.AccountType;

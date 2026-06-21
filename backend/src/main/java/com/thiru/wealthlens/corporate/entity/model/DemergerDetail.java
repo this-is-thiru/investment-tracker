@@ -1,4 +1,4 @@
-package com.thiru.wealthlens.entity.model;
+package com.thiru.wealthlens.corporate.entity.model;
 
 import lombok.Getter;
 import lombok.Setter;

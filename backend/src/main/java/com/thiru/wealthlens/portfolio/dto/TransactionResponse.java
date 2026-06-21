@@ -1,10 +1,12 @@
 package com.thiru.wealthlens.portfolio.dto;
+import com.thiru.wealthlens.corporate.dto.CorporateActionDto;
+import com.thiru.wealthlens.corporate.dto.enums.CorporateActionType;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.thiru.wealthlens.dto.CorporateActionDto;
+import com.thiru.wealthlens.corporate.dto.CorporateActionDto;
 import com.thiru.wealthlens.portfolio.dto.enums.AssetType;
 import com.thiru.wealthlens.portfolio.dto.enums.BrokerName;
-import com.thiru.wealthlens.dto.enums.CorporateActionType;
+import com.thiru.wealthlens.corporate.dto.enums.CorporateActionType;
 import com.thiru.wealthlens.portfolio.dto.enums.TransactionType;
 import com.thiru.wealthlens.shared.dto.model.AuditMetadataDto;
 import com.thiru.wealthlens.shared.util.collection.TCollectionUtil;

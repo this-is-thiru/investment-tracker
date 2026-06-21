@@ -7,7 +7,7 @@ import com.thiru.wealthlens.shared.dto.enums.AccountType;
 import com.thiru.wealthlens.portfolio.dto.enums.AssetType;
 import com.thiru.wealthlens.dto.enums.BrokerChargeTransactionType;
 import com.thiru.wealthlens.portfolio.dto.enums.BrokerName;
-import com.thiru.wealthlens.dto.enums.CorporateActionType;
+import com.thiru.wealthlens.corporate.dto.enums.CorporateActionType;
 import com.thiru.wealthlens.portfolio.dto.enums.TransactionType;
 import com.thiru.wealthlens.shared.dto.user.UserMail;
 import com.thiru.wealthlens.portfolio.entity.ProfitAndLossEntity;

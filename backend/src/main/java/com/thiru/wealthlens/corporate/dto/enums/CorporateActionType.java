@@ -1,4 +1,4 @@
-package com.thiru.wealthlens.dto.enums;
+package com.thiru.wealthlens.corporate.dto.enums;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

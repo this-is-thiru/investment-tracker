@@ -1,7 +1,9 @@
-package com.thiru.wealthlens.controller;
+package com.thiru.wealthlens.corporate.controller;
+import com.thiru.wealthlens.corporate.service.CorporateActionService;
+import com.thiru.wealthlens.corporate.dto.CorporateActionPerformDto;
 
-import com.thiru.wealthlens.dto.CorporateActionPerformDto;
-import com.thiru.wealthlens.service.CorporateActionService;
+import com.thiru.wealthlens.corporate.dto.CorporateActionPerformDto;
+import com.thiru.wealthlens.corporate.service.CorporateActionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;

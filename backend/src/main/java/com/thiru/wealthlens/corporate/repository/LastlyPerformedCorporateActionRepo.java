@@ -1,9 +1,11 @@
-package com.thiru.wealthlens.repository;
+package com.thiru.wealthlens.corporate.repository;
+import com.thiru.wealthlens.corporate.entity.LastlyPerformedCorporateAction;
+import com.thiru.wealthlens.corporate.dto.enums.CorporateActionType;
 
 import com.thiru.wealthlens.portfolio.dto.enums.AssetType;
 import com.thiru.wealthlens.portfolio.dto.enums.BrokerName;
-import com.thiru.wealthlens.dto.enums.CorporateActionType;
-import com.thiru.wealthlens.entity.LastlyPerformedCorporateAction;
+import com.thiru.wealthlens.corporate.dto.enums.CorporateActionType;
+import com.thiru.wealthlens.corporate.entity.LastlyPerformedCorporateAction;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 

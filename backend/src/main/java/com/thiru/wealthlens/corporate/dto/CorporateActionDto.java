@@ -1,13 +1,16 @@
-package com.thiru.wealthlens.dto;
+package com.thiru.wealthlens.corporate.dto;
+import com.thiru.wealthlens.corporate.entity.model.DemergerDetail;
+import com.thiru.wealthlens.corporate.dto.enums.CorporateActionType;
+import com.thiru.wealthlens.corporate.entity.CorporateActionEntity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thiru.wealthlens.portfolio.dto.enums.AssetType;
-import com.thiru.wealthlens.dto.enums.CorporateActionType;
+import com.thiru.wealthlens.corporate.dto.enums.CorporateActionType;
 import com.thiru.wealthlens.shared.dto.model.AuditMetadataDto;
 import com.thiru.wealthlens.shared.dto.model.AuditableResponse;
-import com.thiru.wealthlens.entity.CorporateActionEntity;
-import com.thiru.wealthlens.entity.model.DemergerDetail;
+import com.thiru.wealthlens.corporate.entity.CorporateActionEntity;
+import com.thiru.wealthlens.corporate.entity.model.DemergerDetail;
 import com.thiru.wealthlens.shared.util.collection.TCollectionUtil;
 import lombok.Data;
 

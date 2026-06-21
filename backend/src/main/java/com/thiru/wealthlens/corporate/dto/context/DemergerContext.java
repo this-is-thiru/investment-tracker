@@ -1,4 +1,4 @@
-package com.thiru.wealthlens.dto.context;
+package com.thiru.wealthlens.corporate.dto.context;
 
 import com.thiru.wealthlens.portfolio.entity.AssetEntity;
 

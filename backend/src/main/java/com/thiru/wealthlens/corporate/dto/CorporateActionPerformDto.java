@@ -1,4 +1,4 @@
-package com.thiru.wealthlens.dto;
+package com.thiru.wealthlens.corporate.dto;
 
 import com.thiru.wealthlens.portfolio.dto.enums.BrokerName;
 

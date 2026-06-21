@@ -1,5 +1,6 @@
 package com.thiru.wealthlens.portfolio.entity;
-import com.thiru.wealthlens.entity.CorporateActionEntity;
+import com.thiru.wealthlens.corporate.entity.CorporateActionEntity;
+import com.thiru.wealthlens.corporate.entity.CorporateActionEntity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;

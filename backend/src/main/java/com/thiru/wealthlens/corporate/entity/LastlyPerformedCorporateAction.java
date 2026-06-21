@@ -1,9 +1,10 @@
-package com.thiru.wealthlens.entity;
+package com.thiru.wealthlens.corporate.entity;
+import com.thiru.wealthlens.corporate.dto.enums.CorporateActionType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thiru.wealthlens.portfolio.dto.enums.AssetType;
 import com.thiru.wealthlens.portfolio.dto.enums.BrokerName;
-import com.thiru.wealthlens.dto.enums.CorporateActionType;
+import com.thiru.wealthlens.corporate.dto.enums.CorporateActionType;
 import com.thiru.wealthlens.shared.entity.helper.AuditMetadata;
 import com.thiru.wealthlens.shared.entity.model.AuditableEntity;
 import lombok.AccessLevel;

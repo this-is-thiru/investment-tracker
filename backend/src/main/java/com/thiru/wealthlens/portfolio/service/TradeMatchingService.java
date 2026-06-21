@@ -1,11 +1,12 @@
 package com.thiru.wealthlens.portfolio.service;
+import com.thiru.wealthlens.corporate.entity.CorporateActionEntity;
 
 import com.thiru.wealthlens.portfolio.dto.context.TradeOutcomeContext;
 import com.thiru.wealthlens.shared.dto.enums.AccountType;
 import com.thiru.wealthlens.portfolio.dto.enums.AssetType;
 import com.thiru.wealthlens.portfolio.dto.enums.BrokerName;
 import com.thiru.wealthlens.portfolio.dto.enums.CapitalGainsType;
-import com.thiru.wealthlens.entity.CorporateActionEntity;
+import com.thiru.wealthlens.corporate.entity.CorporateActionEntity;
 import com.thiru.wealthlens.portfolio.entity.TransactionEntity;
 import com.thiru.wealthlens.portfolio.entity.TradeOutcomeEntity;
 import com.thiru.wealthlens.shared.entity.helper.AuditMetadata;
