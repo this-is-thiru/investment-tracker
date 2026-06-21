@@ -1,0 +1,32 @@
+package com.thiru.wealthlens.controller;
+
+import com.thiru.wealthlens.dto.FinanceRequest;
+import com.thiru.wealthlens.dto.FinanceResponse;
+import com.thiru.wealthlens.dto.InterestRateResponse;
+import com.thiru.wealthlens.dto.StepUpSIPRequest;
+import com.thiru.wealthlens.service.FinancesService;
+import com.thiru.wealthlens.service.StepUpSIPCalculator;
+import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/finances")
+@AllArgsConstructor
+public class FinancesController {
+
+    private final FinancesService financesService;
+    private final StepUpSIPCalculator sipCalculator;
+
+    @PostMapping("/calculate")
+    public FinanceResponse calculate(@RequestBody FinanceRequest financeRequest) {
+        return financesService.getFinanceResponse(financeRequest);
+    }
+
+    @PostMapping("/interest-rate")
+    public InterestRateResponse calculateInterestRate(@RequestBody StepUpSIPRequest financeRequest) {
+        return sipCalculator.calculateRate(financeRequest);
+    }
+}
