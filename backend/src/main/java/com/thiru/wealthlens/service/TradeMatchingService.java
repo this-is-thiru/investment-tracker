@@ -1,14 +1,14 @@
 package com.thiru.wealthlens.service;
 
 import com.thiru.wealthlens.dto.context.TradeOutcomeContext;
-import com.thiru.wealthlens.dto.enums.AccountType;
+import com.thiru.wealthlens.shared.dto.enums.AccountType;
 import com.thiru.wealthlens.dto.enums.AssetType;
 import com.thiru.wealthlens.dto.enums.BrokerName;
 import com.thiru.wealthlens.dto.enums.CapitalGainsType;
 import com.thiru.wealthlens.entity.CorporateActionEntity;
 import com.thiru.wealthlens.entity.TransactionEntity;
 import com.thiru.wealthlens.entity.TradeOutcomeEntity;
-import com.thiru.wealthlens.entity.helper.AuditMetadata;
+import com.thiru.wealthlens.shared.entity.helper.AuditMetadata;
 import lombok.*;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;

@@ -1,8 +1,8 @@
 package com.thiru.wealthlens.controller;
 
-import com.thiru.wealthlens.dto.BulkGetRequest;
+import com.thiru.wealthlens.shared.dto.BulkGetRequest;
 import com.thiru.wealthlens.dto.TransactionResponse;
-import com.thiru.wealthlens.dto.user.UserMail;
+import com.thiru.wealthlens.shared.dto.user.UserMail;
 import com.thiru.wealthlens.service.TransactionService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

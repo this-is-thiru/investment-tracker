@@ -1,7 +1,7 @@
 package com.thiru.wealthlens.service.export.processor;
 
-import com.thiru.wealthlens.dto.EntityExportRequest;
-import com.thiru.wealthlens.dto.user.UserMail;
+import com.thiru.wealthlens.shared.dto.EntityExportRequest;
+import com.thiru.wealthlens.shared.dto.user.UserMail;
 import com.thiru.wealthlens.entity.TransactionEntity;
 import com.thiru.wealthlens.helper.file.FileType;
 import com.thiru.wealthlens.service.TransactionService;

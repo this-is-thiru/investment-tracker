@@ -2,13 +2,13 @@ package com.thiru.wealthlens.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.thiru.wealthlens.dto.enums.AccountType;
+import com.thiru.wealthlens.shared.dto.enums.AccountType;
 import com.thiru.wealthlens.dto.enums.AssetType;
 import com.thiru.wealthlens.dto.enums.BrokerName;
 import com.thiru.wealthlens.dto.enums.CapitalGainsType;
-import com.thiru.wealthlens.entity.helper.AuditMetadata;
-import com.thiru.wealthlens.entity.model.AuditableEntity;
-import com.thiru.wealthlens.util.collection.TCollectionUtil;
+import com.thiru.wealthlens.shared.entity.helper.AuditMetadata;
+import com.thiru.wealthlens.shared.entity.model.AuditableEntity;
+import com.thiru.wealthlens.shared.util.collection.TCollectionUtil;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;

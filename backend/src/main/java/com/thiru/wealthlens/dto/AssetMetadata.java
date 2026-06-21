@@ -1,6 +1,6 @@
 package com.thiru.wealthlens.dto;
 
-import com.thiru.wealthlens.dto.enums.AccountType;
+import com.thiru.wealthlens.shared.dto.enums.AccountType;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

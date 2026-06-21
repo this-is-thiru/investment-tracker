@@ -2,7 +2,7 @@ package com.thiru.wealthlens.controller;
 
 import com.thiru.wealthlens.dto.request.AssetManagementDetailsRequest;
 import com.thiru.wealthlens.dto.request.BrokerChargesRequest;
-import com.thiru.wealthlens.dto.user.UserMail;
+import com.thiru.wealthlens.shared.dto.user.UserMail;
 import com.thiru.wealthlens.entity.AssetManagementDetails;
 import com.thiru.wealthlens.entity.BrokerCharges;
 import com.thiru.wealthlens.service.AssetManagementService;

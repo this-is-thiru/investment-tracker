@@ -1,7 +1,7 @@
 package com.thiru.wealthlens.auth.service;
 
-import com.thiru.wealthlens.util.collection.TCollectionUtil;
-import com.thiru.wealthlens.util.collection.TStringUtil;
+import com.thiru.wealthlens.shared.util.collection.TCollectionUtil;
+import com.thiru.wealthlens.shared.util.collection.TStringUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

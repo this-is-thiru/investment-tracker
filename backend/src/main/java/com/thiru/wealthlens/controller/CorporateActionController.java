@@ -2,7 +2,7 @@ package com.thiru.wealthlens.controller;
 
 import com.thiru.wealthlens.dto.CorporateActionDto;
 import com.thiru.wealthlens.dto.enums.BrokerName;
-import com.thiru.wealthlens.dto.user.UserMail;
+import com.thiru.wealthlens.shared.dto.user.UserMail;
 import com.thiru.wealthlens.entity.CorporateActionEntity;
 import com.thiru.wealthlens.service.CorporateActionService;
 import com.thiru.wealthlens.service.TemporaryTransactionService;

@@ -2,7 +2,7 @@ package com.thiru.wealthlens.service.export.writer;
 
 import com.thiru.wealthlens.entity.TransactionEntity;
 import com.thiru.wealthlens.service.export.writer.model.AbstractExcelWorkbookWriter;
-import com.thiru.wealthlens.util.transaction.ExcelHeaders;
+import com.thiru.wealthlens.shared.util.transaction.ExcelHeaders;
 
 import java.util.HashMap;
 import java.util.List;

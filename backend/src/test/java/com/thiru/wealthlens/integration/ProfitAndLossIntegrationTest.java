@@ -2,11 +2,11 @@ package com.thiru.wealthlens.integration;
 
 import com.thiru.wealthlens.dto.AssetRequest;
 import com.thiru.wealthlens.dto.context.ProfitAndLossContext;
-import com.thiru.wealthlens.dto.enums.AccountType;
+import com.thiru.wealthlens.shared.dto.enums.AccountType;
 import com.thiru.wealthlens.dto.enums.AssetType;
 import com.thiru.wealthlens.dto.enums.BrokerName;
 import com.thiru.wealthlens.dto.enums.TransactionType;
-import com.thiru.wealthlens.dto.user.UserMail;
+import com.thiru.wealthlens.shared.dto.user.UserMail;
 import com.thiru.wealthlens.entity.AssetEntity;
 import com.thiru.wealthlens.entity.ProfitAndLossEntity;
 import com.thiru.wealthlens.entity.model.FinancialReport;

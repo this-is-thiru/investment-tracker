@@ -4,9 +4,9 @@ import com.thiru.wealthlens.dto.request.BrokerChargesRequest;
 import com.thiru.wealthlens.dto.enums.BrokerName;
 import com.thiru.wealthlens.entity.BrokerCharges;
 import com.thiru.wealthlens.entity.model.BrokerageCharges;
-import com.thiru.wealthlens.exception.BadRequestException;
+import com.thiru.wealthlens.shared.exception.BadRequestException;
 import com.thiru.wealthlens.repository.BrokerChargesRepository;
-import com.thiru.wealthlens.util.collection.TJsonMapper;
+import com.thiru.wealthlens.shared.util.collection.TJsonMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

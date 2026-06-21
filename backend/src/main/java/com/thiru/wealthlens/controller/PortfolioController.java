@@ -1,18 +1,17 @@
 package com.thiru.wealthlens.controller;
 
-import com.thiru.wealthlens.dto.DeleteThisFile;
 import com.thiru.wealthlens.dto.enums.HoldingType;
 import com.thiru.wealthlens.dto.ProfitAndLossResponse;
 import com.thiru.wealthlens.dto.AssetRequest;
-import com.thiru.wealthlens.dto.BulkGetRequest;
+import com.thiru.wealthlens.shared.dto.BulkGetRequest;
 import com.thiru.wealthlens.dto.AssetResponse;
-import com.thiru.wealthlens.dto.user.UserMail;
+import com.thiru.wealthlens.shared.dto.user.UserMail;
 import com.thiru.wealthlens.entity.AssetEntity;
 import com.thiru.wealthlens.entity.TransactionEntity;
 import com.thiru.wealthlens.service.PortfolioService;
 import com.thiru.wealthlens.service.TemporaryService;
 import com.thiru.wealthlens.service.TransactionService;
-import com.thiru.wealthlens.util.collection.TJsonMapper;
+import com.thiru.wealthlens.shared.util.collection.TJsonMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.util.Pair;
@@ -139,11 +138,6 @@ public class PortfolioController {
             assetRequest.setTransactionDate(LocalDate.now());
         }
         return assetRequest;
-    }
-
-    @PostMapping("/request1")
-    public DeleteThisFile testRequest(@RequestBody ProfitAndLossResponse requestEntity) {
-        return TJsonMapper.copy(requestEntity, DeleteThisFile.class);
     }
 
     @PostMapping("/request2")

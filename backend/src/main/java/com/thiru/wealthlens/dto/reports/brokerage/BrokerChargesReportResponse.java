@@ -1,7 +1,7 @@
 package com.thiru.wealthlens.dto.reports.brokerage;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.thiru.wealthlens.util.time.TLocalDateTime;
+import com.thiru.wealthlens.shared.util.time.TLocalDateTime;
 import lombok.Data;
 
 import java.time.LocalDateTime;

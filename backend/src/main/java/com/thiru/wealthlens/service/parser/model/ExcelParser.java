@@ -1,7 +1,7 @@
 package com.thiru.wealthlens.service.parser.model;
 
-import com.thiru.wealthlens.dto.InputRecords;
-import com.thiru.wealthlens.dto.enums.ExcelDataType;
+import com.thiru.wealthlens.shared.dto.InputRecords;
+import com.thiru.wealthlens.shared.dto.enums.ExcelDataType;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;

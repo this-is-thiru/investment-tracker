@@ -1,6 +1,6 @@
 package com.thiru.wealthlens.auth.dto;
 
-import com.thiru.wealthlens.util.collection.TJsonMapper;
+import com.thiru.wealthlens.shared.util.collection.TJsonMapper;
 import io.jsonwebtoken.Claims;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

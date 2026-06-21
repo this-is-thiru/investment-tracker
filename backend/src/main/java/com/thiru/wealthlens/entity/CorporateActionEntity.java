@@ -2,8 +2,8 @@ package com.thiru.wealthlens.entity;
 
 import com.thiru.wealthlens.dto.enums.AssetType;
 import com.thiru.wealthlens.dto.enums.CorporateActionType;
-import com.thiru.wealthlens.entity.helper.AuditMetadata;
-import com.thiru.wealthlens.entity.model.AuditableEntity;
+import com.thiru.wealthlens.shared.entity.helper.AuditMetadata;
+import com.thiru.wealthlens.shared.entity.model.AuditableEntity;
 import com.thiru.wealthlens.entity.model.DemergerDetail;
 import lombok.AccessLevel;
 import lombok.Data;

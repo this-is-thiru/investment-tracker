@@ -1,8 +1,8 @@
 package com.thiru.wealthlens.integration;
 
 import com.thiru.wealthlens.dto.AssetRequest;
-import com.thiru.wealthlens.dto.BulkGetRequest;
-import com.thiru.wealthlens.dto.user.UserMail;
+import com.thiru.wealthlens.shared.dto.BulkGetRequest;
+import com.thiru.wealthlens.shared.dto.user.UserMail;
 import com.thiru.wealthlens.entity.TransactionEntity;
 import com.thiru.wealthlens.repository.TransactionRepository;
 import com.thiru.wealthlens.service.TransactionService;

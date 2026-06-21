@@ -1,12 +1,12 @@
 package com.thiru.wealthlens.service;
 
 import com.thiru.wealthlens.dto.AssetRequest;
-import com.thiru.wealthlens.dto.RedriveResult;
+import com.thiru.wealthlens.shared.dto.RedriveResult;
 import com.thiru.wealthlens.dto.enums.BrokerName;
 import com.thiru.wealthlens.dto.enums.TransactionType;
-import com.thiru.wealthlens.dto.user.UserMail;
+import com.thiru.wealthlens.shared.dto.user.UserMail;
 import com.thiru.wealthlens.entity.TransactionEntity;
-import com.thiru.wealthlens.exception.BadRequestException;
+import com.thiru.wealthlens.shared.exception.BadRequestException;
 import com.thiru.wealthlens.repository.PortfolioRepository;
 import com.thiru.wealthlens.repository.TransactionRepository;
 import org.junit.jupiter.api.BeforeEach;

@@ -2,7 +2,7 @@ package com.thiru.wealthlens.controller;
 
 import com.thiru.wealthlens.dto.AssetRequest;
 import com.thiru.wealthlens.dto.helper.ProfitLossDto;
-import com.thiru.wealthlens.dto.user.UserMail;
+import com.thiru.wealthlens.shared.dto.user.UserMail;
 import com.thiru.wealthlens.entity.AssetEntity;
 import com.thiru.wealthlens.service.PortfolioService;
 import lombok.AllArgsConstructor;

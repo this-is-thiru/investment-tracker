@@ -1,7 +1,7 @@
 package com.thiru.wealthlens.service;
 
-import com.thiru.wealthlens.dto.EntityExportRequest;
-import com.thiru.wealthlens.dto.user.UserMail;
+import com.thiru.wealthlens.shared.dto.EntityExportRequest;
+import com.thiru.wealthlens.shared.dto.user.UserMail;
 import com.thiru.wealthlens.helper.file.FileStream;
 import com.thiru.wealthlens.service.export.processor.AssetExcelWorkbookProcessor;
 import com.thiru.wealthlens.service.export.processor.TransactionExcelWorkbookProcessor;

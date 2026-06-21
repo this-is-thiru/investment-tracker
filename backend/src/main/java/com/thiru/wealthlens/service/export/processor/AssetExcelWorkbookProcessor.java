@@ -1,9 +1,9 @@
 package com.thiru.wealthlens.service.export.processor;
 
 import com.thiru.wealthlens.dto.AssetResponse;
-import com.thiru.wealthlens.dto.EntityExportRequest;
-import com.thiru.wealthlens.dto.user.UserMail;
-import com.thiru.wealthlens.entity.query.QueryFilter;
+import com.thiru.wealthlens.shared.dto.EntityExportRequest;
+import com.thiru.wealthlens.shared.dto.user.UserMail;
+import com.thiru.wealthlens.shared.entity.query.QueryFilter;
 import com.thiru.wealthlens.helper.file.FileType;
 import com.thiru.wealthlens.service.PortfolioService;
 import com.thiru.wealthlens.service.export.processor.model.AbstractExcelWorkbookProcessor;

@@ -1,6 +1,6 @@
 package com.thiru.wealthlens.migration;
 
-import com.thiru.wealthlens.config.TradeOutcomeMigrationRunner;
+import com.thiru.wealthlens.shared.config.TradeOutcomeMigrationRunner;
 import com.thiru.wealthlens.dto.enums.TransactionType;
 import com.thiru.wealthlens.entity.TradeOutcomeEntity;
 import com.thiru.wealthlens.entity.TransactionEntity;

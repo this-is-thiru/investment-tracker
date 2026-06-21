@@ -1,8 +1,8 @@
 package com.thiru.wealthlens.service;
 
-import com.thiru.wealthlens.dto.user.UserMail;
-import com.thiru.wealthlens.entity.query.QueryBuilder;
-import com.thiru.wealthlens.entity.query.QueryFilter;
+import com.thiru.wealthlens.shared.dto.user.UserMail;
+import com.thiru.wealthlens.shared.entity.query.QueryBuilder;
+import com.thiru.wealthlens.shared.entity.query.QueryFilter;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.mongodb.core.MongoTemplate;

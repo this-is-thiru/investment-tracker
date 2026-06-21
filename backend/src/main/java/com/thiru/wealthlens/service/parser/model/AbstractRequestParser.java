@@ -1,10 +1,10 @@
 package com.thiru.wealthlens.service.parser.model;
 
-import com.thiru.wealthlens.dto.InputRecord;
-import com.thiru.wealthlens.dto.InputRecords;
-import com.thiru.wealthlens.dto.enums.ExcelDataType;
-import com.thiru.wealthlens.exception.BadRequestException;
-import com.thiru.wealthlens.util.collection.TCollectionUtil;
+import com.thiru.wealthlens.shared.dto.InputRecord;
+import com.thiru.wealthlens.shared.dto.InputRecords;
+import com.thiru.wealthlens.shared.dto.enums.ExcelDataType;
+import com.thiru.wealthlens.shared.exception.BadRequestException;
+import com.thiru.wealthlens.shared.util.collection.TCollectionUtil;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;

@@ -4,7 +4,7 @@ package com.thiru.wealthlens.dto.request;
 import com.thiru.wealthlens.dto.enums.AmcChargeFrequency;
 import com.thiru.wealthlens.dto.helper.BrokerageChargesDto;
 import com.thiru.wealthlens.dto.enums.BrokerName;
-import com.thiru.wealthlens.dto.enums.EntityStatus;
+import com.thiru.wealthlens.shared.dto.enums.EntityStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

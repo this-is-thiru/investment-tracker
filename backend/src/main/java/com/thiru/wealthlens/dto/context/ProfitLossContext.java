@@ -1,6 +1,6 @@
 package com.thiru.wealthlens.dto.context;
 
-import com.thiru.wealthlens.dto.enums.AccountType;
+import com.thiru.wealthlens.shared.dto.enums.AccountType;
 import com.thiru.wealthlens.dto.enums.AssetType;
 import com.thiru.wealthlens.dto.enums.BrokerName;
 import com.thiru.wealthlens.dto.enums.CorporateActionType;

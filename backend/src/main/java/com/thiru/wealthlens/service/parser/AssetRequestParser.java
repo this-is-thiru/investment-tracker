@@ -1,17 +1,17 @@
 package com.thiru.wealthlens.service.parser;
 
 import com.thiru.wealthlens.dto.AssetRequest;
-import com.thiru.wealthlens.dto.InputRecord;
+import com.thiru.wealthlens.shared.dto.InputRecord;
 import com.thiru.wealthlens.dto.enums.AssetType;
 import com.thiru.wealthlens.dto.enums.BrokerName;
-import com.thiru.wealthlens.dto.enums.ExcelDataType;
+import com.thiru.wealthlens.shared.dto.enums.ExcelDataType;
 import com.thiru.wealthlens.dto.enums.TransactionType;
 import com.thiru.wealthlens.service.parser.model.AbstractRequestParser;
 import com.thiru.wealthlens.service.parser.model.AssetRequestParserImpl;
 import com.thiru.wealthlens.service.parser.model.ExcelParser;
-import com.thiru.wealthlens.util.collection.TOptional;
-import com.thiru.wealthlens.util.parser.CellDetail;
-import com.thiru.wealthlens.util.transaction.ExcelHeaders;
+import com.thiru.wealthlens.shared.util.collection.TOptional;
+import com.thiru.wealthlens.shared.util.parser.CellDetail;
+import com.thiru.wealthlens.shared.util.transaction.ExcelHeaders;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

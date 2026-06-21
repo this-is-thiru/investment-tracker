@@ -1,13 +1,14 @@
 package com.thiru.wealthlens.entity;
+import com.thiru.wealthlens.shared.dto.enums.AccountType;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thiru.wealthlens.dto.AssetRequest;
 import com.thiru.wealthlens.dto.enums.*;
-import com.thiru.wealthlens.entity.helper.AuditMetadata;
-import com.thiru.wealthlens.entity.model.AuditableEntity;
-import com.thiru.wealthlens.util.collection.TCollectionUtil;
-import com.thiru.wealthlens.util.time.TLocalDate;
+import com.thiru.wealthlens.shared.entity.helper.AuditMetadata;
+import com.thiru.wealthlens.shared.entity.model.AuditableEntity;
+import com.thiru.wealthlens.shared.util.collection.TCollectionUtil;
+import com.thiru.wealthlens.shared.util.time.TLocalDate;
 import lombok.*;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;

@@ -1,6 +1,6 @@
 package com.thiru.wealthlens.dto;
 
-import com.thiru.wealthlens.util.time.TLocalDate;
+import com.thiru.wealthlens.shared.util.time.TLocalDate;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

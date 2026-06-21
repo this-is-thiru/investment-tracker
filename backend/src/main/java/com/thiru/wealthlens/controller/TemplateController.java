@@ -1,6 +1,6 @@
 package com.thiru.wealthlens.controller;
 
-import com.thiru.wealthlens.dto.ShippingLabel;
+import com.thiru.wealthlens.shared.dto.ShippingLabel;
 import org.springframework.http.*;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;

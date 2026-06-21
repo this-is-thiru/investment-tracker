@@ -1,9 +1,9 @@
 package com.thiru.wealthlens.integration;
 
-import com.thiru.wealthlens.dto.EntityExportRequest;
+import com.thiru.wealthlens.shared.dto.EntityExportRequest;
 import com.thiru.wealthlens.entity.AssetEntity;
 import com.thiru.wealthlens.entity.TransactionEntity;
-import com.thiru.wealthlens.entity.query.QueryFilter;
+import com.thiru.wealthlens.shared.entity.query.QueryFilter;
 import com.thiru.wealthlens.service.EntityExportService;
 import com.thiru.wealthlens.service.PortfolioService;
 import com.thiru.wealthlens.service.TransactionService;

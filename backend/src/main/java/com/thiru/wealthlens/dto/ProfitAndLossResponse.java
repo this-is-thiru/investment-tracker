@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import com.thiru.wealthlens.dto.model.AuditMetadataDto;
+import com.thiru.wealthlens.shared.dto.model.AuditMetadataDto;
 import lombok.Getter;
 import lombok.Setter;
 

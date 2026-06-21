@@ -1,10 +1,10 @@
 package com.thiru.wealthlens.service;
 
 import com.thiru.wealthlens.dto.context.TradeOutcomeContext;
-import com.thiru.wealthlens.dto.user.UserMail;
+import com.thiru.wealthlens.shared.dto.user.UserMail;
 import com.thiru.wealthlens.entity.TradeOutcomeEntity;
 import com.thiru.wealthlens.repository.TradeOutcomeRepository;
-import com.thiru.wealthlens.util.collection.TJsonMapper;
+import com.thiru.wealthlens.shared.util.collection.TJsonMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;

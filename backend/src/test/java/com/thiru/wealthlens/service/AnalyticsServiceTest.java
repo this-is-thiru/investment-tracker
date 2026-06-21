@@ -8,7 +8,7 @@ import com.thiru.wealthlens.dto.analytics.XirrRequest;
 import com.thiru.wealthlens.dto.analytics.XirrResponse;
 import com.thiru.wealthlens.dto.enums.AssetType;
 import com.thiru.wealthlens.dto.enums.TransactionType;
-import com.thiru.wealthlens.dto.user.UserMail;
+import com.thiru.wealthlens.shared.dto.user.UserMail;
 import com.thiru.wealthlens.entity.AssetEntity;
 import com.thiru.wealthlens.entity.TradeOutcomeEntity;
 import com.thiru.wealthlens.entity.ProfitAndLossEntity;

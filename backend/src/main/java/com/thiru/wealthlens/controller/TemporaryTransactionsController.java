@@ -1,7 +1,7 @@
 package com.thiru.wealthlens.controller;
 
-import com.thiru.wealthlens.dto.RedriveResult;
-import com.thiru.wealthlens.dto.user.UserMail;
+import com.thiru.wealthlens.shared.dto.RedriveResult;
+import com.thiru.wealthlens.shared.dto.user.UserMail;
 import com.thiru.wealthlens.entity.TransactionEntity;
 import com.thiru.wealthlens.service.PortfolioService;
 import com.thiru.wealthlens.service.TemporaryTransactionService;

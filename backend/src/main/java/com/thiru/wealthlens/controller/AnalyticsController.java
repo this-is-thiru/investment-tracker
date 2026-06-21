@@ -5,7 +5,7 @@ import com.thiru.wealthlens.dto.analytics.PerformanceMetricsResponse;
 import com.thiru.wealthlens.dto.analytics.PortfolioSummaryResponse;
 import com.thiru.wealthlens.dto.analytics.XirrRequest;
 import com.thiru.wealthlens.dto.analytics.XirrResponse;
-import com.thiru.wealthlens.dto.user.UserMail;
+import com.thiru.wealthlens.shared.dto.user.UserMail;
 import com.thiru.wealthlens.service.AnalyticsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
