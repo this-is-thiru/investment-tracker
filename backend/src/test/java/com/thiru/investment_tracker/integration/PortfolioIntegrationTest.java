@@ -15,8 +15,14 @@ import com.thiru.investment_tracker.dto.enums.CorporateActionType;
 import com.thiru.investment_tracker.dto.enums.TransactionStatus;
 import com.thiru.investment_tracker.dto.enums.TransactionType;
 import com.thiru.investment_tracker.entity.AssetEntity;
+import com.thiru.investment_tracker.entity.BrokerCharges;
 import com.thiru.investment_tracker.entity.CorporateActionEntity;
+import com.thiru.investment_tracker.entity.ProfitAndLossEntity;
 import com.thiru.investment_tracker.entity.TransactionEntity;
+import com.thiru.investment_tracker.entity.UserBrokerCharges;
+import com.thiru.investment_tracker.entity.model.BrokerageCharges;
+import com.thiru.investment_tracker.dto.enums.BrokerageAggregatorType;
+import com.thiru.investment_tracker.dto.enums.EntityStatus;
 import com.thiru.investment_tracker.service.PortfolioService;
 import com.thiru.investment_tracker.service.TransactionService;
 import io.restassured.RestAssured;
@@ -1153,6 +1159,105 @@ public class PortfolioIntegrationTest extends AbstractIntegrationTest {
         // Parser may return 200 or 400 depending on how it handles malformed data
         assertTrue(response.getStatusCode().value() == HttpStatus.OK.value()
                 || response.getStatusCode().value() == HttpStatus.BAD_REQUEST.value());
+    }
+
+    // === addTransactionV2 ===
+
+    @Test
+    void addTransactionV2_buyNew_whenNewStock_expected200AndAssetCreated() {
+        String token = generateToken(TEST_EMAIL);
+
+        // Seed BrokerCharges template for ZERODHA via direct mongoTemplate save
+        seedBrokerCharges();
+
+        AssetRequest request = buildBuyRequest(TEST_STOCK_CODE, TEST_STOCK_NAME, 10.0, 2500.0);
+
+        String url = baseUrl() + "/portfolio/user/" + TEST_EMAIL + "/transaction/v2";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<AssetRequest> entity = new HttpEntity<>(request, headers);
+
+        RestTemplate rt = createRestTemplate();
+        ResponseEntity<String> response = rt.exchange(URI.create(url), HttpMethod.POST, entity, String.class);
+
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+
+        // Verify AssetEntity created in portfolio
+        AssetEntity savedAsset = mongoTemplate.findOne(
+                new org.springframework.data.mongodb.core.query.Query(
+                        Criteria.where("email").is(TEST_EMAIL).and("stock_code").is(TEST_STOCK_CODE)),
+                AssetEntity.class, "assets");
+        assertNotNull(savedAsset, "Asset should be created via v2 endpoint");
+        assertEquals(10.0, savedAsset.getQuantity());
+
+        // Verify UserBrokerCharges created in user_broker_charges collection
+        List<UserBrokerCharges> charges = mongoTemplate.find(
+                new org.springframework.data.mongodb.core.query.Query(
+                        Criteria.where("email").is(TEST_EMAIL)),
+                UserBrokerCharges.class, "user_broker_charges");
+        assertFalse(charges.isEmpty(), "UserBrokerCharges should be created");
+    }
+
+    @Test
+    void addTransactionV2_sell_whenEnoughStocks_expected200AndPnlUpdated() {
+        String token = generateToken(TEST_EMAIL);
+
+        // Seed BrokerCharges template for ZERODHA
+        seedBrokerCharges();
+
+        // First BUY some stock via v2
+        AssetRequest buyRequest = buildBuyRequest(TEST_STOCK_CODE, TEST_STOCK_NAME, 10.0, 2500.0);
+        String buyUrl = baseUrl() + "/portfolio/user/" + TEST_EMAIL + "/transaction/v2";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<AssetRequest> buyEntity = new HttpEntity<>(buyRequest, headers);
+
+        RestTemplate rt = createRestTemplate();
+        ResponseEntity<String> buyResponse = rt.exchange(URI.create(buyUrl), HttpMethod.POST, buyEntity, String.class);
+        assertEquals(HttpStatus.OK.value(), buyResponse.getStatusCode().value());
+
+        // Then SELL via v2
+        AssetRequest sellRequest = buildSellRequest(TEST_STOCK_CODE, 5.0, 2600.0);
+        String sellUrl = baseUrl() + "/portfolio/user/" + TEST_EMAIL + "/transaction/v2";
+        HttpHeaders sellHeaders = new HttpHeaders();
+        sellHeaders.setBearerAuth(token);
+        sellHeaders.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<AssetRequest> sellEntity = new HttpEntity<>(sellRequest, sellHeaders);
+
+        ResponseEntity<String> sellResponse = rt.exchange(URI.create(sellUrl), HttpMethod.POST, sellEntity, String.class);
+        assertEquals(HttpStatus.OK.value(), sellResponse.getStatusCode().value());
+
+        // Verify portfolio quantity reduced
+        List<AssetEntity> assets = mongoTemplate.find(
+                new org.springframework.data.mongodb.core.query.Query(
+                        Criteria.where("email").is(TEST_EMAIL).and("stock_code").is(TEST_STOCK_CODE)),
+                AssetEntity.class, "assets");
+        double totalQty = assets.stream().mapToDouble(AssetEntity::getQuantity).sum();
+        assertEquals(5.0, totalQty, "Quantity should be reduced after partial sell");
+
+        // Verify UserBrokerCharges created for both buy and sell
+        List<UserBrokerCharges> charges = mongoTemplate.find(
+                new org.springframework.data.mongodb.core.query.Query(
+                        Criteria.where("email").is(TEST_EMAIL)),
+                UserBrokerCharges.class, "user_broker_charges");
+        assertFalse(charges.isEmpty(), "UserBrokerCharges should be created for buy and sell");
+    }
+
+    private void seedBrokerCharges() {
+        BrokerCharges bc = new BrokerCharges();
+        bc.setBrokerName(BrokerName.ZERODHA);
+        bc.setStartDate(LocalDate.now().minusYears(1));
+        bc.setEndDate(LocalDate.now().plusYears(1));
+        bc.setStatus(EntityStatus.ACTIVE);
+        bc.setBrokerageCharges(new BrokerageCharges(0, 20, BrokerageAggregatorType.MIN, 0, 20));
+        bc.setStt(0.1);
+        bc.setSebiCharges(0.0001);
+        bc.setStampDuty(0.015);
+        bc.setDpChargesPerScrip(13.5);
+        bc.setGstApplicableDescription("18%-brokerage,18%-dp_charges,18%-stt,18%-amc_charges");
+        mongoTemplate.save(bc, "broker_charges");
     }
 
     // ============================================================

@@ -1,11 +1,11 @@
 package com.thiru.investment_tracker.controller;
 
-import com.thiru.investment_tracker.dto.AssetRequest;
-import com.thiru.investment_tracker.dto.AssetResponse;
-import com.thiru.investment_tracker.dto.BulkGetRequest;
 import com.thiru.investment_tracker.dto.DeleteThisFile;
-import com.thiru.investment_tracker.dto.ProfitAndLossResponse;
 import com.thiru.investment_tracker.dto.enums.HoldingType;
+import com.thiru.investment_tracker.dto.ProfitAndLossResponse;
+import com.thiru.investment_tracker.dto.AssetRequest;
+import com.thiru.investment_tracker.dto.BulkGetRequest;
+import com.thiru.investment_tracker.dto.AssetResponse;
 import com.thiru.investment_tracker.dto.user.UserMail;
 import com.thiru.investment_tracker.entity.AssetEntity;
 import com.thiru.investment_tracker.entity.TransactionEntity;
@@ -44,6 +44,11 @@ public class PortfolioController {
     @PostMapping("/transaction")
     public String addTransaction(@PathVariable String email, @RequestBody AssetRequest assetRequest) {
         return portfolioService.addTransaction(UserMail.from(email), assetRequest, new ArrayList<>());
+    }
+
+    @PostMapping("/transaction/v2")
+    public ResponseEntity<String> addTransactionV2(@PathVariable String email, @RequestBody AssetRequest assetRequest) {
+        return ResponseEntity.ok(portfolioService.addTransactionV2(UserMail.from(email), assetRequest, new ArrayList<>()));
     }
 
     @PostMapping("/upload-transactions")

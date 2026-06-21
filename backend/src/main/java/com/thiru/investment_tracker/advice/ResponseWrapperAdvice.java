@@ -18,17 +18,17 @@ public class ResponseWrapperAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public boolean supports(@NonNull MethodParameter returnType,
-                            Class<? extends HttpMessageConverter<?>> converterType) {
+                            @NonNull Class<? extends HttpMessageConverter<?>> converterType) {
         return true;
     }
 
     @Override
     public Object beforeBodyWrite(Object body,
-                                  MethodParameter returnType,
-                                  MediaType selectedContentType,
-                                  Class<? extends HttpMessageConverter<?>> selectedConverterType,
-                                  ServerHttpRequest request,
-                                  ServerHttpResponse response) {
+                                  @NonNull MethodParameter returnType,
+                                  @NonNull MediaType selectedContentType,
+                                  @NonNull Class<? extends HttpMessageConverter<?>> selectedConverterType,
+                                  @NonNull ServerHttpRequest request,
+                                  @NonNull ServerHttpResponse response) {
         if (body instanceof ApiResponse) {
             return body;
         }
@@ -37,7 +37,7 @@ public class ResponseWrapperAdvice implements ResponseBodyAdvice<Object> {
             return TJsonMapper.writeValueAsString(new ApiResponse<>(body));
         }
 
-        if (selectedContentType == null || !selectedContentType.isCompatibleWith(MediaType.APPLICATION_JSON)) {
+        if (!selectedContentType.isCompatibleWith(MediaType.APPLICATION_JSON)) {
             return body;
         }
 
