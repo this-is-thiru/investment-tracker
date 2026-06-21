@@ -630,9 +630,9 @@ curl -X POST "http://localhost:8080/portfolio/user/user@example.com/transaction/
 ## Assumptions
 
 - **MongoDB Replica Set:** Multi-document transactions require a MongoDB replica set. The `app.mongodb.transactions-enabled` flag must be `true`.
-- **User Email as Identifier:** The `email` path variable serves as the user identifier across all portfolio endpoints. Authentication extracts the user from JWT but the API still accepts email explicitly in paths.
+- **User Email as Identifier:** The `email` path variable serves as the user identifier across all portfolio endpoints. Authentication extracts the user from JWT but the API still accepts email explicitly in paths. ⚠️ **Security gap:** Controllers currently do not validate that the path `email` matches the authenticated JWT principal. Path variable email is used directly without authorization checks.
 - **Indian Market Context:** Asset types, exchange names, and broker names are oriented toward Indian stock market conventions.
-- **Holding Period:** Long-term vs short-term classification is based on a 1-year holding period for equities.
+- **Holding Period:** Long-term vs short-term classification is based on a 1-year holding period (≥366 days) for **all asset types** uniformly, not just equities.
 - **Broker Charge Template Required:** For automatic broker charge calculation on BUY/SELL transactions, an active `BrokerCharges` template must exist for the broker and transaction date. If missing, the transaction proceeds without broker charges.
 - **GST Description Format:** The `gstApplicableDescription` field in `BrokerChargesRequest` follows the format `XX%-component_name,XX%-component_name` (e.g. `18%-brokerage,18%-stt`). The percentage symbol is optional; components not matching known names are silently ignored.
 - **DP Charge Deduplication:** DP charges are applied only once per stock per day on SELL transactions. Multiple sells of the same stock on the same day incur DP charges only on the first sell.
@@ -641,12 +641,18 @@ curl -X POST "http://localhost:8080/portfolio/user/user@example.com/transaction/
 
 ## Future Improvements
 
+### Completed
+- **XIRR Calculation:** Already implemented. Newton-Raphson algorithm with bisection fallback is available via `AnalyticsController` at `/analytics/user/{email}/xirr`.
+
+### In Progress / Partially Implemented
+- **Insurance Module:** Data model (`InsuranceEntity`, `PolicyDetails`, DTOs) exists but service layer is an empty stub and no controller endpoints are exposed.
+- **Advanced Analytics:** Portfolio performance metrics (win/loss ratio, avg profit/loss, best/worst stock, turnover) and asset allocation by type are already available via `AnalyticsController`. Missing: sector allocation (no sector field in entities), benchmark comparison, and charting endpoints.
+- **Broker Charge Analytics:** Transaction-level broker charges are fully captured in `UserBrokerCharges` and the P&L entity has a `YearlyBrokerCharges` → `MonthlyBrokerCharges` → `BrokerChargesReport` hierarchy. Missing: aggregation endpoints, dashboard views, and financial year grouping queries.
+
+### Not Started
 - **Frontend Application:** Build a React/Angular web UI for portfolio visualization and transaction entry.
 - **Real-time Market Data:** Integrate with a market data provider (NSE/BSE APIs) for live stock prices and unrealised P&L.
-- **Insurance Module:** Complete the `InsuranceService` to support full CRUD for insurance policies.
 - **Notifications:** Add email/push notifications for corporate action alerts and portfolio updates.
 - **Caching:** Introduce Redis caching for frequently accessed portfolio and transaction data.
 - **Multi-currency Support:** Extend support for international stocks with currency conversion.
-- **Advanced Analytics:** Add portfolio performance metrics, XIRR calculation, and sector/asset allocation charts.
-- **Broker Charge Analytics:** Dashboard views for total brokerage, government charges, taxes, and DP charges per broker / financial year / month.
 - **Event-Driven Architecture:** RabbitMQ configuration exists (`shared.config.RabbitMQConfig`) but is currently commented out with no AMQP dependency in the build. When activated, it can publish domain events (transaction created, corporate action performed) for downstream consumers.
