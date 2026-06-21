@@ -120,7 +120,7 @@ public class PortfolioIntegrationTest extends AbstractIntegrationTest {
         // query in buyStock() matches the same record for averaging
         first.setTransactionDate(LocalDate.now());
         portfolioService.addTransaction(
-                com.thiru.wealthlens.dto.user.UserMail.from(TEST_EMAIL), first, new ArrayList<>());
+                com.thiru.wealthlens.shared.dto.user.UserMail.from(TEST_EMAIL), first, new ArrayList<>());
 
         AssetRequest second = buildBuyRequest(TEST_STOCK_CODE, TEST_STOCK_NAME, 10.0, 3000.0);
 
@@ -150,7 +150,7 @@ public class PortfolioIntegrationTest extends AbstractIntegrationTest {
         // Seed a BUY first
         AssetRequest buy = buildBuyRequest(TEST_STOCK_CODE, TEST_STOCK_NAME, 20.0, 2500.0);
         portfolioService.addTransaction(
-                com.thiru.wealthlens.dto.user.UserMail.from(TEST_EMAIL), buy, new ArrayList<>());
+                com.thiru.wealthlens.shared.dto.user.UserMail.from(TEST_EMAIL), buy, new ArrayList<>());
 
         AssetRequest sell = buildSellRequest(TEST_STOCK_CODE, 5.0, 2600.0);
 
@@ -179,7 +179,7 @@ public class PortfolioIntegrationTest extends AbstractIntegrationTest {
         String token = generateToken(TEST_EMAIL);
         AssetRequest buy = buildBuyRequest(TEST_STOCK_CODE, TEST_STOCK_NAME, 10.0, 2500.0);
         portfolioService.addTransaction(
-                com.thiru.wealthlens.dto.user.UserMail.from(TEST_EMAIL), buy, new ArrayList<>());
+                com.thiru.wealthlens.shared.dto.user.UserMail.from(TEST_EMAIL), buy, new ArrayList<>());
 
         AssetRequest sell = buildSellRequest(TEST_STOCK_CODE, 10.0, 2600.0);
 
@@ -297,7 +297,7 @@ public class PortfolioIntegrationTest extends AbstractIntegrationTest {
         // Seed a BUY of 5 shares
         AssetRequest buy = buildBuyRequest(TEST_STOCK_CODE, TEST_STOCK_NAME, 5.0, 2000.0);
         portfolioService.addTransaction(
-                com.thiru.wealthlens.dto.user.UserMail.from(TEST_EMAIL), buy, new ArrayList<>());
+                com.thiru.wealthlens.shared.dto.user.UserMail.from(TEST_EMAIL), buy, new ArrayList<>());
 
         // Try to SELL 10 shares
         AssetRequest sell = buildSellRequest(TEST_STOCK_CODE, 10.0, 2100.0);
@@ -1001,7 +1001,7 @@ public class PortfolioIntegrationTest extends AbstractIntegrationTest {
         // Seed a BUY so a SELL would succeed
         AssetRequest buy = buildBuyRequest(TEST_STOCK_CODE, TEST_STOCK_NAME, 10.0, 2500.0);
         portfolioService.addTransaction(
-                com.thiru.wealthlens.dto.user.UserMail.from(TEST_EMAIL), buy, new ArrayList<>());
+                com.thiru.wealthlens.shared.dto.user.UserMail.from(TEST_EMAIL), buy, new ArrayList<>());
 
         // Try a SELL that would consume the entire position
         AssetRequest sell = buildSellRequest(TEST_STOCK_CODE, 10.0, 2600.0);
@@ -1037,12 +1037,12 @@ public class PortfolioIntegrationTest extends AbstractIntegrationTest {
         AssetRequest buy1 = buildBuyRequest(TEST_STOCK_CODE, TEST_STOCK_NAME, 10.0, 100.0);
         buy1.setTransactionDate(LocalDate.now().minusDays(10));
         portfolioService.addTransaction(
-                com.thiru.wealthlens.dto.user.UserMail.from(TEST_EMAIL), buy1, new ArrayList<>());
+                com.thiru.wealthlens.shared.dto.user.UserMail.from(TEST_EMAIL), buy1, new ArrayList<>());
 
         AssetRequest buy2 = buildBuyRequest(TEST_STOCK_CODE, TEST_STOCK_NAME, 10.0, 200.0);
         buy2.setTransactionDate(LocalDate.now().minusDays(5));
         portfolioService.addTransaction(
-                com.thiru.wealthlens.dto.user.UserMail.from(TEST_EMAIL), buy2, new ArrayList<>());
+                com.thiru.wealthlens.shared.dto.user.UserMail.from(TEST_EMAIL), buy2, new ArrayList<>());
 
         // Sell 15 — should consume all 10 from lot1 + 5 from lot2
         AssetRequest sell = buildSellRequest(TEST_STOCK_CODE, 15.0, 250.0);
@@ -1074,12 +1074,12 @@ public class PortfolioIntegrationTest extends AbstractIntegrationTest {
         AssetRequest buy1 = buildBuyRequest(TEST_STOCK_CODE, TEST_STOCK_NAME, 5.0, 100.0);
         buy1.setTransactionDate(LocalDate.now().minusDays(10));
         portfolioService.addTransaction(
-                com.thiru.wealthlens.dto.user.UserMail.from(TEST_EMAIL), buy1, new ArrayList<>());
+                com.thiru.wealthlens.shared.dto.user.UserMail.from(TEST_EMAIL), buy1, new ArrayList<>());
 
         AssetRequest buy2 = buildBuyRequest(TEST_STOCK_CODE, TEST_STOCK_NAME, 5.0, 150.0);
         buy2.setTransactionDate(LocalDate.now().minusDays(5));
         portfolioService.addTransaction(
-                com.thiru.wealthlens.dto.user.UserMail.from(TEST_EMAIL), buy2, new ArrayList<>());
+                com.thiru.wealthlens.shared.dto.user.UserMail.from(TEST_EMAIL), buy2, new ArrayList<>());
 
         // Sell exactly 10
         AssetRequest sell = buildSellRequest(TEST_STOCK_CODE, 10.0, 200.0);

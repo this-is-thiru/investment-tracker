@@ -1,6 +1,7 @@
 package com.thiru.wealthlens.util.collection;
 
 import com.thiru.wealthlens.dto.Student;
+import com.thiru.wealthlens.shared.util.collection.TJsonMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

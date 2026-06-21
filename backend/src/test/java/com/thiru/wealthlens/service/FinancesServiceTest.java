@@ -1,8 +1,9 @@
 package com.thiru.wealthlens.service;
 
-import com.thiru.wealthlens.dto.FinanceRequest;
-import com.thiru.wealthlens.dto.FinanceResponse;
-import com.thiru.wealthlens.dto.enums.CalculationType;
+import com.thiru.wealthlens.finance.dto.FinanceRequest;
+import com.thiru.wealthlens.finance.dto.FinanceResponse;
+import com.thiru.wealthlens.finance.dto.enums.CalculationType;
+import com.thiru.wealthlens.finance.service.FinancesService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

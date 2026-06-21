@@ -1,6 +1,7 @@
 package com.thiru.wealthlens.service;
 
 import com.thiru.wealthlens.brokercharges.dto.context.BrokerChargeContext;
+import com.thiru.wealthlens.brokercharges.service.UserBrokerChargeService;
 import com.thiru.wealthlens.portfolio.dto.context.BuyContext;
 import com.thiru.wealthlens.portfolio.dto.context.ProfitLossContext;
 import com.thiru.wealthlens.shared.dto.enums.AccountType;
@@ -13,6 +14,7 @@ import com.thiru.wealthlens.shared.dto.user.UserMail;
 import com.thiru.wealthlens.portfolio.entity.ProfitAndLossEntity;
 import com.thiru.wealthlens.brokercharges.entity.UserBrokerCharges;
 import com.thiru.wealthlens.portfolio.repository.ProfitAndLossRepository;
+import com.thiru.wealthlens.portfolio.service.ProfitAndLossService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;

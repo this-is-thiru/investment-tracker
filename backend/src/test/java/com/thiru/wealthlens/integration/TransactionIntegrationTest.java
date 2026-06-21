@@ -55,8 +55,8 @@ public class TransactionIntegrationTest extends AbstractIntegrationTest {
         request.setPrice(2500.0);
         request.setQuantity(10.0);
         request.setTransactionDate(null);
-        request.setTransactionType(com.thiru.wealthlens.dto.enums.TransactionType.BUY);
-        request.setBrokerName(com.thiru.wealthlens.dto.enums.BrokerName.ZERODHA);
+        request.setTransactionType(com.thiru.wealthlens.portfolio.dto.enums.TransactionType.BUY);
+        request.setBrokerName(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.ZERODHA);
 
         // WHEN
         String transactionId = transactionService.addTransaction(UserMail.from(email), request);
@@ -80,8 +80,8 @@ public class TransactionIntegrationTest extends AbstractIntegrationTest {
         request.setPrice(3500.0);
         request.setQuantity(5.0);
         request.setTransactionDate(LocalDate.now());
-        request.setTransactionType(com.thiru.wealthlens.dto.enums.TransactionType.BUY);
-        request.setBrokerName(com.thiru.wealthlens.dto.enums.BrokerName.UPSTOX);
+        request.setTransactionType(com.thiru.wealthlens.portfolio.dto.enums.TransactionType.BUY);
+        request.setBrokerName(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.UPSTOX);
 
         // WHEN
         String transactionId = transactionService.addTransaction(UserMail.from(email), request);
@@ -105,8 +105,8 @@ public class TransactionIntegrationTest extends AbstractIntegrationTest {
         request1.setPrice(1500.0);
         request1.setQuantity(20.0);
         request1.setTransactionDate(LocalDate.now());
-        request1.setTransactionType(com.thiru.wealthlens.dto.enums.TransactionType.BUY);
-        request1.setBrokerName(com.thiru.wealthlens.dto.enums.BrokerName.FYERS);
+        request1.setTransactionType(com.thiru.wealthlens.portfolio.dto.enums.TransactionType.BUY);
+        request1.setBrokerName(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.FYERS);
 
         String firstId = transactionService.addTransaction(UserMail.from(email), request1);
 
@@ -117,8 +117,8 @@ public class TransactionIntegrationTest extends AbstractIntegrationTest {
         request2.setPrice(1500.0);
         request2.setQuantity(20.0);
         request2.setTransactionDate(LocalDate.now());
-        request2.setTransactionType(com.thiru.wealthlens.dto.enums.TransactionType.BUY);
-        request2.setBrokerName(com.thiru.wealthlens.dto.enums.BrokerName.FYERS);
+        request2.setTransactionType(com.thiru.wealthlens.portfolio.dto.enums.TransactionType.BUY);
+        request2.setBrokerName(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.FYERS);
 
         // WHEN
         String secondId = transactionService.addTransaction(UserMail.from(email), request2);
@@ -142,9 +142,9 @@ public class TransactionIntegrationTest extends AbstractIntegrationTest {
         txn1.setStockName("HDFC Bank");
         txn1.setPrice(1600.0);
         txn1.setQuantity(10.0);
-        txn1.setTransactionType(com.thiru.wealthlens.dto.enums.TransactionType.BUY);
+        txn1.setTransactionType(com.thiru.wealthlens.portfolio.dto.enums.TransactionType.BUY);
         txn1.setTransactionDate(LocalDate.of(2024, 1, 15));
-        txn1.setBrokerName(com.thiru.wealthlens.dto.enums.BrokerName.ZERODHA);
+        txn1.setBrokerName(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.ZERODHA);
         transactionRepository.save(txn1);
 
         TransactionEntity txn2 = new TransactionEntity();
@@ -153,9 +153,9 @@ public class TransactionIntegrationTest extends AbstractIntegrationTest {
         txn2.setStockName("HDFC Bank");
         txn2.setPrice(1650.0);
         txn2.setQuantity(10.0);
-        txn2.setTransactionType(com.thiru.wealthlens.dto.enums.TransactionType.BUY);
+        txn2.setTransactionType(com.thiru.wealthlens.portfolio.dto.enums.TransactionType.BUY);
         txn2.setTransactionDate(LocalDate.of(2024, 3, 10));
-        txn2.setBrokerName(com.thiru.wealthlens.dto.enums.BrokerName.ZERODHA);
+        txn2.setBrokerName(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.ZERODHA);
         transactionRepository.save(txn2);
 
         // WHEN
@@ -178,9 +178,9 @@ public class TransactionIntegrationTest extends AbstractIntegrationTest {
         txn.setStockName("State Bank of India");
         txn.setPrice(750.0);
         txn.setQuantity(5.0);
-        txn.setTransactionType(com.thiru.wealthlens.dto.enums.TransactionType.BUY);
+        txn.setTransactionType(com.thiru.wealthlens.portfolio.dto.enums.TransactionType.BUY);
         txn.setTransactionDate(LocalDate.of(2024, 2, 1));
-        txn.setBrokerName(com.thiru.wealthlens.dto.enums.BrokerName.UPSTOX);
+        txn.setBrokerName(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.UPSTOX);
         transactionRepository.save(txn);
 
         // WHEN / THEN
@@ -200,9 +200,9 @@ public class TransactionIntegrationTest extends AbstractIntegrationTest {
         txn1.setStockName("ICICI Bank");
         txn1.setPrice(1000.0);
         txn1.setQuantity(10.0);
-        txn1.setTransactionType(com.thiru.wealthlens.dto.enums.TransactionType.BUY);
+        txn1.setTransactionType(com.thiru.wealthlens.portfolio.dto.enums.TransactionType.BUY);
         txn1.setTransactionDate(LocalDate.of(2024, 5, 15));
-        txn1.setBrokerName(com.thiru.wealthlens.dto.enums.BrokerName.ZERODHA);
+        txn1.setBrokerName(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.ZERODHA);
         transactionRepository.save(txn1);
 
         TransactionEntity txn2 = new TransactionEntity();
@@ -211,9 +211,9 @@ public class TransactionIntegrationTest extends AbstractIntegrationTest {
         txn2.setStockName("ICICI Bank");
         txn2.setPrice(950.0);
         txn2.setQuantity(10.0);
-        txn2.setTransactionType(com.thiru.wealthlens.dto.enums.TransactionType.BUY);
+        txn2.setTransactionType(com.thiru.wealthlens.portfolio.dto.enums.TransactionType.BUY);
         txn2.setTransactionDate(LocalDate.of(2024, 5, 10));
-        txn2.setBrokerName(com.thiru.wealthlens.dto.enums.BrokerName.ZERODHA);
+        txn2.setBrokerName(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.ZERODHA);
         transactionRepository.save(txn2);
 
         // WHEN
@@ -237,9 +237,9 @@ public class TransactionIntegrationTest extends AbstractIntegrationTest {
         txn1.setStockName("Kotak Mahindra Bank");
         txn1.setPrice(1800.0);
         txn1.setQuantity(10.0);
-        txn1.setTransactionType(com.thiru.wealthlens.dto.enums.TransactionType.BUY);
+        txn1.setTransactionType(com.thiru.wealthlens.portfolio.dto.enums.TransactionType.BUY);
         txn1.setTransactionDate(LocalDate.of(2024, 3, 1));
-        txn1.setBrokerName(com.thiru.wealthlens.dto.enums.BrokerName.ZERODHA);
+        txn1.setBrokerName(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.ZERODHA);
         transactionRepository.save(txn1);
 
         TransactionEntity txn2 = new TransactionEntity();
@@ -248,18 +248,18 @@ public class TransactionIntegrationTest extends AbstractIntegrationTest {
         txn2.setStockName("Kotak Mahindra Bank");
         txn2.setPrice(1750.0);
         txn2.setQuantity(10.0);
-        txn2.setTransactionType(com.thiru.wealthlens.dto.enums.TransactionType.BUY);
+        txn2.setTransactionType(com.thiru.wealthlens.portfolio.dto.enums.TransactionType.BUY);
         txn2.setTransactionDate(LocalDate.of(2024, 2, 1));
-        txn2.setBrokerName(com.thiru.wealthlens.dto.enums.BrokerName.UPSTOX);
+        txn2.setBrokerName(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.UPSTOX);
         transactionRepository.save(txn2);
 
         // WHEN
         List<TransactionEntity> result = transactionService.testTransactionsForCorporateActions(
-                email, "KOTAKBANK", com.thiru.wealthlens.dto.enums.BrokerName.ZERODHA, recordDate);
+                email, "KOTAKBANK", com.thiru.wealthlens.portfolio.dto.enums.BrokerName.ZERODHA, recordDate);
 
         // THEN
         assertEquals(1, result.size());
-        assertEquals(com.thiru.wealthlens.dto.enums.BrokerName.ZERODHA, result.get(0).getBrokerName());
+        assertEquals(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.ZERODHA, result.get(0).getBrokerName());
     }
 
     @Test
@@ -273,9 +273,9 @@ public class TransactionIntegrationTest extends AbstractIntegrationTest {
         txn1.setStockName("Axis Bank");
         txn1.setPrice(1000.0);
         txn1.setQuantity(10.0);
-        txn1.setTransactionType(com.thiru.wealthlens.dto.enums.TransactionType.BUY);
+        txn1.setTransactionType(com.thiru.wealthlens.portfolio.dto.enums.TransactionType.BUY);
         txn1.setTransactionDate(LocalDate.of(2024, 1, 15));
-        txn1.setBrokerName(com.thiru.wealthlens.dto.enums.BrokerName.FYERS);
+        txn1.setBrokerName(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.FYERS);
 
         TransactionEntity txn2 = new TransactionEntity();
         txn2.setEmail(email);
@@ -283,9 +283,9 @@ public class TransactionIntegrationTest extends AbstractIntegrationTest {
         txn2.setStockName("Axis Bank");
         txn2.setPrice(1050.0);
         txn2.setQuantity(15.0);
-        txn2.setTransactionType(com.thiru.wealthlens.dto.enums.TransactionType.BUY);
+        txn2.setTransactionType(com.thiru.wealthlens.portfolio.dto.enums.TransactionType.BUY);
         txn2.setTransactionDate(LocalDate.of(2024, 2, 20));
-        txn2.setBrokerName(com.thiru.wealthlens.dto.enums.BrokerName.FYERS);
+        txn2.setBrokerName(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.FYERS);
 
         List<TransactionEntity> transactions = List.of(txn1, txn2);
 
@@ -308,9 +308,9 @@ public class TransactionIntegrationTest extends AbstractIntegrationTest {
         txn.setStockName("State Bank of India");
         txn.setPrice(700.0);
         txn.setQuantity(25.0);
-        txn.setTransactionType(com.thiru.wealthlens.dto.enums.TransactionType.BUY);
+        txn.setTransactionType(com.thiru.wealthlens.portfolio.dto.enums.TransactionType.BUY);
         txn.setTransactionDate(LocalDate.of(2024, 4, 10));
-        txn.setBrokerName(com.thiru.wealthlens.dto.enums.BrokerName.ZERODHA);
+        txn.setBrokerName(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.ZERODHA);
         transactionRepository.save(txn);
 
         String token = generateToken(email);
@@ -342,9 +342,9 @@ public class TransactionIntegrationTest extends AbstractIntegrationTest {
         txn1.setStockName("Reliance Industries");
         txn1.setPrice(2500.0);
         txn1.setQuantity(10.0);
-        txn1.setTransactionType(com.thiru.wealthlens.dto.enums.TransactionType.BUY);
+        txn1.setTransactionType(com.thiru.wealthlens.portfolio.dto.enums.TransactionType.BUY);
         txn1.setTransactionDate(LocalDate.of(2024, 1, 5));
-        txn1.setBrokerName(com.thiru.wealthlens.dto.enums.BrokerName.UPSTOX);
+        txn1.setBrokerName(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.UPSTOX);
         transactionRepository.save(txn1);
 
         TransactionEntity txn2 = new TransactionEntity();
@@ -353,9 +353,9 @@ public class TransactionIntegrationTest extends AbstractIntegrationTest {
         txn2.setStockName("Tata Consultancy Services");
         txn2.setPrice(3800.0);
         txn2.setQuantity(8.0);
-        txn2.setTransactionType(com.thiru.wealthlens.dto.enums.TransactionType.BUY);
+        txn2.setTransactionType(com.thiru.wealthlens.portfolio.dto.enums.TransactionType.BUY);
         txn2.setTransactionDate(LocalDate.of(2024, 2, 15));
-        txn2.setBrokerName(com.thiru.wealthlens.dto.enums.BrokerName.ZERODHA);
+        txn2.setBrokerName(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.ZERODHA);
         transactionRepository.save(txn2);
 
         String token = generateToken(email);
@@ -383,9 +383,9 @@ public class TransactionIntegrationTest extends AbstractIntegrationTest {
         txn1.setStockName("HDFC Ltd");
         txn1.setPrice(2800.0);
         txn1.setQuantity(5.0);
-        txn1.setTransactionType(com.thiru.wealthlens.dto.enums.TransactionType.BUY);
+        txn1.setTransactionType(com.thiru.wealthlens.portfolio.dto.enums.TransactionType.BUY);
         txn1.setTransactionDate(LocalDate.of(2024, 3, 1));
-        txn1.setBrokerName(com.thiru.wealthlens.dto.enums.BrokerName.ZERODHA);
+        txn1.setBrokerName(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.ZERODHA);
         txn1.setAssetType(null);
         transactionRepository.save(txn1);
 
@@ -395,10 +395,10 @@ public class TransactionIntegrationTest extends AbstractIntegrationTest {
         txn2.setStockName("ICICI Bank");
         txn2.setPrice(1100.0);
         txn2.setQuantity(12.0);
-        txn2.setTransactionType(com.thiru.wealthlens.dto.enums.TransactionType.SELL);
+        txn2.setTransactionType(com.thiru.wealthlens.portfolio.dto.enums.TransactionType.SELL);
         txn2.setTransactionDate(LocalDate.of(2024, 3, 15));
-        txn2.setBrokerName(com.thiru.wealthlens.dto.enums.BrokerName.UPSTOX);
-        txn2.setAssetType(com.thiru.wealthlens.dto.enums.AssetType.EQUITY);
+        txn2.setBrokerName(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.UPSTOX);
+        txn2.setAssetType(com.thiru.wealthlens.portfolio.dto.enums.AssetType.EQUITY);
         transactionRepository.save(txn2);
 
         // WHEN
@@ -406,9 +406,9 @@ public class TransactionIntegrationTest extends AbstractIntegrationTest {
 
         // THEN
         List<TransactionEntity> updated = transactionRepository.findByEmail(email);
-        assertEquals(com.thiru.wealthlens.dto.enums.AssetType.MUTUAL_FUND,
+        assertEquals(com.thiru.wealthlens.portfolio.dto.enums.AssetType.MUTUAL_FUND,
                 updated.stream().filter(t -> t.getStockCode().equals("HDFC")).findFirst().orElseThrow().getAssetType());
-        assertEquals(com.thiru.wealthlens.dto.enums.AssetType.EQUITY,
+        assertEquals(com.thiru.wealthlens.portfolio.dto.enums.AssetType.EQUITY,
                 updated.stream().filter(t -> t.getStockCode().equals("ICICI")).findFirst().orElseThrow().getAssetType());
     }
 
@@ -423,9 +423,9 @@ public class TransactionIntegrationTest extends AbstractIntegrationTest {
         txn1.setStockName("Wipro Ltd");
         txn1.setPrice(450.0);
         txn1.setQuantity(30.0);
-        txn1.setTransactionType(com.thiru.wealthlens.dto.enums.TransactionType.BUY);
+        txn1.setTransactionType(com.thiru.wealthlens.portfolio.dto.enums.TransactionType.BUY);
         txn1.setTransactionDate(LocalDate.of(2024, 1, 10));
-        txn1.setBrokerName(com.thiru.wealthlens.dto.enums.BrokerName.ZERODHA);
+        txn1.setBrokerName(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.ZERODHA);
         transactionRepository.save(txn1);
 
         TransactionEntity txn2 = new TransactionEntity();
@@ -434,9 +434,9 @@ public class TransactionIntegrationTest extends AbstractIntegrationTest {
         txn2.setStockName("Infosys Ltd");
         txn2.setPrice(1550.0);
         txn2.setQuantity(15.0);
-        txn2.setTransactionType(com.thiru.wealthlens.dto.enums.TransactionType.BUY);
+        txn2.setTransactionType(com.thiru.wealthlens.portfolio.dto.enums.TransactionType.BUY);
         txn2.setTransactionDate(LocalDate.of(2024, 2, 5));
-        txn2.setBrokerName(com.thiru.wealthlens.dto.enums.BrokerName.FYERS);
+        txn2.setBrokerName(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.FYERS);
         transactionRepository.save(txn2);
 
         assertEquals(2, transactionRepository.findByEmail(email).size());
@@ -459,9 +459,9 @@ public class TransactionIntegrationTest extends AbstractIntegrationTest {
         txn1.setStockName("Adani Ports");
         txn1.setPrice(1200.0);
         txn1.setQuantity(20.0);
-        txn1.setTransactionType(com.thiru.wealthlens.dto.enums.TransactionType.BUY);
+        txn1.setTransactionType(com.thiru.wealthlens.portfolio.dto.enums.TransactionType.BUY);
         txn1.setTransactionDate(LocalDate.of(2024, 1, 20));
-        txn1.setBrokerName(com.thiru.wealthlens.dto.enums.BrokerName.UPSTOX);
+        txn1.setBrokerName(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.UPSTOX);
         transactionRepository.save(txn1);
 
         String token = generateToken(email);

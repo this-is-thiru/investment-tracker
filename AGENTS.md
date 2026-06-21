@@ -117,3 +117,45 @@ util/        → Static utility classes (prefix: T — TCollectionUtil, TLocalDa
 | `TLocalDate` / `TLocalDateTime` / `TLocalTime` | Date/time formatting and conversion |
 | `ExcelBuilder` / `ExcelParser` | Excel file parsing and generation |
 | `QueryBuilder` / `QueryFilter` | Dynamic MongoDB query construction |
+
+## Module Layout (post-Modulith refactor)
+
+The application is organized into explicit Spring Modulith modules under `com.thiru.wealthlens`.
+All modules are declared as **OPEN** (`@ApplicationModule(type = Type.OPEN)`) to expose internal types to sibling modules during the transition from a flat package layout.
+
+| Module | Base Package | Contains | Allowed Dependencies |
+|--------|-------------|----------|---------------------|
+| **shared** | `com.thiru.wealthlens.shared` | Cross-cutting utilities (TCollectionUtil, ExcelBuilder/ExcelParser, XirrCalculator), common DTOs (ApiResponse, ErrorResponse, UserMail), audit entities, shared config (MongoConfig, RabbitMQ), exception handling, query helpers | `portfolio` |
+| **auth** | `com.thiru.wealthlens.auth` | JWT-based Spring Security (AuthService, AuthFilter, SecurityConfig, UserDetails*), login/registration DTOs | `shared` |
+| **portfolio** | `com.thiru.wealthlens.portfolio` | Core portfolio engine (PortfolioService, TransactionService, ProfitAndLossService, TradeMatchingService, AssetManagementService, AnalyticsService, TemporaryTransactionService), controllers, entities (AssetEntity, TransactionEntity, ProfitAndLossEntity), DTOs, repository interfaces, Excel export processors, migrations, report models | `shared`, `auth`, `corporate`, `brokercharges`, `helper` |
+| **corporate** | `com.thiru.wealthlens.corporate` | Corporate action processing (CorporateActionService, CorporateActionController, CorporateActionEntity, LastlyPerformedCorporateAction), DTOs and enums (CorporateActionType) | `shared`, `portfolio` |
+| **brokercharges** | `com.thiru.wealthlens.brokercharges` | Broker charge calculation (BrokerChargeService, UserBrokerChargeService, BrokerChargesController), entities (BrokerCharges, UserBrokerCharges), DTOs and enums (BrokerChargeTransactionType, BrokerageAggregatorType, AmcChargeFrequency) | `shared`, `portfolio`, `corporate` |
+| **insurance** | `com.thiru.wealthlens.insurance` | Insurance tracking (InsuranceEntity, InsuranceService, InsuranceController, PolicyDetails), insurance DTOs and enums | `shared` |
+| **finance** | `com.thiru.wealthlens.finance` | Financial calculators and controllers (FinancesController, FinancesService, StepUpSIPCalculator), finance DTOs and enums | `shared` |
+| **helper** | `com.thiru.wealthlens.helper` | Auxiliary controllers (HelperController, SpecialController, TemplateController, TestController), file utilities (FileHelper, FileStream, FileType), ProfitLossDto | `shared`, `portfolio` |
+| **taxplanning** | `com.thiru.wealthlens.taxplanning` | Tax-planning stub (TaxPlanningModulePlaceholder) — placeholder for future tax-planning features | `shared`, `auth` |
+
+### Dependency Graph Summary
+
+```
+auth ──► shared ◄────── portfolio ◄───── corporate
+           ▲                ▲                ▲
+           │                │                │
+finance ───┘         brokercharges ◄────────┘
+insurance ───┘            ▲
+helper ──────┘        taxplanning ◄── auth
+```
+
+- `portfolio` sits at the center of the domain and is allowed to depend on `shared`, `auth`, `corporate`, `brokercharges`, and `helper`.
+- `shared` contains cross-cutting utilities and depends on `portfolio` for domain-specific DTOs/entities consumed by generic tools (XirrCalculator, ExcelBuilder, etc.).
+- `brokercharges` and `corporate` are secondary domains that both depend on `portfolio` for holding/asset context.
+- `auth` is the authentication/security layer and depends only on `shared`.
+- `insurance`, `finance`, `taxplanning` are independent leaf modules.
+- `helper` is a catch-all utility module that depends on `shared` and `portfolio`.
+
+### Architecture Enforcement
+
+- `ApplicationModules.verify()` runs via `WealthLensModulithTest.modulithStructureIsValid()`.
+- Any cross-module usage must be declared in the consuming module's `@ApplicationModule(allowedDependencies = …)`.
+- Modules expose all public types because every module is `OPEN`. Future refactors can tighten boundaries by deleting `type = Type.OPEN` and moving shared API types into the module root packages.
+

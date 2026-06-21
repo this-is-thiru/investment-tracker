@@ -1,4 +1,5 @@
 @org.springframework.modulith.ApplicationModule(
-    allowedDependencies = {"shared", "portfolio"}
+    type = org.springframework.modulith.ApplicationModule.Type.OPEN,
+    allowedDependencies = {"shared", "portfolio", "corporate"}
 )
-package com.thiru.wealthlens.brokercharges.brokercharges;
+package com.thiru.wealthlens.brokercharges;

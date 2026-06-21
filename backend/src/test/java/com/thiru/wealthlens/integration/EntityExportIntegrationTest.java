@@ -66,8 +66,8 @@ public class EntityExportIntegrationTest extends AbstractIntegrationTest {
         asset.setPrice(2500.0);
         asset.setQuantity(10.0);
         asset.setTransactionDate(LocalDate.now());
-        asset.setBrokerName(com.thiru.wealthlens.dto.enums.BrokerName.ZERODHA);
-        asset.setAssetType(com.thiru.wealthlens.dto.enums.AssetType.EQUITY);
+        asset.setBrokerName(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.ZERODHA);
+        asset.setAssetType(com.thiru.wealthlens.portfolio.dto.enums.AssetType.EQUITY);
         mongoTemplate.save(asset);
 
         EntityExportRequest request = new EntityExportRequest();
@@ -107,9 +107,9 @@ public class EntityExportIntegrationTest extends AbstractIntegrationTest {
         txn.setStockName(stockName);
         txn.setPrice(3800.0);
         txn.setQuantity(5.0);
-        txn.setTransactionType(com.thiru.wealthlens.dto.enums.TransactionType.BUY);
+        txn.setTransactionType(com.thiru.wealthlens.portfolio.dto.enums.TransactionType.BUY);
         txn.setTransactionDate(LocalDate.now());
-        txn.setBrokerName(com.thiru.wealthlens.dto.enums.BrokerName.ZERODHA);
+        txn.setBrokerName(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.ZERODHA);
         mongoTemplate.save(txn);
 
         EntityExportRequest request = new EntityExportRequest();

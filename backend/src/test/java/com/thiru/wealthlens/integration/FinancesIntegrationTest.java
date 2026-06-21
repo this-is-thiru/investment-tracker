@@ -1,9 +1,9 @@
 package com.thiru.wealthlens.integration;
 
-import com.thiru.wealthlens.dto.FinanceRequest;
-import com.thiru.wealthlens.dto.FinanceResponse;
-import com.thiru.wealthlens.dto.enums.CalculationType;
-import com.thiru.wealthlens.service.FinancesService;
+import com.thiru.wealthlens.finance.dto.FinanceRequest;
+import com.thiru.wealthlens.finance.dto.FinanceResponse;
+import com.thiru.wealthlens.finance.dto.enums.CalculationType;
+import com.thiru.wealthlens.finance.service.FinancesService;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

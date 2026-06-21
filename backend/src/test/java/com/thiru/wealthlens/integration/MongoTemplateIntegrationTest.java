@@ -36,9 +36,9 @@ public class MongoTemplateIntegrationTest extends AbstractIntegrationTest {
         txn.setStockName("Reliance Industries");
         txn.setPrice(2500.0);
         txn.setQuantity(10.0);
-        txn.setTransactionType(com.thiru.wealthlens.dto.enums.TransactionType.BUY);
+        txn.setTransactionType(com.thiru.wealthlens.portfolio.dto.enums.TransactionType.BUY);
         txn.setTransactionDate(LocalDate.of(2024, 1, 15));
-        txn.setBrokerName(com.thiru.wealthlens.dto.enums.BrokerName.ZERODHA);
+        txn.setBrokerName(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.ZERODHA);
         transactionRepository.save(txn);
 
         // Use ArrayList instead of List.of() because QueryFilter modifies the list
@@ -92,9 +92,9 @@ public class MongoTemplateIntegrationTest extends AbstractIntegrationTest {
         txn1.setStockName("Tata Consultancy Services");
         txn1.setPrice(3800.0);
         txn1.setQuantity(5.0);
-        txn1.setTransactionType(com.thiru.wealthlens.dto.enums.TransactionType.BUY);
+        txn1.setTransactionType(com.thiru.wealthlens.portfolio.dto.enums.TransactionType.BUY);
         txn1.setTransactionDate(LocalDate.now());
-        txn1.setBrokerName(com.thiru.wealthlens.dto.enums.BrokerName.ZERODHA);
+        txn1.setBrokerName(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.ZERODHA);
         transactionRepository.save(txn1);
 
         TransactionEntity txn2 = new TransactionEntity();
@@ -103,9 +103,9 @@ public class MongoTemplateIntegrationTest extends AbstractIntegrationTest {
         txn2.setStockName("Infosys Ltd");
         txn2.setPrice(1500.0);
         txn2.setQuantity(10.0);
-        txn2.setTransactionType(com.thiru.wealthlens.dto.enums.TransactionType.BUY);
+        txn2.setTransactionType(com.thiru.wealthlens.portfolio.dto.enums.TransactionType.BUY);
         txn2.setTransactionDate(LocalDate.now());
-        txn2.setBrokerName(com.thiru.wealthlens.dto.enums.BrokerName.ZERODHA);
+        txn2.setBrokerName(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.ZERODHA);
         transactionRepository.save(txn2);
 
         // WHEN
@@ -135,9 +135,9 @@ public class MongoTemplateIntegrationTest extends AbstractIntegrationTest {
         txn1.setStockName("Reliance Industries");
         txn1.setPrice(2500.0);
         txn1.setQuantity(10.0);
-        txn1.setTransactionType(com.thiru.wealthlens.dto.enums.TransactionType.BUY);
+        txn1.setTransactionType(com.thiru.wealthlens.portfolio.dto.enums.TransactionType.BUY);
         txn1.setTransactionDate(LocalDate.of(2024, 1, 15));
-        txn1.setBrokerName(com.thiru.wealthlens.dto.enums.BrokerName.ZERODHA);
+        txn1.setBrokerName(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.ZERODHA);
         transactionRepository.save(txn1);
 
         TransactionEntity txn2 = new TransactionEntity();
@@ -146,9 +146,9 @@ public class MongoTemplateIntegrationTest extends AbstractIntegrationTest {
         txn2.setStockName("Tata Consultancy Services");
         txn2.setPrice(3800.0);
         txn2.setQuantity(5.0);
-        txn2.setTransactionType(com.thiru.wealthlens.dto.enums.TransactionType.BUY);
+        txn2.setTransactionType(com.thiru.wealthlens.portfolio.dto.enums.TransactionType.BUY);
         txn2.setTransactionDate(LocalDate.of(2024, 2, 20));
-        txn2.setBrokerName(com.thiru.wealthlens.dto.enums.BrokerName.ZERODHA);
+        txn2.setBrokerName(com.thiru.wealthlens.portfolio.dto.enums.BrokerName.ZERODHA);
         transactionRepository.save(txn2);
 
         // WHEN

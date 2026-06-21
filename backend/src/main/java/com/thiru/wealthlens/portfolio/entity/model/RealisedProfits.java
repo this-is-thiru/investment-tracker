@@ -1,5 +1,5 @@
 package com.thiru.wealthlens.portfolio.entity.model;
-import com.thiru.wealthlens.brokercharges.entity.model.YearlyBrokerCharges;
+import com.thiru.wealthlens.portfolio.entity.model.YearlyBrokerCharges;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

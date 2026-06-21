@@ -819,7 +819,7 @@ public class CorporateActionIntegrationTest extends AbstractIntegrationTest {
         tempTransaction.setPrice(2600.0);
         tempTransaction.setTransactionType(TransactionType.BUY);
         tempTransaction.setTransactionDate(LocalDate.of(2024, 1, 10));
-        tempTransaction.setStatus(com.thiru.wealthlens.dto.enums.TransactionStatus.TEMPORARY);
+        tempTransaction.setStatus(com.thiru.wealthlens.portfolio.dto.enums.TransactionStatus.TEMPORARY);
         mongoTemplate.save(tempTransaction);
 
         CorporateActionPerformDto performDto = new CorporateActionPerformDto("JANUARY", 2024, BrokerName.UPSTOX);

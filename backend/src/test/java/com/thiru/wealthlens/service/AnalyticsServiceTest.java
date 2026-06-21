@@ -18,6 +18,7 @@ import com.thiru.wealthlens.portfolio.entity.model.RealisedProfits;
 import com.thiru.wealthlens.portfolio.repository.PortfolioRepository;
 import com.thiru.wealthlens.portfolio.repository.ProfitAndLossRepository;
 import com.thiru.wealthlens.portfolio.repository.TradeOutcomeRepository;
+import com.thiru.wealthlens.portfolio.service.AnalyticsService;
 import com.thiru.wealthlens.portfolio.repository.TransactionRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

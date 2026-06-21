@@ -198,7 +198,7 @@ public class BrokerChargesIntegrationTest extends AbstractIntegrationTest {
         bc.setStartDate(LocalDate.now().minusYears(1));
         bc.setEndDate(LocalDate.now().plusYears(1));
         bc.setStatus(EntityStatus.ACTIVE);
-        bc.setBrokerageCharges(new com.thiru.wealthlens.entity.model.BrokerageCharges(0, 20, BrokerageAggregatorType.MIN, 0, 20));
+        bc.setBrokerageCharges(new com.thiru.wealthlens.portfolio.entity.model.BrokerageCharges(0, 20, BrokerageAggregatorType.MIN, 0, 20));
         bc.setStt(0.1);
         bc.setSebiCharges(0.0001);
         bc.setStampDuty(0.015);

@@ -10,6 +10,8 @@ import com.thiru.wealthlens.brokercharges.entity.BrokerCharges;
 import com.thiru.wealthlens.brokercharges.entity.UserBrokerCharges;
 import com.thiru.wealthlens.portfolio.entity.model.BrokerageCharges;
 import com.thiru.wealthlens.brokercharges.repository.UserBrokerChargesRepository;
+import com.thiru.wealthlens.brokercharges.service.BrokerChargeService;
+import com.thiru.wealthlens.brokercharges.service.UserBrokerChargeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

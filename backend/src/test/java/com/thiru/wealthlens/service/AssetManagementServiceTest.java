@@ -9,6 +9,8 @@ import com.thiru.wealthlens.shared.dto.user.UserMail;
 import com.thiru.wealthlens.portfolio.entity.AssetManagementDetails;
 import com.thiru.wealthlens.brokercharges.entity.UserBrokerCharges;
 import com.thiru.wealthlens.portfolio.repository.AssetManagementRepository;
+import com.thiru.wealthlens.portfolio.service.AssetManagementService;
+import com.thiru.wealthlens.portfolio.service.ProfitAndLossService;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;

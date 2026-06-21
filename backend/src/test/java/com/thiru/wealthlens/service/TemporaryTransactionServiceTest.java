@@ -6,11 +6,13 @@ import com.thiru.wealthlens.portfolio.dto.enums.BrokerName;
 import com.thiru.wealthlens.portfolio.dto.enums.TransactionStatus;
 import com.thiru.wealthlens.portfolio.dto.enums.TransactionType;
 import com.thiru.wealthlens.shared.dto.user.UserMail;
+import com.thiru.wealthlens.corporate.dto.enums.CorporateActionType;
 import com.thiru.wealthlens.corporate.entity.CorporateActionEntity;
 import com.thiru.wealthlens.portfolio.entity.TransactionEntity;
 import com.thiru.wealthlens.corporate.repository.CorporateActionRepository;
 import com.thiru.wealthlens.corporate.repository.LastlyPerformedCorporateActionRepo;
 import com.thiru.wealthlens.portfolio.repository.TransactionRepository;
+import com.thiru.wealthlens.portfolio.service.TemporaryTransactionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -84,7 +86,7 @@ class TemporaryTransactionServiceTest {
         corporateAction.setStockCode("RELIANCE");
         corporateAction.setRecordDate(LocalDate.of(2025, 1, 10));
         corporateAction.setExDate(LocalDate.of(2025, 1, 12));
-        corporateAction.setType(com.thiru.wealthlens.dto.enums.CorporateActionType.BONUS);
+        corporateAction.setType(CorporateActionType.BONUS);
         corporateAction.setAssetType(AssetType.EQUITY);
 
         when(corporateActionRepository.findByStockCodeAndTypeInAndRecordDateBetween(

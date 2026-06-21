@@ -1,15 +1,14 @@
 package com.thiru.wealthlens;
 
-import com.thiru.wealthlens.auth.config.SecurityConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @EnableMethodSecurity
 @EnableTransactionManagement
-@EnableConfigurationProperties(SecurityConfig.class)
+@ConfigurationPropertiesScan("com.thiru.wealthlens")
 @SpringBootApplication
 public class WealthLensApplication {
 

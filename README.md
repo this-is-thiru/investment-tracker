@@ -1,40 +1,53 @@
-# Investment Tracker
+# WealthLens
 
-A Spring Boot-based portfolio tracking application for the Indian stock market that manages buy/sell transactions, corporate actions (bonus, demerger, stock split), profit & loss calculation, broker & AMC charge tracking, and portfolio holdings using MongoDB for flexible document storage.
+A Spring Boot + Spring Modulith portfolio tracking application for the Indian stock market that manages buy/sell transactions, corporate actions (bonus, demerger, stock split), profit & loss calculation, broker & AMC charge tracking, and portfolio holdings using MongoDB for flexible document storage.
 
 ## Architecture Overview
 
-The service follows a 3-layer architecture:
+WealthLens is built as a **single-deployable JAR Spring Modulith** application. The codebase is organized into explicit application modules under `com.thiru.wealthlens`, each with a `package-info.java` declaring allowed dependencies. Module boundaries are enforced via `ApplicationModules.verify()`.
+
+### Layered Architecture (within each module)
 
 ```
-Controller Layer          → PortfolioController, TransactionController, CorporateActionController,
-                            UserCorporateActionController, TemporaryTransactionsController,
-                            BrokerChargesController, UserBrokerChargesController, TestController,
-                            FinancesController, AuthController,
-                            EntityExportController, TemplateController, HelperController
-         ↓
-Service Layer             → PortfolioService, TransactionService, CorporateActionService,
-                            TemporaryTransactionService, ProfitAndLossService, TradeOutcomeService,
-                            BrokerChargeService, UserBrokerChargeService, AssetManagementService,
-                            FinancesService, AuthService, EntityExportService
-         ↓
-Repository / Document     → MongoDB Repositories (Spring Data MongoDB)
+Controller Layer   → REST API endpoints (no business logic)
+Service Layer      → @Transactional business logic
+Repository Layer   → Spring Data MongoDB
 ```
 
-**Key Packages:**
-- `controller/` — REST API endpoints
-- `service/` — Business logic and transaction processing
-- `repository/` — Data access (Spring Data MongoDB)
-- `entity/` — MongoDB document entities with snake_case field names
-- `dto/` — Data transfer objects with `asTransaction()` / `asAsset()` converters
-- `dto/enums/` — Domain enums (TransactionType, AssetType, CorporateActionType, BrokerChargeTransactionType, BrokerageAggregatorType, AmcChargeFrequency, EntityStatus, etc.)
-- `dto/context/` — Processing context objects (AssetContext, DemergerContext, ProfitAndLossContext, ProfitLossContext, BrokerChargeContext, BuyContext, TradeOutcomeContext)
-- `dto/reports/` — Report response DTOs (brokerage charges reports)
-- `dto/request/` — Request DTOs for broker charges and asset management
-- `auth/` — JWT authentication (controller, service, filter, config)
-- `config/` — MongoDB config, converters, transaction config, RabbitMQ config
-- `util/` — Static utility classes (`TCollectionUtil`, `TJsonMapper`, `TLocalDate`, Excel builders/parsers)
-- `exception/` — Custom exceptions and global exception handler (`ControllerAdviser`)
+### Application Modules
+
+| Module | Purpose | Key Types |
+|--------|---------|-----------|
+| **portfolio** | Core portfolio engine: transactions, P&L, trade matching, asset management, analytics, Excel export, temporary transaction redrive | PortfolioService, TransactionService, ProfitAndLossService, AssetEntity, TransactionEntity, AssetRequest |
+| **corporate** | Corporate action processing: bonus, demerger, stock split, name/symbol change | CorporateActionService, CorporateActionEntity, CorporateActionType, LastlyPerformedCorporateAction |
+| **brokercharges** | Broker & AMC charge computation, user-specific broker charge configuration | BrokerChargeService, UserBrokerChargeService, BrokerCharges, UserBrokerCharges |
+| **auth** | JWT-based Spring Security: login, registration, role upgrades | AuthService, AuthFilter, SecurityConfig, UserDetail |
+| **shared** | Cross-cutting utilities, common DTOs, audit entities, config, query helpers | ApiResponse, ErrorResponse, UserMail, TCollectionUtil, ExcelBuilder, XirrCalculator, MongoConfig |
+| **helper** | Auxiliary controllers and file utilities | HelperController, SpecialController, TemplateController, TestController, FileHelper, FileStream, FileType |
+| **finance** | Financial calculators (Step-up SIP) | FinancesService, StepUpSIPCalculator, FinanceRequest, FinanceResponse |
+| **insurance** | Insurance policy tracking | InsuranceService, InsuranceEntity, PolicyDetails, InsuranceRequest, InsuranceResponse |
+| **taxplanning** | Tax-planning domain (stub for future features) | TaxPlanningModulePlaceholder |
+
+### Module Dependency Rules
+
+- `portfolio` sits at the center and may depend on `shared`, `auth`, `corporate`, `brokercharges`, and `helper`.
+- `brokercharges` and `corporate` are secondary domains that both depend on `portfolio` for holding context.
+- `shared` contains cross-cutting utilities and currently depends on `portfolio` for domain-specific DTOs/entities consumed by generic tools.
+- `auth` is the security layer and depends only on `shared`.
+- `insurance`, `finance`, and `taxplanning` are leaf modules with no downstream consumers.
+- All modules are declared **OPEN** (`@ApplicationModule(type = Type.OPEN)`) so internal sub-package types are exposed during the migration from a flat package layout.
+
+### Key Packages (legacy flat layout → modules)
+
+- `controller/` → REST API endpoints now split across `portfolio.controller`, `corporate.controller`, `brokercharges.controller`, `auth.controller`, `finance.controller`, `helper.controller`
+- `service/` → Business logic now split across `portfolio.service`, `corporate.service`, `brokercharges.service`, `auth.service`, `finance.service`, `insurance.service`, `helper.service`
+- `repository/` → Data access now split across `portfolio.repository`, `corporate.repository`, `brokercharges.repository`, `auth.repository`, `insurance.repository`
+- `entity/` → MongoDB document entities now split across module `entity/` sub-packages
+- `dto/` → DTOs now split across module `dto/` sub-packages with `shared.dto` holding common types
+- `config/` → Configuration classes moved to `shared.config` (MongoDB, RabbitMQ, transactions) and `auth.config` (security)
+- `util/` → Static utility classes moved to `shared.util`
+- `exception/` → Custom exceptions and global handler moved to `shared.exception`
+- `auth/` → JWT authentication module (`auth.controller`, `auth.service`, `auth.filter`, `auth.config`, `auth.dto`, `auth.entity`, `auth.repository`)
 
 ## Data Model
 
