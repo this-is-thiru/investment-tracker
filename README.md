@@ -26,7 +26,7 @@ Repository Layer   → Spring Data MongoDB
 | **helper** | Auxiliary controllers and file utilities | HelperController, SpecialController, TemplateController, TestController, FileHelper, FileStream, FileType |
 | **finance** | Financial calculators (Step-up SIP) | FinancesService, StepUpSIPCalculator, FinanceRequest, FinanceResponse |
 | **insurance** | Insurance policy tracking | InsuranceService, InsuranceEntity, PolicyDetails, InsuranceRequest, InsuranceResponse |
-| **taxplanning** | Tax-planning domain (stub for future features) | TaxPlanningModulePlaceholder |
+| **taxplanning** | Tax planning & ITR automation stub — intended for capital gains tax report generation, Schedule CG auto-fill, and Section 112A/111A computation | TaxPlanningModulePlaceholder |
 
 ### Module Dependency Rules
 
@@ -655,4 +655,5 @@ curl -X POST "http://localhost:8080/portfolio/user/user@example.com/transaction/
 - **Notifications:** Add email/push notifications for corporate action alerts and portfolio updates.
 - **Caching:** Introduce Redis caching for frequently accessed portfolio and transaction data.
 - **Multi-currency Support:** Extend support for international stocks with currency conversion.
+- **Tax Filing / ITR Generation:** Auto-generate capital gains statements (Schedule CG) from realised P&L data, compute Section 111A (STCG) and Section 112A (LTCG) tax, and pre-fill ITR-2/ITR-3 with holding-wise buy/sell details, STT paid, and brokerage breakdown. The `taxplanning` module is reserved for this.
 - **Event-Driven Architecture:** RabbitMQ configuration exists (`shared.config.RabbitMQConfig`) but is currently commented out with no AMQP dependency in the build. When activated, it can publish domain events (transaction created, corporate action performed) for downstream consumers.
