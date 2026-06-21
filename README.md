@@ -364,8 +364,8 @@ The application starts on `http://localhost:8080`
 ### 5. Docker
 
 ```bash
-docker build -t investment-tracker .
-docker run -p 8080:8080 -e SPRING_PROFILES_ACTIVE=prod investment-tracker
+docker build -t wealthlens .
+docker run -p 8080:8080 -e SPRING_PROFILES_ACTIVE=prod wealthlens
 ```
 
 ## API Usage Examples
