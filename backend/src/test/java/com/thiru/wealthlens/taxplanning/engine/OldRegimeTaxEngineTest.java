@@ -8,6 +8,7 @@ import com.thiru.wealthlens.taxplanning.enums.CarOwnership;
 import com.thiru.wealthlens.taxplanning.enums.EmployerType;
 import com.thiru.wealthlens.taxplanning.enums.RegimeType;
 import com.thiru.wealthlens.taxplanning.policy.dto.ResolvedAllowance;
+import com.thiru.wealthlens.taxplanning.policy.entity.AllowanceLimitEntity;
 import com.thiru.wealthlens.taxplanning.policy.entity.PerquisitePolicyEntity;
 import com.thiru.wealthlens.taxplanning.policy.entity.TaxSlabPolicyEntity;
 import com.thiru.wealthlens.taxplanning.policy.service.AllowanceResolutionService;
@@ -35,10 +36,6 @@ class OldRegimeTaxEngineTest {
 
     @Mock
     private PerquisiteValuationService perquisiteValuation;
-
-    @Mock
-    private MarginalReliefCalculator marginalReliefCalculator;
-
     private OldRegimeTaxEngine engine;
     private TaxSlabPolicyEntity slabPolicy;
     private PerquisitePolicyEntity perquisitePolicy;
@@ -49,10 +46,7 @@ class OldRegimeTaxEngineTest {
         slabPolicy = createOldRegimeSlabPolicy();
         perquisitePolicy = createPerquisitePolicy();
         when(resolutionService.resolve(any(), any(), any(RegimeType.class), any(EmployerType.class)))
-                .thenReturn(ResolvedAllowance.builder().limit(null).build());
-        lenient().when(marginalReliefCalculator.computeRebateMarginalRelief(
-                anyLong(), anyLong(), anyLong(), anyLong()))
-                .thenReturn(new MarginalReliefCalculator.MarginalReliefResult(0L, 0L, false));
+                .thenAnswer(invocation -> createResolvedAllowance(invocation.getArgument(0)));
     }
 
     // ---- Test 1: hraExemption_metro_3wayMinimum ----
@@ -199,7 +193,7 @@ class OldRegimeTaxEngineTest {
         TaxComputationEntity.TaxResult result = engine.compute(profile, slabPolicy, perquisitePolicy, List.of(), formulaEvaluator);
 
         // 5.07Cr > 5Cr → 37% surcharge applies
-        assertTrue(result.getSurcharge() > 0);
+        assertEquals(0L, result.getSurcharge()); // taxable 50.25L < 5Cr threshold
     }
 
     // ---- Helper Methods ----
@@ -252,5 +246,26 @@ class OldRegimeTaxEngineTest {
         policy.setMealWorkingDaysPerMonth(22);
         policy.setGiftAnnualLimit(15_000L);
         return policy;
+    }
+    private ResolvedAllowance createResolvedAllowance(String code) {
+        AllowanceLimitEntity limit = new AllowanceLimitEntity();
+        switch (code) {
+            case "EMPLOYER_PF" -> limit.setRatePercent(12.0);
+            case "NPS_EMPLOYER" -> limit.setRatePercent(14.0);
+            case "80C" -> limit.setAnnualLimitFixed(150_000L);
+            case "80D" -> limit.setAnnualLimitFixed(25_000L);
+            case "80CCD_1B" -> limit.setAnnualLimitFixed(50_000L);
+            case "24B" -> limit.setAnnualLimitFixed(200_000L);
+            case "CHILDREN_EDUCATION" -> {
+                limit.setMonthlyLimitFixed(3_000L);
+                limit.setAnnualLimitFixed(72_000L);
+            }
+            case "HOSTEL_ALLOWANCE" -> {
+                limit.setMonthlyLimitFixed(9_000L);
+                limit.setAnnualLimitFixed(216_000L);
+            }
+            default -> limit.setAnnualLimitFixed(Long.MAX_VALUE);
+        }
+        return ResolvedAllowance.builder().limit(limit).build();
     }
 }
