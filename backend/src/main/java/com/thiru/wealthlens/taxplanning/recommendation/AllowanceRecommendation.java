@@ -4,10 +4,9 @@ import com.thiru.wealthlens.taxplanning.enums.AvailabilityPath;
 import com.thiru.wealthlens.taxplanning.enums.HrSupportLikelihood;
 import com.thiru.wealthlens.taxplanning.enums.RegimeType;
 import com.thiru.wealthlens.taxplanning.policy.entity.AllowanceCatalogueEntity;
+import java.util.List;
 import lombok.Builder;
 import lombok.Value;
-
-import java.util.List;
 
 @Value
 @Builder

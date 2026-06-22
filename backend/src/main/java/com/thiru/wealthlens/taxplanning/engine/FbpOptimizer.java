@@ -1,10 +1,9 @@
 package com.thiru.wealthlens.taxplanning.engine;
 
 import com.thiru.wealthlens.taxplanning.salary.entity.SalaryComponentEntity;
-import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.Optional;
+import org.springframework.stereotype.Component;
 
 /**
  * Flexible Benefits Plan (FBP) optimizer helper.

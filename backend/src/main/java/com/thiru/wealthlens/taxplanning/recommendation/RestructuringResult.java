@@ -1,10 +1,9 @@
 package com.thiru.wealthlens.taxplanning.recommendation;
 
 import com.thiru.wealthlens.taxplanning.salary.dto.SalaryProfileResponse;
+import java.util.List;
 import lombok.Builder;
 import lombok.Value;
-
-import java.util.List;
 
 @Value
 @Builder

@@ -7,6 +7,7 @@ import com.thiru.wealthlens.taxplanning.enums.CityTier;
 import com.thiru.wealthlens.taxplanning.enums.EmployerType;
 import com.thiru.wealthlens.taxplanning.enums.ProfileType;
 import com.thiru.wealthlens.taxplanning.enums.RegimeType;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,8 +17,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
-
-import java.util.List;
 
 @Document(value = "salary_profiles")
 @AllArgsConstructor

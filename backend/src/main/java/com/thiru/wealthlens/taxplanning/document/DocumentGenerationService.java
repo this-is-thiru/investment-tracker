@@ -3,15 +3,14 @@ package com.thiru.wealthlens.taxplanning.document;
 import com.thiru.wealthlens.taxplanning.recommendation.RestructuringResult;
 import com.thiru.wealthlens.taxplanning.salary.entity.SalaryProfileEntity;
 import com.thiru.wealthlens.taxplanning.salary.entity.TaxComputationEntity;
+import java.io.ByteArrayOutputStream;
+import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.xhtmlrenderer.pdf.ITextRenderer;
-
-import java.io.ByteArrayOutputStream;
-import java.time.LocalDate;
 
 @Service
 @Log4j2

@@ -1,9 +1,8 @@
 package com.thiru.wealthlens.taxplanning.parsing;
 
+import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Data
 @NoArgsConstructor

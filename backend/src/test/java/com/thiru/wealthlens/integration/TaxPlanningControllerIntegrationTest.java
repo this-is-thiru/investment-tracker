@@ -1,5 +1,8 @@
 package com.thiru.wealthlens.integration;
 
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.thiru.wealthlens.taxplanning.enums.CityTier;
 import com.thiru.wealthlens.taxplanning.enums.EmployerType;
 import com.thiru.wealthlens.taxplanning.enums.ProfileType;
@@ -9,6 +12,10 @@ import com.thiru.wealthlens.taxplanning.salary.dto.SalaryComponentDto;
 import com.thiru.wealthlens.taxplanning.salary.dto.SalaryProfileRequest;
 import com.thiru.wealthlens.taxplanning.salary.dto.SalaryProfileResponse;
 import io.restassured.RestAssured;
+import java.io.IOException;
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -16,14 +23,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
-
-import java.io.IOException;
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 public class TaxPlanningControllerIntegrationTest extends AbstractIntegrationTest {
 

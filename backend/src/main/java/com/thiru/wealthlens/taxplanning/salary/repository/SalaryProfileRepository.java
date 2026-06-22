@@ -1,9 +1,8 @@
 package com.thiru.wealthlens.taxplanning.salary.repository;
 
 import com.thiru.wealthlens.taxplanning.salary.entity.SalaryProfileEntity;
-import org.springframework.data.mongodb.repository.MongoRepository;
-
 import java.util.List;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface SalaryProfileRepository extends MongoRepository<SalaryProfileEntity, String> {
 

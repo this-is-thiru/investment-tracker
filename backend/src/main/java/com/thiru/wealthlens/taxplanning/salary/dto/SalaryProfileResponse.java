@@ -8,13 +8,11 @@ import com.thiru.wealthlens.taxplanning.enums.ProfileType;
 import com.thiru.wealthlens.taxplanning.enums.RegimeType;
 import com.thiru.wealthlens.taxplanning.salary.entity.SalaryComponentEntity;
 import com.thiru.wealthlens.taxplanning.salary.entity.SalaryProfileEntity;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.Builder;
+import lombok.Data;
 
 @Data
 @Builder

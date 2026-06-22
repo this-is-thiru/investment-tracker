@@ -3,12 +3,11 @@ package com.thiru.wealthlens.taxplanning.recommendation;
 import com.thiru.wealthlens.taxplanning.enums.RegimeType;
 import com.thiru.wealthlens.taxplanning.salary.entity.SalaryProfileEntity;
 import com.thiru.wealthlens.taxplanning.salary.entity.TaxComputationEntity;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @Log4j2

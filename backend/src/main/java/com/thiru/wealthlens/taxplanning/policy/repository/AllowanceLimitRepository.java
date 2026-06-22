@@ -4,10 +4,9 @@ import com.thiru.wealthlens.shared.dto.enums.EntityStatus;
 import com.thiru.wealthlens.taxplanning.enums.EmployerType;
 import com.thiru.wealthlens.taxplanning.enums.RegimeType;
 import com.thiru.wealthlens.taxplanning.policy.entity.AllowanceLimitEntity;
-import org.springframework.data.mongodb.repository.MongoRepository;
-
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface AllowanceLimitRepository extends MongoRepository<AllowanceLimitEntity, String> {
 

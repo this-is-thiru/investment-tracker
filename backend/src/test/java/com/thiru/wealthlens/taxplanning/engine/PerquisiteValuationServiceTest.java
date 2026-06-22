@@ -1,12 +1,12 @@
 package com.thiru.wealthlens.taxplanning.engine;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.thiru.wealthlens.taxplanning.enums.CarEngineSize;
 import com.thiru.wealthlens.taxplanning.enums.CarOwnership;
 import com.thiru.wealthlens.taxplanning.policy.entity.PerquisitePolicyEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class PerquisiteValuationServiceTest {
 

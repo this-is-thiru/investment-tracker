@@ -1,6 +1,5 @@
 package com.thiru.wealthlens.taxplanning.engine;
 
-import com.thiru.wealthlens.taxplanning.salary.entity.SalaryComponentEntity;
 import com.thiru.wealthlens.taxplanning.salary.entity.SalaryProfileEntity;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;

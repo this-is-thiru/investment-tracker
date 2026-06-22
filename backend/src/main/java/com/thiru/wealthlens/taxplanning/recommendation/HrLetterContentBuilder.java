@@ -1,9 +1,8 @@
 package com.thiru.wealthlens.taxplanning.recommendation;
 
 import com.thiru.wealthlens.taxplanning.salary.entity.SalaryProfileEntity;
-import org.springframework.stereotype.Component;
-
 import java.util.List;
+import org.springframework.stereotype.Component;
 
 @Component
 public class HrLetterContentBuilder {

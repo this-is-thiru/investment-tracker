@@ -1,26 +1,25 @@
 package com.thiru.wealthlens.taxplanning.engine;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
 import com.thiru.wealthlens.taxplanning.enums.CarOwnership;
 import com.thiru.wealthlens.taxplanning.enums.EmployerType;
 import com.thiru.wealthlens.taxplanning.enums.RegimeType;
+import com.thiru.wealthlens.taxplanning.policy.dto.ResolvedAllowance;
 import com.thiru.wealthlens.taxplanning.policy.entity.PerquisitePolicyEntity;
 import com.thiru.wealthlens.taxplanning.policy.entity.TaxSlabPolicyEntity;
-import com.thiru.wealthlens.taxplanning.policy.dto.ResolvedAllowance;
 import com.thiru.wealthlens.taxplanning.policy.service.AllowanceResolutionService;
 import com.thiru.wealthlens.taxplanning.salary.entity.SalaryComponentEntity;
 import com.thiru.wealthlens.taxplanning.salary.entity.SalaryProfileEntity;
 import com.thiru.wealthlens.taxplanning.salary.entity.TaxComputationEntity;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class OldRegimeTaxEngineTest {

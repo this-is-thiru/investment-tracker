@@ -2,6 +2,7 @@ package com.thiru.wealthlens.taxplanning.controller;
 
 import com.thiru.wealthlens.auth.service.UserValidator;
 import com.thiru.wealthlens.taxplanning.document.TaxComparisonReportGenerator;
+import com.thiru.wealthlens.taxplanning.enums.RegimeType;
 import com.thiru.wealthlens.taxplanning.policy.entity.AllowanceCatalogueEntity;
 import com.thiru.wealthlens.taxplanning.policy.entity.PerquisitePolicyEntity;
 import com.thiru.wealthlens.taxplanning.policy.entity.TaxSlabPolicyEntity;
@@ -13,11 +14,11 @@ import com.thiru.wealthlens.taxplanning.salary.entity.SalaryProfileEntity;
 import com.thiru.wealthlens.taxplanning.salary.entity.TaxComputationEntity;
 import com.thiru.wealthlens.taxplanning.salary.service.SalaryProfileService;
 import com.thiru.wealthlens.taxplanning.service.TaxComputationService;
-import com.thiru.wealthlens.taxplanning.engine.TaxEngine;
-import com.thiru.wealthlens.taxplanning.engine.TaxEngineFactory;
-import com.thiru.wealthlens.taxplanning.engine.FormulaEvaluator;
-import com.thiru.wealthlens.taxplanning.enums.RegimeType;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpHeaders;
@@ -37,11 +38,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/tax-planning")

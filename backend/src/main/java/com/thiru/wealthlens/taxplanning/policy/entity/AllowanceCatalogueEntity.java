@@ -7,6 +7,7 @@ import com.thiru.wealthlens.taxplanning.enums.AllowanceCategory;
 import com.thiru.wealthlens.taxplanning.enums.AvailabilityPath;
 import com.thiru.wealthlens.taxplanning.enums.HrSupportLikelihood;
 import com.thiru.wealthlens.taxplanning.enums.RegimeType;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,8 +20,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
-
-import java.util.List;
 
 @Document(value = "allowance_catalogue")
 @AllArgsConstructor

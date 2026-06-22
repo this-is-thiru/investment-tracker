@@ -2,22 +2,19 @@ package com.thiru.wealthlens.taxplanning.engine;
 
 import com.thiru.wealthlens.taxplanning.enums.EmployerType;
 import com.thiru.wealthlens.taxplanning.enums.RegimeType;
-import com.thiru.wealthlens.taxplanning.policy.entity.AllowanceCatalogueEntity;
 import com.thiru.wealthlens.taxplanning.policy.entity.AllowanceLimitEntity;
 import com.thiru.wealthlens.taxplanning.policy.entity.PerquisitePolicyEntity;
 import com.thiru.wealthlens.taxplanning.policy.entity.TaxSlabPolicyEntity;
 import com.thiru.wealthlens.taxplanning.policy.service.AllowanceResolutionService;
-import com.thiru.wealthlens.taxplanning.salary.entity.SalaryComponentEntity;
 import com.thiru.wealthlens.taxplanning.salary.entity.SalaryProfileEntity;
 import com.thiru.wealthlens.taxplanning.salary.entity.TaxComputationEntity;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * Old Regime tax computation engine for FY 2025-26.

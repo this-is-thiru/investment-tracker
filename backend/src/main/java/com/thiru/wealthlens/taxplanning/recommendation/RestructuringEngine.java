@@ -3,9 +3,7 @@ package com.thiru.wealthlens.taxplanning.recommendation;
 import com.thiru.wealthlens.shared.dto.enums.EntityStatus;
 import com.thiru.wealthlens.taxplanning.engine.FormulaEvaluator;
 import com.thiru.wealthlens.taxplanning.engine.PerquisiteValuationService;
-import com.thiru.wealthlens.taxplanning.engine.TaxEngine;
 import com.thiru.wealthlens.taxplanning.engine.TaxEngineFactory;
-import com.thiru.wealthlens.taxplanning.enums.AvailabilityPath;
 import com.thiru.wealthlens.taxplanning.enums.EmployerType;
 import com.thiru.wealthlens.taxplanning.enums.ProfileType;
 import com.thiru.wealthlens.taxplanning.enums.RegimeType;
@@ -19,15 +17,14 @@ import com.thiru.wealthlens.taxplanning.salary.dto.SalaryProfileResponse;
 import com.thiru.wealthlens.taxplanning.salary.entity.SalaryComponentEntity;
 import com.thiru.wealthlens.taxplanning.salary.entity.SalaryProfileEntity;
 import com.thiru.wealthlens.taxplanning.salary.entity.TaxComputationEntity;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.stereotype.Service;
 
 @Service
 @Log4j2

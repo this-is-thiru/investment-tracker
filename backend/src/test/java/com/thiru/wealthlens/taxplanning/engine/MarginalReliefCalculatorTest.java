@@ -1,9 +1,9 @@
 package com.thiru.wealthlens.taxplanning.engine;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class MarginalReliefCalculatorTest {
 
@@ -116,7 +116,7 @@ class MarginalReliefCalculatorTest {
         // Income slightly above limit but tax is already low
         // taxableIncome = 12,10,000, tax = 20,000
         // maxTaxAtLimit = 12,10,000 - 12,00,000 = 10,000
-        // But wait 20,000 > 10,000 so relief applies... 
+        // But wait 20,000 > 10,000 so relief applies...
         // Let me use 12,01,000 with tax = 5,000
         // maxTaxAtLimit = 12,01,000 - 12,00,000 = 1,000
         // 5,000 > 1,000 → relief applies

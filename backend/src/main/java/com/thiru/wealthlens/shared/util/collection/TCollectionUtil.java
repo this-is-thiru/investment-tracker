@@ -1,7 +1,5 @@
 package com.thiru.wealthlens.shared.util.collection;
 
-import lombok.AllArgsConstructor;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +8,7 @@ import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class TCollectionUtil {
