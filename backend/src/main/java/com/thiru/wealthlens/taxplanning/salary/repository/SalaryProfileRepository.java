@@ -6,5 +6,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface SalaryProfileRepository extends MongoRepository<SalaryProfileEntity, String> {
 
-    List<SalaryProfileEntity> findByEmailOrderByCreatedDateDesc(String email);
+    List<SalaryProfileEntity> findByEmailOrderByAuditMetadata_CreatedAtDesc(String email);
 }

@@ -4,5 +4,6 @@ public enum HrSupportLikelihood {
     HIGH,
     MEDIUM,
     LOW,
-    EMPLOYER_DISCRETION
+    EMPLOYER_DISCRETION,
+    NOT_APPLICABLE
 }

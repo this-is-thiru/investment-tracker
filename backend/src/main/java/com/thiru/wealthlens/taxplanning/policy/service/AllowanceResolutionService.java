@@ -23,8 +23,13 @@ public class AllowanceResolutionService {
 
     public ResolvedAllowance resolve(String allowanceCode, String taxYear,
                                       RegimeType regime, EmployerType employer) {
-        AllowanceCatalogueEntity catalogue = catalogueRepo.findByCodeAndStatus(allowanceCode, EntityStatus.ACTIVE)
-                .orElseThrow(() -> new IllegalArgumentException("Allowance not found: " + allowanceCode));
+        AllowanceCatalogueEntity catalogue = null;
+        try {
+            catalogue = catalogueRepo.findByCodeAndStatus(allowanceCode, EntityStatus.ACTIVE)
+                    .orElse(null);
+        } catch (Exception e) {
+            log.warn("Could not look up catalogue for {}: {}", allowanceCode, e.getMessage());
+        }
 
         AllowanceLimitEntity limit = limitRepo
                 .findTopByAllowanceCodeAndTaxYearAndRegimeTypeAndEmployerTypeAndStatusOrderByEffectiveDateDesc(

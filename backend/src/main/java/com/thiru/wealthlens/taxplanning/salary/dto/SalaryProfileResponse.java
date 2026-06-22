@@ -11,11 +11,15 @@ import com.thiru.wealthlens.taxplanning.salary.entity.SalaryProfileEntity;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SalaryProfileResponse {
 
     private String id;

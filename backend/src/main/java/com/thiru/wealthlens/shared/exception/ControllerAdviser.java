@@ -32,10 +32,16 @@ public class ControllerAdviser {
         return buildErrorResponse(HttpStatus.BAD_REQUEST.value(), message, request);
     }
 
-    @ExceptionHandler({AccessDeniedException.class, BadCredentialsException.class})
+    @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleUnauthorized(Exception ex, HttpServletRequest request) {
         log(ex);
         return buildErrorResponse(HttpStatus.UNAUTHORIZED.value(), ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleForbidden(Exception ex, HttpServletRequest request) {
+        log(ex);
+        return buildErrorResponse(HttpStatus.FORBIDDEN.value(), ex.getMessage(), request);
     }
 
     @ExceptionHandler(NoResourceFoundException.class)

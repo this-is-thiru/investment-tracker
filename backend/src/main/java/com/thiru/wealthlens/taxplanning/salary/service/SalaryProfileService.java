@@ -168,7 +168,7 @@ public class SalaryProfileService {
     }
 
     public List<SalaryProfileResponse> getProfiles(String email) {
-        return profileRepo.findByEmailOrderByCreatedDateDesc(email).stream()
+        return profileRepo.findByEmailOrderByAuditMetadata_CreatedAtDesc(email).stream()
                 .map(SalaryProfileResponse::fromEntity)
                 .collect(Collectors.toList());
     }

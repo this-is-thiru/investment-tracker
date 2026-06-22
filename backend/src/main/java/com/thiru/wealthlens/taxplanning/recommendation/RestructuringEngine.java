@@ -93,10 +93,17 @@ public class RestructuringEngine {
             }
 
             long suggestedAmount;
-            AllowanceLimitEntity limit = resolutionService.resolve(
-                    allowance.getCode(), taxYear, currentRegime,
-                    currentProfile.getEmployerType() != null ? currentProfile.getEmployerType() : EmployerType.PRIVATE
-            ).getLimit();
+            AllowanceLimitEntity limit;
+            try {
+                limit = resolutionService.resolve(
+                        allowance.getCode(), taxYear, currentRegime,
+                        currentProfile.getEmployerType() != null ? currentProfile.getEmployerType() : EmployerType.PRIVATE
+                ).getLimit();
+            } catch (Exception e) {
+                log.warn("Could not resolve limit for allowance {} in restructure, skipping: {}",
+                        allowance.getCode(), e.getMessage());
+                continue;
+            }
 
             if (limit.getAnnualLimitFixed() != null) {
                 suggestedAmount = Math.min(limit.getAnnualLimitFixed(), reduciblePool);

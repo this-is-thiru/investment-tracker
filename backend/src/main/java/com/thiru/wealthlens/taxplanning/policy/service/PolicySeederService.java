@@ -101,6 +101,9 @@ public class PolicySeederService {
             if (items != null && items.isArray()) {
                 for (JsonNode item : items) {
                     AllowanceCatalogueEntity entity = objectMapper.treeToValue(item, AllowanceCatalogueEntity.class);
+                    if (entity.getStatus() == null) {
+                        entity.setStatus(EntityStatus.ACTIVE);
+                    }
                     allowanceRepo.save(entity);
                 }
                 log.info("Seeded {} allowance catalogue entries for {}", items.size(), taxYear);

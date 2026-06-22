@@ -68,6 +68,9 @@ public class MarginalReliefCalculator {
             long rebateLimit,
             long rebateAmount
     ) {
+        if (taxableIncome <= rebateLimit) {
+            return new MarginalReliefResult(computedTax, 0L, false);
+        }
         long maxTaxAtLimit = taxableIncome - rebateLimit;
         if (maxTaxAtLimit < computedTax) {
             long reliefAmount = computedTax - maxTaxAtLimit;

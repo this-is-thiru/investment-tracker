@@ -564,7 +564,7 @@ public class CorporateActionIntegrationTest extends AbstractIntegrationTest {
 
         RestTemplate rt = createNoErrorRestTemplate();
         ResponseEntity<String> response = rt.exchange(URI.create(url), HttpMethod.DELETE, entity, String.class);
-        assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCode().value());
+        assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatusCode().value());
     }
 
     // ========== HAPPY: deleteCorporateActions success ==========

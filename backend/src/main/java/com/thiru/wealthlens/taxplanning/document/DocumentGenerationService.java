@@ -1,6 +1,7 @@
 package com.thiru.wealthlens.taxplanning.document;
 
 import com.thiru.wealthlens.taxplanning.recommendation.RestructuringResult;
+import com.thiru.wealthlens.taxplanning.salary.dto.SalaryProfileResponse;
 import com.thiru.wealthlens.taxplanning.salary.entity.SalaryProfileEntity;
 import com.thiru.wealthlens.taxplanning.salary.entity.TaxComputationEntity;
 import java.io.ByteArrayOutputStream;
@@ -25,7 +26,7 @@ public class DocumentGenerationService {
             RestructuringResult restructuring
     ) {
         Context context = new Context();
-        context.setVariable("profile", profile);
+        context.setVariable("profile", SalaryProfileResponse.fromEntity(profile));
         context.setVariable("computation", computation);
         context.setVariable("restructuring", restructuring);
         context.setVariable("generatedOn", LocalDate.now());
