@@ -1,0 +1,36 @@
+package com.thiru.wealthlens.taxplanning.recommendation;
+
+import com.thiru.wealthlens.taxplanning.enums.AvailabilityPath;
+import com.thiru.wealthlens.taxplanning.enums.HrSupportLikelihood;
+import com.thiru.wealthlens.taxplanning.enums.RegimeType;
+import com.thiru.wealthlens.taxplanning.policy.entity.AllowanceCatalogueEntity;
+import lombok.Builder;
+import lombok.Value;
+
+import java.util.List;
+
+@Value
+@Builder
+public class AllowanceRecommendation {
+
+    String allowanceCode;
+    String displayName;
+    String description;
+    String whyItMatters;
+    long suggestedAnnualAmount;
+    long estimatedTaxSaving;
+    int priority;
+    AvailabilityPath availabilityPath;
+    HrSupportLikelihood hrSupportLikelihood;
+    String actionRequired;
+    String hrAskTemplate;
+    String whatIfHrSaysNo;
+    AllowanceCatalogueEntity.ItrPortalPath itrPortalPath;
+    List<String> documentsRequired;
+    List<String> documentsToKeep;
+    List<RegimeType> availableInRegimes;
+    String itSection;
+    List<String> eligibilityConditions;
+    List<String> commonMistakes;
+    List<AllowanceCatalogueEntity.FaqEntry> beginnerFaq;
+}
