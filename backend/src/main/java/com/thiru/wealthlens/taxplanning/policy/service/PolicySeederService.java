@@ -4,9 +4,11 @@ import com.thiru.wealthlens.shared.dto.enums.EntityStatus;
 import com.thiru.wealthlens.shared.util.collection.TJsonMapper;
 import com.thiru.wealthlens.taxplanning.enums.RegimeType;
 import com.thiru.wealthlens.taxplanning.policy.entity.AllowanceCatalogueEntity;
+import com.thiru.wealthlens.taxplanning.policy.entity.AllowanceLimitEntity;
 import com.thiru.wealthlens.taxplanning.policy.entity.PerquisitePolicyEntity;
 import com.thiru.wealthlens.taxplanning.policy.entity.TaxSlabPolicyEntity;
 import com.thiru.wealthlens.taxplanning.policy.repository.AllowanceCatalogueRepository;
+import com.thiru.wealthlens.taxplanning.policy.repository.AllowanceLimitRepository;
 import com.thiru.wealthlens.taxplanning.policy.repository.PerquisitePolicyRepository;
 import com.thiru.wealthlens.taxplanning.policy.repository.TaxSlabPolicyRepository;
 import io.micrometer.common.util.StringUtils;
@@ -31,6 +33,7 @@ public class PolicySeederService {
     private final TaxSlabPolicyRepository slabRepo;
     private final PerquisitePolicyRepository perquisiteRepo;
     private final AllowanceCatalogueRepository allowanceRepo;
+    private final AllowanceLimitRepository limitRepo;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -40,6 +43,7 @@ public class PolicySeederService {
         seedSlabPolicies();
         seedPerquisitePolicy();
         seedAllowanceCatalogue();
+        seedAllowanceLimits();
         log.info("Tax policy seeding completed");
     }
 
@@ -106,6 +110,29 @@ public class PolicySeederService {
             }
         } catch (Exception e) {
             log.error("Failed to seed allowance catalogue: {}", e.getMessage());
+        }
+    }
+
+    private void seedAllowanceLimits() {
+        try {
+            String taxYear = "2025-26";
+            List<AllowanceLimitEntity> existing = limitRepo.findByTaxYearAndStatus(taxYear, EntityStatus.ACTIVE);
+            if (!existing.isEmpty()) {
+                log.info("ACTIVE allowance limits already exist for {}, skipping", taxYear);
+                return;
+            }
+
+            String json = readResource("data/tax-policies/allowance-limits-2025-26.json");
+            JsonNode root = objectMapper.readTree(json);
+            if (root.isArray()) {
+                for (JsonNode item : root) {
+                    AllowanceLimitEntity entity = objectMapper.treeToValue(item, AllowanceLimitEntity.class);
+                    limitRepo.save(entity);
+                }
+                log.info("Seeded {} allowance limits for {}", root.size(), taxYear);
+            }
+        } catch (Exception e) {
+            log.error("Failed to seed allowance limits: {}", e.getMessage());
         }
     }
 

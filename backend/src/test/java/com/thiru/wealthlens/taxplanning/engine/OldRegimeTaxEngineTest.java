@@ -5,6 +5,8 @@ import com.thiru.wealthlens.taxplanning.enums.EmployerType;
 import com.thiru.wealthlens.taxplanning.enums.RegimeType;
 import com.thiru.wealthlens.taxplanning.policy.entity.PerquisitePolicyEntity;
 import com.thiru.wealthlens.taxplanning.policy.entity.TaxSlabPolicyEntity;
+import com.thiru.wealthlens.taxplanning.policy.dto.ResolvedAllowance;
+import com.thiru.wealthlens.taxplanning.policy.service.AllowanceResolutionService;
 import com.thiru.wealthlens.taxplanning.salary.entity.SalaryComponentEntity;
 import com.thiru.wealthlens.taxplanning.salary.entity.SalaryProfileEntity;
 import com.thiru.wealthlens.taxplanning.salary.entity.TaxComputationEntity;
@@ -24,6 +26,12 @@ import static org.mockito.Mockito.*;
 class OldRegimeTaxEngineTest {
 
     @Mock
+    private FormulaEvaluator formulaEvaluator;
+
+    @Mock
+    private AllowanceResolutionService resolutionService;
+
+    @Mock
     private HraExemptionCalculator hraExemptionCalculator;
 
     @Mock
@@ -33,17 +41,16 @@ class OldRegimeTaxEngineTest {
     private MarginalReliefCalculator marginalReliefCalculator;
 
     private OldRegimeTaxEngine engine;
-    private FormulaEvaluator formulaEvaluator;
     private TaxSlabPolicyEntity slabPolicy;
     private PerquisitePolicyEntity perquisitePolicy;
 
     @BeforeEach
     void setUp() {
-        engine = new OldRegimeTaxEngine(hraExemptionCalculator, perquisiteValuation, marginalReliefCalculator);
-        formulaEvaluator = new FormulaEvaluator();
+        engine = new OldRegimeTaxEngine(formulaEvaluator, resolutionService, hraExemptionCalculator, perquisiteValuation);
         slabPolicy = createOldRegimeSlabPolicy();
         perquisitePolicy = createPerquisitePolicy();
-        // Default stub: no marginal relief applies in old regime for these test cases
+        when(resolutionService.resolve(any(), any(), any(RegimeType.class), any(EmployerType.class)))
+                .thenReturn(ResolvedAllowance.builder().limit(null).build());
         lenient().when(marginalReliefCalculator.computeRebateMarginalRelief(
                 anyLong(), anyLong(), anyLong(), anyLong()))
                 .thenReturn(new MarginalReliefCalculator.MarginalReliefResult(0L, 0L, false));

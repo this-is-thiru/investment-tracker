@@ -7,6 +7,8 @@ import com.thiru.wealthlens.taxplanning.enums.RegimeType;
 import com.thiru.wealthlens.taxplanning.policy.entity.AllowanceCatalogueEntity;
 import com.thiru.wealthlens.taxplanning.policy.entity.PerquisitePolicyEntity;
 import com.thiru.wealthlens.taxplanning.policy.entity.TaxSlabPolicyEntity;
+import com.thiru.wealthlens.taxplanning.policy.dto.ResolvedAllowance;
+import com.thiru.wealthlens.taxplanning.policy.service.AllowanceResolutionService;
 import com.thiru.wealthlens.taxplanning.salary.entity.SalaryComponentEntity;
 import com.thiru.wealthlens.taxplanning.salary.entity.SalaryProfileEntity;
 import com.thiru.wealthlens.taxplanning.salary.entity.TaxComputationEntity;
@@ -26,22 +28,30 @@ import static org.mockito.Mockito.*;
 class NewRegimeTaxEngineTest {
 
     @Mock
+    private FormulaEvaluator formulaEvaluator;
+
+    @Mock
+    private AllowanceResolutionService resolutionService;
+
+    @Mock
     private PerquisiteValuationService perquisiteValuation;
 
     @Mock
     private MarginalReliefCalculator marginalReliefCalculator;
 
     private NewRegimeTaxEngine engine;
-    private FormulaEvaluator formulaEvaluator;
     private TaxSlabPolicyEntity slabPolicy;
     private PerquisitePolicyEntity perquisitePolicy;
 
     @BeforeEach
     void setUp() {
-        engine = new NewRegimeTaxEngine(perquisiteValuation, marginalReliefCalculator);
-        formulaEvaluator = new FormulaEvaluator();
+        engine = new NewRegimeTaxEngine(formulaEvaluator, resolutionService, perquisiteValuation);
+
         slabPolicy = createNewRegimeSlabPolicy();
         perquisitePolicy = createPerquisitePolicy();
+
+        when(resolutionService.resolve(any(), any(), any(RegimeType.class), any(EmployerType.class)))
+                .thenReturn(createResolvedAllowance());
     }
 
     // ---- Test 1: taxableIncome_12Lakhs_fullRebate_zeroTax ----
@@ -386,5 +396,9 @@ class NewRegimeTaxEngineTest {
         entry.setOldRegimeGovtLimitFormula("min(0.14 * (#basic + #da), #actual_nps)");
         entry.setAvailableInRegimes(List.of(RegimeType.NEW_REGIME, RegimeType.OLD_REGIME));
         return entry;
+    }
+
+    private ResolvedAllowance createResolvedAllowance() {
+        return ResolvedAllowance.builder().limit(null).build();
     }
 }

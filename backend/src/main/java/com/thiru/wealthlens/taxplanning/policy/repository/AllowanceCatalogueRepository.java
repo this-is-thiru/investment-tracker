@@ -12,4 +12,6 @@ public interface AllowanceCatalogueRepository extends MongoRepository<AllowanceC
     List<AllowanceCatalogueEntity> findByTaxYearAndStatus(String taxYear, EntityStatus status);
 
     Optional<AllowanceCatalogueEntity> findByCodeAndTaxYear(String code, String taxYear);
+
+    Optional<AllowanceCatalogueEntity> findByCodeAndStatus(String code, EntityStatus status);
 }

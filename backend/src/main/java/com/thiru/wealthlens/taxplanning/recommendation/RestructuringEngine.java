@@ -6,11 +6,14 @@ import com.thiru.wealthlens.taxplanning.engine.PerquisiteValuationService;
 import com.thiru.wealthlens.taxplanning.engine.TaxEngine;
 import com.thiru.wealthlens.taxplanning.engine.TaxEngineFactory;
 import com.thiru.wealthlens.taxplanning.enums.AvailabilityPath;
+import com.thiru.wealthlens.taxplanning.enums.EmployerType;
 import com.thiru.wealthlens.taxplanning.enums.ProfileType;
 import com.thiru.wealthlens.taxplanning.enums.RegimeType;
 import com.thiru.wealthlens.taxplanning.policy.entity.AllowanceCatalogueEntity;
+import com.thiru.wealthlens.taxplanning.policy.entity.AllowanceLimitEntity;
 import com.thiru.wealthlens.taxplanning.policy.entity.PerquisitePolicyEntity;
 import com.thiru.wealthlens.taxplanning.policy.entity.TaxSlabPolicyEntity;
+import com.thiru.wealthlens.taxplanning.policy.service.AllowanceResolutionService;
 import com.thiru.wealthlens.taxplanning.policy.service.PolicyService;
 import com.thiru.wealthlens.taxplanning.salary.dto.SalaryProfileResponse;
 import com.thiru.wealthlens.taxplanning.salary.entity.SalaryComponentEntity;
@@ -36,6 +39,7 @@ public class RestructuringEngine {
     private final FormulaEvaluator formulaEvaluator;
     private final PerquisiteValuationService perquisiteService;
     private final RegimeAdvisor regimeAdvisor;
+    private final AllowanceResolutionService resolutionService;
 
     public RestructuringResult restructure(SalaryProfileEntity currentProfile) {
         String taxYear = currentProfile.getTaxYear();
@@ -92,12 +96,17 @@ public class RestructuringEngine {
             }
 
             long suggestedAmount;
-            if (allowance.getAnnualLimitFixed() != null) {
-                suggestedAmount = Math.min(allowance.getAnnualLimitFixed(), reduciblePool);
-            } else if (allowance.getLimitFormula() != null) {
+            AllowanceLimitEntity limit = resolutionService.resolve(
+                    allowance.getCode(), taxYear, currentRegime,
+                    currentProfile.getEmployerType() != null ? currentProfile.getEmployerType() : EmployerType.PRIVATE
+            ).getLimit();
+
+            if (limit.getAnnualLimitFixed() != null) {
+                suggestedAmount = Math.min(limit.getAnnualLimitFixed(), reduciblePool);
+            } else if (limit.getLimitFormula() != null) {
                 Map<String, Object> vars = buildFormulaVariables(currentProfile);
                 try {
-                    suggestedAmount = Math.min(formulaEvaluator.evaluate(allowance.getLimitFormula(), vars), reduciblePool);
+                    suggestedAmount = Math.min(formulaEvaluator.evaluate(limit.getLimitFormula(), vars), reduciblePool);
                 } catch (Exception e) {
                     log.warn("Failed to evaluate formula for {}: {}", allowance.getCode(), e.getMessage());
                     continue;
