@@ -1,8 +1,6 @@
 package com.thiru.wealthlens.taxplanning.controller;
 
-import com.thiru.wealthlens.auth.service.UserValidator;
 import com.thiru.wealthlens.taxplanning.document.TaxComparisonReportGenerator;
-import com.thiru.wealthlens.taxplanning.enums.RegimeType;
 import com.thiru.wealthlens.taxplanning.policy.entity.AllowanceCatalogueEntity;
 import com.thiru.wealthlens.taxplanning.policy.entity.PerquisitePolicyEntity;
 import com.thiru.wealthlens.taxplanning.policy.entity.TaxSlabPolicyEntity;
@@ -14,19 +12,12 @@ import com.thiru.wealthlens.taxplanning.salary.entity.SalaryProfileEntity;
 import com.thiru.wealthlens.taxplanning.salary.entity.TaxComputationEntity;
 import com.thiru.wealthlens.taxplanning.salary.service.SalaryProfileService;
 import com.thiru.wealthlens.taxplanning.service.TaxComputationService;
-import jakarta.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,8 +27,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/tax-planning")
@@ -54,47 +47,27 @@ public class TaxPlanningController {
     // ========== Salary Profile Management ==========
 
     @PostMapping("/user/{email}/profile")
-    public ResponseEntity<SalaryProfileResponse> createProfile(
-            @PathVariable String email,
-            @RequestBody SalaryProfileRequest request,
-            Authentication authentication) {
-        validateAccess(authentication, email);
+    public ResponseEntity<SalaryProfileResponse> createProfile(@PathVariable String email, @RequestBody SalaryProfileRequest request) {
         return ResponseEntity.ok(salaryProfileService.createProfile(email, request));
     }
 
     @GetMapping("/user/{email}/profiles")
-    public ResponseEntity<List<SalaryProfileResponse>> getProfiles(
-            @PathVariable String email,
-            Authentication authentication) {
-        validateAccess(authentication, email);
+    public ResponseEntity<List<SalaryProfileResponse>> getProfiles(@PathVariable String email) {
         return ResponseEntity.ok(salaryProfileService.getProfiles(email));
     }
 
     @GetMapping("/user/{email}/profile/{profileId}")
-    public ResponseEntity<SalaryProfileResponse> getProfile(
-            @PathVariable String email,
-            @PathVariable String profileId,
-            Authentication authentication) {
-        validateAccess(authentication, email);
+    public ResponseEntity<SalaryProfileResponse> getProfile(@PathVariable String email, @PathVariable String profileId) {
         return ResponseEntity.ok(salaryProfileService.getProfile(email, profileId));
     }
 
     @PutMapping("/user/{email}/profile/{profileId}")
-    public ResponseEntity<SalaryProfileResponse> updateProfile(
-            @PathVariable String email,
-            @PathVariable String profileId,
-            @RequestBody SalaryProfileRequest request,
-            Authentication authentication) {
-        validateAccess(authentication, email);
+    public ResponseEntity<SalaryProfileResponse> updateProfile(@PathVariable String email, @PathVariable String profileId, @RequestBody SalaryProfileRequest request) {
         return ResponseEntity.ok(salaryProfileService.updateProfile(email, profileId, request));
     }
 
     @DeleteMapping("/user/{email}/profile/{profileId}")
-    public ResponseEntity<Void> deleteProfile(
-            @PathVariable String email,
-            @PathVariable String profileId,
-            Authentication authentication) {
-        validateAccess(authentication, email);
+    public ResponseEntity<Void> deleteProfile(@PathVariable String email, @PathVariable String profileId) {
         salaryProfileService.deleteProfile(email, profileId);
         return ResponseEntity.noContent().build();
     }
@@ -102,22 +75,14 @@ public class TaxPlanningController {
     // ========== Tax Computation ==========
 
     @PostMapping("/user/{email}/profile/{profileId}/compute")
-    public ResponseEntity<TaxComputationEntity> computeTax(
-            @PathVariable String email,
-            @PathVariable String profileId,
-            Authentication authentication) {
-        validateAccess(authentication, email);
+    public ResponseEntity<TaxComputationEntity> computeTax(@PathVariable String email, @PathVariable String profileId) {
         return ResponseEntity.ok(taxComputationService.compute(email, profileId));
     }
 
     // ========== Restructuring ==========
 
     @PostMapping("/user/{email}/profile/{profileId}/restructure")
-    public ResponseEntity<RestructuringResult> restructure(
-            @PathVariable String email,
-            @PathVariable String profileId,
-            Authentication authentication) {
-        validateAccess(authentication, email);
+    public ResponseEntity<RestructuringResult> restructure(@PathVariable String email, @PathVariable String profileId) {
         SalaryProfileEntity profile = salaryProfileService.getProfileEntity(email, profileId);
         return ResponseEntity.ok(restructuringEngine.restructure(profile));
     }
@@ -125,38 +90,23 @@ public class TaxPlanningController {
     // ========== Document Generation ==========
 
     @GetMapping("/user/{email}/profile/{profileId}/document/tax-report")
-    public ResponseEntity<byte[]> generateTaxReport(
-            @PathVariable String email,
-            @PathVariable String profileId,
-            Authentication authentication) {
-        validateAccess(authentication, email);
+    public ResponseEntity<byte[]> generateTaxReport(@PathVariable String email, @PathVariable String profileId) {
         TaxComputationEntity computation = taxComputationService.compute(email, profileId);
         SalaryProfileEntity profile = salaryProfileService.getProfileEntity(email, profileId);
         byte[] pdf = reportGenerator.generate(computation, profile, null);
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_PDF)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=tax-report.pdf")
-                .body(pdf);
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_PDF).header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=tax-report.pdf").body(pdf);
     }
 
     // ========== Public Allowance Catalogue ==========
 
     @GetMapping("/allowances")
-    public ResponseEntity<List<AllowanceCatalogueEntity>> getAllowances(
-            @RequestParam String taxYear,
-            @RequestParam RegimeType regime) {
+    public ResponseEntity<List<AllowanceCatalogueEntity>> getAllowances(@RequestParam String taxYear) {
         return ResponseEntity.ok(policyService.getAllowanceCatalogue(taxYear));
     }
 
     @GetMapping("/allowances/{code}")
-    public ResponseEntity<AllowanceCatalogueEntity> getAllowance(
-            @PathVariable String code,
-            @RequestParam String taxYear) {
-        return policyService.getAllowanceCatalogue(taxYear).stream()
-                .filter(a -> a.getCode().equalsIgnoreCase(code))
-                .findFirst()
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<AllowanceCatalogueEntity> getAllowance(@PathVariable String code, @RequestParam String taxYear) {
+        return policyService.getAllowanceCatalogue(taxYear).stream().filter(a -> a.getCode().equalsIgnoreCase(code)).findFirst().map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     // ========== Admin Endpoints (SUPER_USER only) ==========
@@ -175,10 +125,7 @@ public class TaxPlanningController {
 
     @PutMapping("/admin/allowances/{code}")
     @PreAuthorize("hasRole('SUPER_USER')")
-    public ResponseEntity<AllowanceCatalogueEntity> updateAllowance(
-            @PathVariable String code,
-            @RequestParam String taxYear,
-            @RequestBody AllowanceCatalogueEntity allowance) {
+    public ResponseEntity<AllowanceCatalogueEntity> updateAllowance(@PathVariable String code, @RequestParam String taxYear, @RequestBody AllowanceCatalogueEntity allowance) {
         return ResponseEntity.ok(policyService.updateAllowance(code, taxYear, allowance));
     }
 
@@ -191,38 +138,5 @@ public class TaxPlanningController {
         result.put("perquisitePolicy", policyService.getPerquisitePolicy(taxYear));
         result.put("allowanceCatalogue", policyService.getAllowanceCatalogue(taxYear));
         return ResponseEntity.ok(result);
-    }
-
-    // ========== Helpers ==========
-
-    private void validateAccess(Authentication authentication, String email) {
-        if (authentication == null || authentication.getPrincipal() == null) {
-            throw new org.springframework.security.access.AccessDeniedException("Authentication required");
-        }
-        String username = authentication.getName();
-        List<GrantedAuthority> authorities = new ArrayList<>(authentication.getAuthorities());
-        if (UserValidator.isRestrictedUser(username, authorities)) {
-            String pathEmail = extractEmailFromPath();
-            if (pathEmail != null && !pathEmail.equalsIgnoreCase(username)) {
-                throw new org.springframework.security.access.AccessDeniedException("Access denied for user: " + username);
-            }
-        }
-    }
-
-    private String extractEmailFromPath() {
-        try {
-            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-            String path = request.getRequestURI();
-            if (!path.contains("/user/")) {
-                return null;
-            }
-            String[] parts = path.split("/user/");
-            if (parts.length > 1) {
-                return parts[1].split("/")[0];
-            }
-        } catch (Exception e) {
-            log.debug("Could not extract email from path", e);
-        }
-        return null;
     }
 }
