@@ -364,7 +364,7 @@ public class TaxPlanningControllerIntegrationTest extends AbstractIntegrationTes
     @Test
     void getAllowances_public_noAuth() {
         RestTemplate rt = createRestTemplate();
-        String allowancesUrl = baseUrl() + "/tax-planning/allowances?taxYear=2025-26&regime=NEW_REGIME";
+        String allowancesUrl = baseUrl() + "/tax-planning/public/allowances?taxYear=2025-26&regime=NEW_REGIME";
         var resp = rt.getForEntity(URI.create(allowancesUrl), String.class);
 
         assertEquals(HttpStatus.OK.value(), resp.getStatusCode().value());
@@ -381,7 +381,7 @@ public class TaxPlanningControllerIntegrationTest extends AbstractIntegrationTes
     @Test
     void getAllowanceByCode_success() {
         RestTemplate rt = createRestTemplate();
-        String allowanceUrl = baseUrl() + "/tax-planning/allowances/HRA?taxYear=2025-26";
+        String allowanceUrl = baseUrl() + "/tax-planning/public/allowances/HRA?taxYear=2025-26";
         var resp = rt.getForEntity(URI.create(allowanceUrl), String.class);
 
         assertEquals(HttpStatus.OK.value(), resp.getStatusCode().value());

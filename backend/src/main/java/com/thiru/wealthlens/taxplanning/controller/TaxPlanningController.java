@@ -97,18 +97,6 @@ public class TaxPlanningController {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_PDF).header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=tax-report.pdf").body(pdf);
     }
 
-    // ========== Public Allowance Catalogue ==========
-
-    @GetMapping("/allowances")
-    public ResponseEntity<List<AllowanceCatalogueEntity>> getAllowances(@RequestParam String taxYear) {
-        return ResponseEntity.ok(policyService.getAllowanceCatalogue(taxYear));
-    }
-
-    @GetMapping("/allowances/{code}")
-    public ResponseEntity<AllowanceCatalogueEntity> getAllowance(@PathVariable String code, @RequestParam String taxYear) {
-        return policyService.getAllowanceCatalogue(taxYear).stream().filter(a -> a.getCode().equalsIgnoreCase(code)).findFirst().map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
-    }
-
     // ========== Admin Endpoints (SUPER_USER only) ==========
 
     @PostMapping("/admin/policies/slab")
