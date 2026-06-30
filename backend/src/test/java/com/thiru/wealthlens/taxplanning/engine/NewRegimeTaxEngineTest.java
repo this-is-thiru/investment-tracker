@@ -350,12 +350,12 @@ class NewRegimeTaxEngineTest {
     }
 
     private AllowanceCatalogueEntity createNpsCatalogueEntry() {
+        // Catalogue carries only descriptive metadata (code).
+        // The regime/employer-specific NPS formula lives on AllowanceLimitEntity
+        // (mocked via createResolvedAllowance); see allowance-limits-2025-26.json.
         AllowanceCatalogueEntity entry = new AllowanceCatalogueEntity();
         entry.setCode("NPS_EMPLOYER");
-        entry.setNewRegimeLimitFormula("min(0.14 * (#basic + #da), #actual_nps)");
-        entry.setOldRegimePrivateLimitFormula("min(0.10 * (#basic + #da), #actual_nps)");
-        entry.setOldRegimeGovtLimitFormula("min(0.14 * (#basic + #da), #actual_nps)");
-        entry.setAvailableInRegimes(List.of(RegimeType.NEW_REGIME, RegimeType.OLD_REGIME));
+        entry.setRegimeType(RegimeType.NEW_REGIME);
         return entry;
     }
 

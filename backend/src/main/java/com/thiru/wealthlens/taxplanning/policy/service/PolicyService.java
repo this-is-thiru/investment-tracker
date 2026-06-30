@@ -40,6 +40,10 @@ public class PolicyService {
         return allowanceRepo.findByTaxYearAndStatus(taxYear, EntityStatus.ACTIVE);
     }
 
+    public List<AllowanceCatalogueEntity> getAllowanceCatalogue(String taxYear, RegimeType regime) {
+        return allowanceRepo.findByTaxYearAndRegimeTypeAndStatus(taxYear, regime, EntityStatus.ACTIVE);
+    }
+
     @Transactional
     public TaxSlabPolicyEntity createSlabPolicy(TaxSlabPolicyEntity policy) {
         List<TaxSlabPolicyEntity> existing = slabRepo.findByTaxYearAndRegimeType(policy.getTaxYear(), policy.getRegimeType());
@@ -63,8 +67,9 @@ public class PolicyService {
 
     @Transactional
     public AllowanceCatalogueEntity updateAllowance(String code, String taxYear, AllowanceCatalogueEntity allowance) {
-        AllowanceCatalogueEntity existing = allowanceRepo.findByCodeAndTaxYear(code, taxYear)
-                .orElseThrow(() -> new IllegalArgumentException("Allowance not found: " + code));
+        AllowanceCatalogueEntity existing = allowanceRepo.findByCodeAndTaxYearAndRegimeType(code, taxYear, allowance.getRegimeType())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Allowance not found: " + code + " regime=" + allowance.getRegimeType()));
         existing.setAnnualLimitFixed(allowance.getAnnualLimitFixed());
         existing.setMonthlyLimitFixed(allowance.getMonthlyLimitFixed());
         existing.setDescription(allowance.getDescription());

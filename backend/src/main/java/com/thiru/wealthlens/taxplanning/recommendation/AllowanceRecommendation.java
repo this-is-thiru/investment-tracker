@@ -2,7 +2,6 @@ package com.thiru.wealthlens.taxplanning.recommendation;
 
 import com.thiru.wealthlens.taxplanning.enums.AvailabilityPath;
 import com.thiru.wealthlens.taxplanning.enums.HrSupportLikelihood;
-import com.thiru.wealthlens.taxplanning.enums.RegimeType;
 import com.thiru.wealthlens.taxplanning.policy.entity.AllowanceCatalogueEntity;
 import java.util.List;
 import lombok.Builder;
@@ -27,7 +26,6 @@ public class AllowanceRecommendation {
     AllowanceCatalogueEntity.ItrPortalPath itrPortalPath;
     List<String> documentsRequired;
     List<String> documentsToKeep;
-    List<RegimeType> availableInRegimes;
     String itSection;
     List<String> eligibilityConditions;
     List<String> commonMistakes;

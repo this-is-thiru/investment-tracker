@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -69,8 +70,11 @@ public class RestructuringEngine {
                 .map(SalaryComponentEntity::getAllowanceCode)
                 .toList();
 
+        Set<String> availableCodes = resolutionService.findAvailableAllowanceCodes(taxYear, currentRegime);
+
         List<AllowanceCatalogueEntity> eligible = catalogue.stream()
-                .filter(a -> a.getAvailableInRegimes().contains(currentRegime))
+                .filter(a -> a.getRegimeType() == currentRegime)
+                .filter(a -> availableCodes.contains(a.getCode()))
                 .filter(a -> !existingCodes.contains(a.getCode()))
                 .filter(a -> a.getStatus() == EntityStatus.ACTIVE)
                 .sorted(Comparator
@@ -131,7 +135,7 @@ public class RestructuringEngine {
             double marginalRate = getMarginalRate(originalNewResult.getTaxableIncome(), currentSlabPolicy);
             long estimatedSaving = Math.round(taxFreeBenefit * marginalRate);
 
-            recommendations.add(buildRecommendation(allowance, suggestedAmount, estimatedSaving, perquisiteValue));
+            recommendations.add(buildRecommendation(allowance, suggestedAmount, estimatedSaving));
 
             SalaryComponentEntity newComp = new SalaryComponentEntity();
             newComp.setAllowanceCode(allowance.getCode());
@@ -245,7 +249,7 @@ public class RestructuringEngine {
     }
 
     private AllowanceRecommendation buildRecommendation(AllowanceCatalogueEntity allowance,
-            long suggestedAmount, long estimatedSaving, long perquisiteValue) {
+            long suggestedAmount, long estimatedSaving) {
         return AllowanceRecommendation.builder()
                 .allowanceCode(allowance.getCode())
                 .displayName(allowance.getDisplayName())
@@ -267,7 +271,6 @@ public class RestructuringEngine {
                 .itrPortalPath(null)
                 .documentsRequired(allowance.getDocumentsRequired())
                 .documentsToKeep(allowance.getDocumentsToKeep())
-                .availableInRegimes(allowance.getAvailableInRegimes())
                 .itSection(allowance.getItSection())
                 .eligibilityConditions(allowance.getEligibilityConditions())
                 .commonMistakes(allowance.getCommonMistakes())

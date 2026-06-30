@@ -9,6 +9,8 @@ import com.thiru.wealthlens.taxplanning.policy.entity.AllowanceLimitEntity;
 import com.thiru.wealthlens.taxplanning.policy.repository.AllowanceCatalogueRepository;
 import com.thiru.wealthlens.taxplanning.policy.repository.AllowanceLimitRepository;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -46,5 +48,12 @@ public class AllowanceResolutionService {
 
     public List<AllowanceLimitEntity> findAllActiveForYear(String taxYear) {
         return limitRepo.findByTaxYearAndStatus(taxYear, EntityStatus.ACTIVE);
+    }
+
+    public Set<String> findAvailableAllowanceCodes(String taxYear, RegimeType regime) {
+        return limitRepo.findByTaxYearAndStatus(taxYear, EntityStatus.ACTIVE).stream()
+                .filter(l -> l.getRegimeType() == regime)
+                .map(AllowanceLimitEntity::getAllowanceCode)
+                .collect(Collectors.toSet());
     }
 }

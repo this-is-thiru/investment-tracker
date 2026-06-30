@@ -45,8 +45,8 @@ public class AllowanceCatalogueEntity implements AuditableEntity {
     @Field("tax_year")
     private String taxYear;
 
-    @Field("available_in_regimes")
-    private List<RegimeType> availableInRegimes;
+    @Field(name = "regime_type", targetType = FieldType.STRING)
+    private RegimeType regimeType;
 
     @Field("requires_bills")
     private Boolean requiresBills;
@@ -65,15 +65,6 @@ public class AllowanceCatalogueEntity implements AuditableEntity {
 
     @Field("limit_formula")
     private String limitFormula;
-
-    @Field("new_regime_limit_formula")
-    private String newRegimeLimitFormula;
-
-    @Field("old_regime_govt_limit_formula")
-    private String oldRegimeGovtLimitFormula;
-
-    @Field("old_regime_private_limit_formula")
-    private String oldRegimePrivateLimitFormula;
 
     @Field("it_section")
     private String itSection;
